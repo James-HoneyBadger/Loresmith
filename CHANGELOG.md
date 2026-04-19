@@ -7,7 +7,13 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [4.0.3] - 2026-04-18
+
 ### Added
+- Save, load, and autosave support for longer play sessions and regression-tested persistence
+- Direct NPC talk and ask interactions for richer non-combat gameplay
+- Three large showcase adventures plus a dedicated examples folder for bundled content
+- GitHub CI, CodeQL, Dependabot, cargo audit, and a repository security policy
 - **Help command** (`help` / `?`) handled as a system command — works in CLI player, GUI Play tab, and any future frontend
 - **Intro text** displayed on game start — `Engine::intro()` returns the adventure banner/intro string
 - **GUI: Exit confirmation** — File → Exit now warns if there are unsaved changes
@@ -16,6 +22,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - **Item name matching helper** (`name_matches`) — deduplicated case-insensitive substring matching across game_state, combat, and quests
 
 ### Changed
+- Bundled adventures now live under the cleaner examples/adventures layout
+- GUI editor gained live search and filtering for rooms, items, monsters, and quests
 - **Direction abbreviations** (`n`, `s`, `e`, `w`, `u`, `d`) now correctly expand to full words before room exit lookup, fixing silent navigation failures
 - **Monster counter-attack** damage floor changed from 0 to 1, matching player attack floor (symmetric)
 - **GUI: Modding tab removed** — it was entirely fake/hardcoded data
@@ -31,6 +39,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - **Dead GUI methods** — `refresh_mods()`, `open_mods_folder()`, `discover_mods()`
 
 ### Fixed
+- Adventure loading now fails fast on missing start rooms, broken exits, and invalid references
+- Quest parsing now accepts both structured objectives and GUI-authored string objectives
 - **README.md** rewritten — removed 40+ non-existent feature claims, fixed Rust version badge (1.85+), fixed version (4.0.2), removed phantom directories
 - **LAUNCH.md** rewritten — removed Python references
 - **CHANGELOG.md** rewritten — removed phantom 1.0.0 entries with impossible features

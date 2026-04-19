@@ -1,6 +1,6 @@
 # SagaCraft API Reference
 
-**Version 4.0.2 · `sagacraft_rs` crate**
+**Version 4.0.3 · sagacraft_rs crate**
 
 Complete API documentation for the SagaCraft core library. All types are defined in the `sagacraft_rs` crate and re-exported from `lib.rs`.
 

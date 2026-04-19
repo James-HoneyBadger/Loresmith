@@ -16,6 +16,7 @@ Thumbs.db
 release/sagacraft_player
 release/sagacraft_ide_tui
 release/sagacraft_ide_gui
+release/SagaCraft-*/
 *.tar.gz
 *.zip
 
