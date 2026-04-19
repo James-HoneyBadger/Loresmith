@@ -1,6 +1,6 @@
-use rand::Rng;
-use crate::game_state::{name_matches, AdventureGame, GameEvent, MonsterStatus};
+use crate::game_state::{AdventureGame, GameEvent, MonsterStatus, name_matches};
 use crate::systems::System;
+use rand::Rng;
 
 #[derive(Debug, Default)]
 pub struct CombatSystem;
@@ -9,7 +9,12 @@ pub struct CombatSystem;
 const XP_PER_LEVEL: i32 = 100;
 
 impl System for CombatSystem {
-    fn on_command(&mut self, command: &str, args: &[&str], game: &mut AdventureGame) -> Option<String> {
+    fn on_command(
+        &mut self,
+        command: &str,
+        args: &[&str],
+        game: &mut AdventureGame,
+    ) -> Option<String> {
         match command {
             "attack" | "fight" | "kill" => {
                 if let Some(target) = args.first() {
@@ -18,12 +23,8 @@ impl System for CombatSystem {
                     Some("Attack what?".to_string())
                 }
             }
-            "status" | "stats" | "score" => {
-                Some(self.show_status(game))
-            }
-            "flee" | "run" | "escape" => {
-                Some(self.flee(game))
-            }
+            "status" | "stats" | "score" => Some(self.show_status(game)),
+            "flee" | "run" | "escape" => Some(self.flee(game)),
             _ => None,
         }
     }
@@ -60,7 +61,13 @@ impl CombatSystem {
                 rand::thread_rng().gen_range(1..=4)
             }
         } else {
-            let best = game.player.weapon_ability.values().copied().max().unwrap_or(4);
+            let best = game
+                .player
+                .weapon_ability
+                .values()
+                .copied()
+                .max()
+                .unwrap_or(4);
             rand::thread_rng().gen_range(1..=best.max(4))
         };
 
@@ -105,10 +112,16 @@ impl CombatSystem {
                     msg.push('\n');
                     msg.push_str(&lu);
                 }
-                game.events.push(GameEvent::MonsterKilled { monster_name: name, room_id });
+                game.events.push(GameEvent::MonsterKilled {
+                    monster_name: name,
+                    room_id,
+                });
                 return Some(msg);
             } else {
-                output.push_str(&format!(" It has {} health remaining.", monster.current_health));
+                output.push_str(&format!(
+                    " It has {} health remaining.",
+                    monster.current_health
+                ));
             }
         } else {
             return Some(format!("There's no {} here to attack.", target_name));
@@ -182,14 +195,19 @@ impl CombatSystem {
         let flee_chance = (game.player.agility as f32 / 20.0).clamp(0.10, 0.90);
         if rand::random::<f32>() < flee_chance {
             // Choose the first available exit
-            let exit = game.get_current_room()
-                .and_then(|r| r.exits.iter().next().map(|(dir, &dest)| (dir.clone(), dest)));
+            let exit = game.get_current_room().and_then(|r| {
+                r.exits
+                    .iter()
+                    .next()
+                    .map(|(dir, &dest)| (dir.clone(), dest))
+            });
             if let Some((dir, dest_id)) = exit
                 && game.rooms.contains_key(&dest_id)
             {
                 game.player.current_room = dest_id;
                 game.turn_count += 1;
-                game.events.push(GameEvent::RoomEntered { room_id: dest_id });
+                game.events
+                    .push(GameEvent::RoomEntered { room_id: dest_id });
                 return format!("You flee {}!\n{}", dir, game.look());
             }
             "You try to flee but have nowhere to go!".to_string()
@@ -230,11 +248,15 @@ impl CombatSystem {
     }
 
     fn show_status(&self, game: &AdventureGame) -> String {
-        let weapon_name = game.player.equipped_weapon
+        let weapon_name = game
+            .player
+            .equipped_weapon
             .and_then(|id| game.items.get(&id))
             .map(|w| w.name.as_str())
             .unwrap_or("none");
-        let armor_name = game.player.equipped_armor
+        let armor_name = game
+            .player
+            .equipped_armor
             .and_then(|id| game.items.get(&id))
             .map(|a| a.name.as_str())
             .unwrap_or("none");
@@ -251,7 +273,8 @@ impl CombatSystem {
             game.player.gold,
             weapon_name,
             armor_name,
-            carry_cur, carry_max,
+            carry_cur,
+            carry_max,
             game.player.current_room,
         )
     }

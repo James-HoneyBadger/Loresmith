@@ -1,0 +1,505 @@
+{
+  "title": "The Iron Assembly: Crown of Ash and Oaths",
+  "description": "A political intrigue adventure of rival houses, public unrest, secret deals, and a kingdom on the edge of civil war.",
+  "intro": "The kingdom of Valedorne has survived plague, famine, and border war, but it may not survive its own council chamber.\n\nThe old king is dead. No clear heir has taken the throne. The noble houses gather inside the Iron Assembly to bargain, threaten, and betray one another while riots spread beyond the palace walls. You are sent into the heart of the capital as a trusted but expendable envoy. To prevent collapse, you must navigate alliances, uncover conspiracies, recover stolen proofs, and decide which vision of the realm deserves to endure.\n\nThis showcase adventure emphasizes politics, diplomacy, investigation, elite and common factions, branching-feeling quest lines, NPC interaction, strategic combat, and story-rich exploration.",
+  "start_room": 1,
+  "rooms": [
+    {
+      "id": 1,
+      "name": "Assembly Forecourt",
+      "description": "A broad marble approach to the royal senate, crowded with petitioners, heralds, and armed retainers trying not to stare one another down. Banners of rival houses hang above the columns, each claiming duty to the realm while eyeing the throne.",
+      "exits": {
+        "north": 2,
+        "east": 3,
+        "west": 4
+      },
+      "items": [1, 2]
+    },
+    {
+      "id": 2,
+      "name": "Hall of Delegates",
+      "description": "Dozens of benches curve toward a raised speaker’s dais where decrees and denunciations alike are delivered with polished fury. Courtiers move in little constellations of gossip, and every smile looks carefully measured.",
+      "exits": {
+        "south": 1,
+        "north": 5,
+        "east": 6,
+        "west": 7
+      },
+      "items": [3]
+    },
+    {
+      "id": 3,
+      "name": "Public Petition Arcade",
+      "description": "Common folk line up beneath iron arches to plead for grain relief, guard support, and justice. Scribes race from table to table with ink-stained fingers while city guards try to maintain order.",
+      "exits": {
+        "west": 1,
+        "east": 8
+      },
+      "items": [4]
+    },
+    {
+      "id": 4,
+      "name": "Envoys' Cloister",
+      "description": "A cloistered corridor of foreign emblems, quiet alcoves, and veiled negotiations. Ambassadors pace here with interpreters and bodyguards, each waiting for signs of which faction will seize momentum.",
+      "exits": {
+        "east": 1,
+        "west": 9
+      },
+      "items": [5]
+    },
+    {
+      "id": 5,
+      "name": "Speaker's Rotunda",
+      "description": "Bronze braziers burn with perfumed oil around a circular chamber where the kingdom’s most important speeches have shaped decades of law. Every whisper in the rotunda seems amplified by its perfect acoustics.",
+      "exits": {
+        "south": 2,
+        "north": 10
+      },
+      "items": [6]
+    },
+    {
+      "id": 6,
+      "name": "Archive of Statutes",
+      "description": "Tall lacquered shelves hold treaties, census ledgers, court rulings, and tax charters that define the kingdom more truly than any crown. Dust, candle wax, and old vellum cling to the still air.",
+      "exits": {
+        "west": 2,
+        "north": 11
+      },
+      "items": [7, 8]
+    },
+    {
+      "id": 7,
+      "name": "Whip Room",
+      "description": "Not a chamber of punishment, but of political counting. Wax tablets, seat tallies, and compromise drafts cover every table, revealing just how fragile every coalition has become.",
+      "exits": {
+        "east": 2,
+        "north": 12
+      },
+      "items": [9]
+    },
+    {
+      "id": 8,
+      "name": "Bread Square",
+      "description": "The market district beyond the palace walls groans with frustration. Loaves are scarce, tempers are high, and several agitators shout that the Assembly has forgotten the people entirely.",
+      "exits": {
+        "west": 3,
+        "north": 13
+      },
+      "items": [10]
+    },
+    {
+      "id": 9,
+      "name": "Embassy Garden",
+      "description": "A walled garden of clipped hedges, stone fountains, and narrow winding paths. It is beautiful enough to calm suspicion for a moment, which is exactly why so many secret meetings happen here.",
+      "exits": {
+        "east": 4,
+        "north": 12
+      },
+      "items": [11]
+    },
+    {
+      "id": 10,
+      "name": "Council Gallery",
+      "description": "Portraits of former regents and assembly speakers line this long upper gallery, all watching over the latest succession crisis with oil-painted disappointment. The floorboards creak beneath every private approach.",
+      "exits": {
+        "south": 5,
+        "east": 14,
+        "west": 11
+      },
+      "items": [12]
+    },
+    {
+      "id": 11,
+      "name": "Sealed Records Vault",
+      "description": "Here lie succession contracts, intelligence reports, and scandalous confessions locked away from public view. Some cabinets stand open already, and missing seals hint that someone got here first.",
+      "exits": {
+        "south": 6,
+        "east": 10
+      },
+      "items": [13]
+    },
+    {
+      "id": 12,
+      "name": "Cinder Stair",
+      "description": "A spiral stair links the garden, strategy rooms, and high chambers where real power is traded when the formal speeches are done. Fresh soot stains the walls from a recent, unexplained fire.",
+      "exits": {
+        "south": 7,
+        "west": 9,
+        "up": 14
+      },
+      "items": [14]
+    },
+    {
+      "id": 13,
+      "name": "Crow Tribune",
+      "description": "An open platform overlooking the city where orators whip the crowd into hope, rage, or disciplined resolve. Whoever controls this square can shape the mood of the capital in a single afternoon.",
+      "exits": {
+        "south": 8,
+        "east": 15
+      },
+      "items": [15]
+    },
+    {
+      "id": 14,
+      "name": "Chamber of the Empty Throne",
+      "description": "The ceremonial throne sits under a canopy of steel feathers, untouched since the king’s death. Representatives of every faction claim to defend the realm, but their eyes never leave the seat at the center of the room.",
+      "exits": {
+        "west": 10,
+        "down": 12,
+        "north": 16
+      },
+      "items": [16]
+    },
+    {
+      "id": 15,
+      "name": "Shadow Ledger Cellar",
+      "description": "A hidden cellar beneath the tribunal storing slush funds, false petitions, forged decrees, and enough blackmail to unmake a dynasty. Damp stone and sealed crates make the air close and dangerous.",
+      "exits": {
+        "west": 13,
+        "north": 16
+      },
+      "items": [17]
+    },
+    {
+      "id": 16,
+      "name": "Hall of Final Vote",
+      "description": "This narrow, intimidating chamber is where the last formal tally will decide the realm’s direction. Armed honor guards stand beneath hanging lamps while every faction delivers its final arguments under enormous strain.",
+      "exits": {
+        "south": 14,
+        "west": 15
+      },
+      "items": [18]
+    }
+  ],
+  "items": [
+    {
+      "id": 1,
+      "name": "Envoy's Signet",
+      "description": "A ring proving that you carry delegated authority within the Assembly grounds.",
+      "type": "treasure",
+      "weight": 0,
+      "value": 20
+    },
+    {
+      "id": 2,
+      "name": "Ceremonial Rapier",
+      "description": "A dueling blade favored by noble retainers; graceful, quick, and made for narrow chambers.",
+      "type": "weapon",
+      "weight": 2,
+      "value": 36,
+      "is_weapon": true,
+      "weapon_type": 5,
+      "weapon_dice": 1,
+      "weapon_sides": 8
+    },
+    {
+      "id": 3,
+      "name": "Speaker's Notes",
+      "description": "Margin annotations reveal which houses are wavering and which speeches were meant only for public theater.",
+      "type": "readable",
+      "weight": 1,
+      "value": 12
+    },
+    {
+      "id": 4,
+      "name": "Petition Roll",
+      "description": "Hundreds of citizen signatures begging the Assembly to release grain stores before unrest becomes revolt.",
+      "type": "readable",
+      "weight": 1,
+      "value": 10
+    },
+    {
+      "id": 5,
+      "name": "Diplomat's Cloak",
+      "description": "A formal traveling cloak trimmed in sober silver, offering modest protection and a strong impression.",
+      "type": "armor",
+      "weight": 2,
+      "value": 24,
+      "is_armor": true,
+      "armor_value": 2,
+      "is_wearable": true
+    },
+    {
+      "id": 6,
+      "name": "Tonic of Composure",
+      "description": "A bitter herbal draft used by overworked clerks, negotiators, and those about to face hostile assemblies.",
+      "type": "drinkable",
+      "weight": 0,
+      "value": 8
+    },
+    {
+      "id": 7,
+      "name": "Succession Abstract",
+      "description": "A legal summary of the old king’s final amendments, heavily marked by several different hands.",
+      "type": "readable",
+      "weight": 1,
+      "value": 18
+    },
+    {
+      "id": 8,
+      "name": "Seal of Appeal",
+      "description": "A stamped medallion authorizing access to emergency council hearings.",
+      "type": "treasure",
+      "weight": 0,
+      "value": 15
+    },
+    {
+      "id": 9,
+      "name": "Vote Ledger",
+      "description": "A whip count showing exactly how many delegates may still be convinced to switch sides.",
+      "type": "readable",
+      "weight": 1,
+      "value": 25
+    },
+    {
+      "id": 10,
+      "name": "Bread Token",
+      "description": "A stamped ration token accepted by hungry families and black-market brokers alike.",
+      "type": "treasure",
+      "weight": 0,
+      "value": 6
+    },
+    {
+      "id": 11,
+      "name": "Whisperwine Flask",
+      "description": "A refined cordial that takes the edge off long conspiracies and longer evenings.",
+      "type": "drinkable",
+      "weight": 1,
+      "value": 11
+    },
+    {
+      "id": 12,
+      "name": "Gallery Pass",
+      "description": "A bronze pass permitting its bearer to walk the upper galleries during formal debate.",
+      "type": "treasure",
+      "weight": 0,
+      "value": 18
+    },
+    {
+      "id": 13,
+      "name": "Inheritance Codex",
+      "description": "A sealed legal compendium whose contents could legitimize one claimant and ruin another.",
+      "type": "readable",
+      "weight": 2,
+      "value": 60
+    },
+    {
+      "id": 14,
+      "name": "Cinder Key",
+      "description": "A scorched iron key dropped during a hurried escape up the inner stair.",
+      "type": "treasure",
+      "weight": 0,
+      "value": 14
+    },
+    {
+      "id": 15,
+      "name": "Orator's Script",
+      "description": "A speech crafted to inflame public outrage with just enough truth to feel righteous.",
+      "type": "readable",
+      "weight": 1,
+      "value": 16
+    },
+    {
+      "id": 16,
+      "name": "Crown Writ",
+      "description": "A ceremonial decree template awaiting the name of whoever will rule next.",
+      "type": "treasure",
+      "weight": 0,
+      "value": 45
+    },
+    {
+      "id": 17,
+      "name": "Shadow Accounts",
+      "description": "Proof of bribery, illicit grain deals, and secret payments to agitators across the capital.",
+      "type": "readable",
+      "weight": 1,
+      "value": 75
+    },
+    {
+      "id": 18,
+      "name": "Ash Crown Fragment",
+      "description": "A relic from the old coronation regalia, symbolizing the burden of rule more than its glory.",
+      "type": "treasure",
+      "weight": 1,
+      "value": 100
+    },
+    {
+      "id": 19,
+      "name": "Guard Halberd",
+      "description": "A long court halberd carried by the Assembly’s elite honor guard.",
+      "type": "weapon",
+      "weight": 0,
+      "value": 0,
+      "is_weapon": true,
+      "weapon_type": 4,
+      "weapon_dice": 1,
+      "weapon_sides": 10
+    }
+  ],
+  "monsters": [
+    {
+      "id": 1,
+      "name": "Chancellor Serin Vale",
+      "description": "The acting head of the Assembly: poised, measured, and carrying the exhaustion of someone holding a kingdom together by will alone.",
+      "room_id": 2,
+      "hardiness": 11,
+      "agility": 10,
+      "friendliness": "friendly",
+      "courage": 90,
+      "gold": 25
+    },
+    {
+      "id": 2,
+      "name": "People's Tribune Maelor",
+      "description": "A fiery reform speaker beloved by the square and distrusted by half the nobility.",
+      "room_id": 13,
+      "hardiness": 9,
+      "agility": 11,
+      "friendliness": "neutral",
+      "courage": 80,
+      "gold": 12
+    },
+    {
+      "id": 3,
+      "name": "Lady Yselle of House Marr",
+      "description": "An aristocratic power broker whose calm courtesy conceals a ruthless talent for coalition building.",
+      "room_id": 4,
+      "hardiness": 10,
+      "agility": 10,
+      "friendliness": "friendly",
+      "courage": 85,
+      "gold": 35
+    },
+    {
+      "id": 4,
+      "name": "Archive Clerk Tovan",
+      "description": "A nervous records keeper who knows too much and trusts too few people still standing.",
+      "room_id": 6,
+      "hardiness": 7,
+      "agility": 8,
+      "friendliness": "friendly",
+      "courage": 40,
+      "gold": 5
+    },
+    {
+      "id": 5,
+      "name": "Riot Agitator",
+      "description": "A sharp-eyed instigator armed with slogans, stones, and a very profitable sense of outrage.",
+      "room_id": 8,
+      "hardiness": 10,
+      "agility": 12,
+      "friendliness": "hostile",
+      "courage": 75,
+      "gold": 10
+    },
+    {
+      "id": 6,
+      "name": "Blackmail Broker Vey",
+      "description": "A fixer in immaculate gloves who sells scandal to every faction while pretending allegiance to none.",
+      "room_id": 15,
+      "hardiness": 12,
+      "agility": 12,
+      "friendliness": "hostile",
+      "courage": 90,
+      "gold": 40
+    },
+    {
+      "id": 7,
+      "name": "Honor Guard Captain",
+      "description": "A disciplined royal officer determined to prevent the chamber from descending into open bloodshed.",
+      "room_id": 14,
+      "hardiness": 13,
+      "agility": 12,
+      "friendliness": "neutral",
+      "courage": 95,
+      "weapon_id": 19,
+      "gold": 30
+    },
+    {
+      "id": 8,
+      "name": "Usurper's Champion",
+      "description": "A heavily armored enforcer working for the faction willing to seize the throne by force if persuasion fails.",
+      "room_id": 16,
+      "hardiness": 18,
+      "agility": 13,
+      "friendliness": "hostile",
+      "courage": 100,
+      "weapon_id": 19,
+      "gold": 80
+    }
+  ],
+  "quests": [
+    {
+      "id": 1,
+      "title": "Count the Houses",
+      "description": "Recover the voting ledger and reach the strategy chambers so the Assembly can see where power truly stands.",
+      "giver_npc": "Chancellor Serin Vale",
+      "objectives": [
+        {
+          "type": "collect_item",
+          "target_id": "Vote Ledger",
+          "description": "Recover the Vote Ledger",
+          "count": 1
+        },
+        {
+          "type": "reach_room",
+          "target_id": 12,
+          "description": "Reach the Cinder Stair",
+          "count": 1
+        }
+      ],
+      "rewards": {
+        "gold": 45,
+        "xp": 70
+      }
+    },
+    {
+      "id": 2,
+      "title": "Expose the Hidden Purse",
+      "description": "Track down the shadow accounts and put an end to the broker profiting from unrest in the capital.",
+      "giver_npc": "Archive Clerk Tovan",
+      "objectives": [
+        {
+          "type": "collect_item",
+          "target_id": "Shadow Accounts",
+          "description": "Recover the Shadow Accounts",
+          "count": 1
+        },
+        {
+          "type": "kill_monster",
+          "target_id": "Blackmail Broker Vey",
+          "description": "Defeat Blackmail Broker Vey",
+          "count": 1
+        }
+      ],
+      "rewards": {
+        "gold": 60,
+        "xp": 90
+      }
+    },
+    {
+      "id": 3,
+      "title": "Secure the Final Vote",
+      "description": "Reach the last chamber of decision and prevent the usurper’s champion from breaking the Assembly by force.",
+      "giver_npc": "Lady Yselle of House Marr",
+      "objectives": [
+        {
+          "type": "reach_room",
+          "target_id": 16,
+          "description": "Reach the Hall of Final Vote",
+          "count": 1
+        },
+        {
+          "type": "kill_monster",
+          "target_id": "Usurper's Champion",
+          "description": "Defeat the Usurper's Champion",
+          "count": 1
+        }
+      ],
+      "rewards": {
+        "gold": 130,
+        "xp": 170
+      }
+    }
+  ]
+}

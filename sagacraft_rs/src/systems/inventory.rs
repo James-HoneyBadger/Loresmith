@@ -5,7 +5,12 @@ use crate::systems::System;
 pub struct InventorySystem;
 
 impl System for InventorySystem {
-    fn on_command(&mut self, command: &str, args: &[&str], game: &mut AdventureGame) -> Option<String> {
+    fn on_command(
+        &mut self,
+        command: &str,
+        args: &[&str],
+        game: &mut AdventureGame,
+    ) -> Option<String> {
         match command {
             "inventory" | "inv" | "i" => {
                 if game.player.inventory.is_empty() {
@@ -55,12 +60,10 @@ impl System for InventorySystem {
                     Some(game.equip_item(&item_name).unwrap_or_else(|e| e))
                 }
             }
-            "unequip" | "remove" => {
-                match args.first().copied() {
-                    None => Some("Unequip what? Specify 'weapon' or 'armor'.".to_string()),
-                    Some(slot) => Some(game.unequip_slot(slot).unwrap_or_else(|e| e)),
-                }
-            }
+            "unequip" | "remove" => match args.first().copied() {
+                None => Some("Unequip what? Specify 'weapon' or 'armor'.".to_string()),
+                Some(slot) => Some(game.unequip_slot(slot).unwrap_or_else(|e| e)),
+            },
             "use" => {
                 let item_name = args.join(" ");
                 if item_name.is_empty() {
@@ -74,8 +77,10 @@ impl System for InventorySystem {
                 if item_name.is_empty() {
                     Some("Examine what?".to_string())
                 } else {
-                    Some(game.examine_item(&item_name)
-                        .unwrap_or_else(|| format!("You don't see any '{}' here.", item_name)))
+                    Some(
+                        game.examine_item(&item_name)
+                            .unwrap_or_else(|| format!("You don't see any '{}' here.", item_name)),
+                    )
                 }
             }
             _ => None,

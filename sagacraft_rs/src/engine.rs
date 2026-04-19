@@ -1,6 +1,7 @@
 use crate::game_state::AdventureGame;
-use crate::systems::{BasicWorldSystem, CombatSystem, InventorySystem};
 use crate::systems::quests::QuestSystem;
+use crate::systems::{BasicWorldSystem, CombatSystem, InventorySystem};
+use std::path::Path;
 
 /// High-level convenience wrapper that creates an `AdventureGame` with all four
 /// built-in systems pre-registered.
@@ -29,7 +30,10 @@ impl Engine {
         game.add_system(Box::new(InventorySystem));
         game.add_system(Box::new(CombatSystem));
         game.add_system(Box::new(QuestSystem::new()));
-        Self { game, intro_text: String::new() }
+        Self {
+            game,
+            intro_text: String::new(),
+        }
     }
 
     /// Load the adventure file and return the opening banner/intro text.
@@ -60,6 +64,21 @@ impl Engine {
     /// Return a description of the current room.
     pub fn look(&self) -> String {
         self.game.look()
+    }
+
+    /// Save the current runtime progress to a snapshot file.
+    pub fn save_game(&self, path: impl AsRef<Path>) -> Result<(), Box<dyn std::error::Error>> {
+        self.game.save_game(path)
+    }
+
+    /// Load a previously saved runtime snapshot.
+    pub fn load_game(
+        &mut self,
+        path: impl AsRef<Path>,
+    ) -> Result<String, Box<dyn std::error::Error>> {
+        let intro = self.game.load_game(path)?;
+        self.intro_text = intro.clone();
+        Ok(intro)
     }
 
     /// Whether the game has ended.

@@ -1,13 +1,22 @@
 use eframe::egui;
-use sagacraft_rs::{AdventureGame, BasicWorldSystem, CombatSystem, InventorySystem, ItemType, MonsterStatus, QuestSystem};
-use std::path::PathBuf;
+use sagacraft_rs::{
+    AdventureGame, BasicWorldSystem, CombatSystem, InventorySystem, ItemType, MonsterStatus,
+    QuestSystem,
+};
+use serde::{Deserialize, Serialize};
 use std::collections::HashMap;
 use std::fs;
-use serde::{Serialize, Deserialize};
+use std::path::PathBuf;
 
-fn default_one() -> i32 { 1 }
-fn default_six() -> i32 { 6 }
-fn default_true() -> bool { true }
+fn default_one() -> i32 {
+    1
+}
+fn default_six() -> i32 {
+    6
+}
+fn default_true() -> bool {
+    true
+}
 
 fn main() -> eframe::Result<()> {
     let options = eframe::NativeOptions {
@@ -82,7 +91,7 @@ struct ItemData {
     value: i32,
     weight: i32,
     #[serde(default)]
-    location: i32,       // 0 = inventory, room_id = on ground
+    location: i32, // 0 = inventory, room_id = on ground
     #[serde(default)]
     is_weapon: bool,
     #[serde(default)]
@@ -139,6 +148,10 @@ struct SagaCraftIDE {
     selected_item: Option<usize>,
     selected_monster: Option<usize>,
     selected_quest: Option<usize>,
+    room_filter: String,
+    item_filter: String,
+    monster_filter: String,
+    quest_filter: String,
     // Play tab state
     game: Option<AdventureGame>,
     game_output: Vec<String>,
@@ -214,7 +227,10 @@ impl Default for AdventureData {
                 id: 1,
                 title: "Light the Path".to_string(),
                 description: "Secure a light source and reach the Shadow Gallery.".to_string(),
-                objectives: vec!["Pick up the brass lantern".to_string(), "Enter the Shadow Gallery with light".to_string()],
+                objectives: vec![
+                    "Pick up the brass lantern".to_string(),
+                    "Enter the Shadow Gallery with light".to_string(),
+                ],
                 rewards_gold: 40,
                 rewards_xp: 60,
             }],
@@ -333,25 +349,46 @@ impl SagaCraftIDE {
     fn show_main_ui(&mut self, ui: &mut egui::Ui) {
         ui.horizontal(|ui| {
             // Tab buttons
-            if ui.add(egui::Button::new("🎮 Play").selected(self.active_tab == Tab::Play)).clicked() {
+            if ui
+                .add(egui::Button::new("🎮 Play").selected(self.active_tab == Tab::Play))
+                .clicked()
+            {
                 self.active_tab = Tab::Play;
             }
-            if ui.add(egui::Button::new("ℹ Info").selected(self.active_tab == Tab::Info)).clicked() {
+            if ui
+                .add(egui::Button::new("ℹ Info").selected(self.active_tab == Tab::Info))
+                .clicked()
+            {
                 self.active_tab = Tab::Info;
             }
-            if ui.add(egui::Button::new("🏠 Rooms").selected(self.active_tab == Tab::Rooms)).clicked() {
+            if ui
+                .add(egui::Button::new("🏠 Rooms").selected(self.active_tab == Tab::Rooms))
+                .clicked()
+            {
                 self.active_tab = Tab::Rooms;
             }
-            if ui.add(egui::Button::new("🎒 Items").selected(self.active_tab == Tab::Items)).clicked() {
+            if ui
+                .add(egui::Button::new("🎒 Items").selected(self.active_tab == Tab::Items))
+                .clicked()
+            {
                 self.active_tab = Tab::Items;
             }
-            if ui.add(egui::Button::new("👹 Monsters").selected(self.active_tab == Tab::Monsters)).clicked() {
+            if ui
+                .add(egui::Button::new("👹 Monsters").selected(self.active_tab == Tab::Monsters))
+                .clicked()
+            {
                 self.active_tab = Tab::Monsters;
             }
-            if ui.add(egui::Button::new("📜 Quests").selected(self.active_tab == Tab::Quests)).clicked() {
+            if ui
+                .add(egui::Button::new("📜 Quests").selected(self.active_tab == Tab::Quests))
+                .clicked()
+            {
                 self.active_tab = Tab::Quests;
             }
-            if ui.add(egui::Button::new(" Preview").selected(self.active_tab == Tab::Preview)).clicked() {
+            if ui
+                .add(egui::Button::new(" Preview").selected(self.active_tab == Tab::Preview))
+                .clicked()
+            {
                 self.active_tab = Tab::Preview;
             }
         });
@@ -398,7 +435,9 @@ impl SagaCraftIDE {
         ui.horizontal(|ui| {
             ui.label("Command:");
             let response = ui.text_edit_singleline(&mut self.game_input);
-            if ui.button("Send").clicked() || (response.lost_focus() && ui.input(|i| i.key_pressed(egui::Key::Enter))) {
+            if ui.button("Send").clicked()
+                || (response.lost_focus() && ui.input(|i| i.key_pressed(egui::Key::Enter)))
+            {
                 self.send_game_command();
             }
         });
@@ -421,10 +460,14 @@ impl SagaCraftIDE {
                 ui.end_row();
 
                 ui.label("Start Room ID:");
-                changed |= ui.add(egui::DragValue::new(&mut self.adventure.start_room)).changed();
+                changed |= ui
+                    .add(egui::DragValue::new(&mut self.adventure.start_room))
+                    .changed();
                 ui.end_row();
             });
-        if changed { self.modified = true; }
+        if changed {
+            self.modified = true;
+        }
 
         ui.separator();
         ui.label(format!("Rooms: {}", self.adventure.rooms.len()));
@@ -435,6 +478,14 @@ impl SagaCraftIDE {
 
     fn show_rooms_tab(&mut self, ui: &mut egui::Ui) {
         ui.heading("🏠 Rooms");
+
+        ui.horizontal(|ui| {
+            ui.label("Search:");
+            ui.text_edit_singleline(&mut self.room_filter);
+            if ui.button("Clear").clicked() {
+                self.room_filter.clear();
+            }
+        });
 
         ui.horizontal(|ui| {
             if ui.button("➕ Add Room").clicked() {
@@ -450,10 +501,40 @@ impl SagaCraftIDE {
         ui.columns(2, |columns| {
             // Room list
             columns[0].heading("Rooms");
+            let room_filter = self.room_filter.trim().to_lowercase();
+            let visible_rooms = self
+                .adventure
+                .rooms
+                .iter()
+                .filter(|room| {
+                    room_filter.is_empty()
+                        || room.name.to_lowercase().contains(&room_filter)
+                        || room.description.to_lowercase().contains(&room_filter)
+                        || room.id.to_string().contains(&room_filter)
+                })
+                .count();
+            columns[0].label(format!(
+                "Showing {} of {}",
+                visible_rooms,
+                self.adventure.rooms.len()
+            ));
             egui::ScrollArea::vertical().show(&mut columns[0], |ui| {
                 for (i, room) in self.adventure.rooms.iter().enumerate() {
+                    if !room_filter.is_empty()
+                        && !room.name.to_lowercase().contains(&room_filter)
+                        && !room.description.to_lowercase().contains(&room_filter)
+                        && !room.id.to_string().contains(&room_filter)
+                    {
+                        continue;
+                    }
                     let selected = self.selected_room == Some(i);
-                    if ui.add(egui::Button::new(format!("{}: {}", room.id, room.name)).selected(selected)).clicked() {
+                    if ui
+                        .add(
+                            egui::Button::new(format!("{}: {}", room.id, room.name))
+                                .selected(selected),
+                        )
+                        .clicked()
+                    {
                         self.selected_room = Some(i);
                     }
                 }
@@ -494,7 +575,9 @@ impl SagaCraftIDE {
                             columns[1].horizontal(|ui| {
                                 ui.label(direction.as_str());
                                 ui.label("\u{2192}");
-                                if ui.add(egui::DragValue::new(room_id)).changed() { changed = true; }
+                                if ui.add(egui::DragValue::new(room_id)).changed() {
+                                    changed = true;
+                                }
                                 if ui.button("\u{274c}").clicked() {
                                     remove_dir = Some(direction.clone());
                                 }
@@ -507,19 +590,31 @@ impl SagaCraftIDE {
                     }
                     columns[1].horizontal(|ui| {
                         egui::ComboBox::from_id_salt("add_exit_dir")
-                            .selected_text(if self.new_exit_direction.is_empty() { "direction" } else { &self.new_exit_direction })
+                            .selected_text(if self.new_exit_direction.is_empty() {
+                                "direction"
+                            } else {
+                                &self.new_exit_direction
+                            })
                             .show_ui(ui, |ui| {
                                 for d in &["north", "south", "east", "west", "up", "down"] {
-                                    ui.selectable_value(&mut self.new_exit_direction, d.to_string(), *d);
+                                    ui.selectable_value(
+                                        &mut self.new_exit_direction,
+                                        d.to_string(),
+                                        *d,
+                                    );
                                 }
                             });
                         ui.add(egui::DragValue::new(&mut self.new_exit_target).prefix("room "));
-                        if ui.button("➕ Add Exit").clicked() && !self.new_exit_direction.is_empty() {
-                            room.exits.insert(self.new_exit_direction.clone(), self.new_exit_target);
+                        if ui.button("➕ Add Exit").clicked() && !self.new_exit_direction.is_empty()
+                        {
+                            room.exits
+                                .insert(self.new_exit_direction.clone(), self.new_exit_target);
                             changed = true;
                         }
                     });
-                    if changed { self.modified = true; }
+                    if changed {
+                        self.modified = true;
+                    }
                 }
             } else {
                 columns[1].label("Select a room to edit");
@@ -529,6 +624,14 @@ impl SagaCraftIDE {
 
     fn show_items_tab(&mut self, ui: &mut egui::Ui) {
         ui.heading("🎒 Items");
+
+        ui.horizontal(|ui| {
+            ui.label("Search:");
+            ui.text_edit_singleline(&mut self.item_filter);
+            if ui.button("Clear").clicked() {
+                self.item_filter.clear();
+            }
+        });
 
         ui.horizontal(|ui| {
             if ui.button("➕ Add Item").clicked() {
@@ -544,10 +647,40 @@ impl SagaCraftIDE {
         ui.columns(2, |columns| {
             // Item list
             columns[0].heading("Items");
+            let item_filter = self.item_filter.trim().to_lowercase();
+            let visible_items = self
+                .adventure
+                .items
+                .iter()
+                .filter(|item| {
+                    item_filter.is_empty()
+                        || item.name.to_lowercase().contains(&item_filter)
+                        || item.description.to_lowercase().contains(&item_filter)
+                        || item.id.to_string().contains(&item_filter)
+                })
+                .count();
+            columns[0].label(format!(
+                "Showing {} of {}",
+                visible_items,
+                self.adventure.items.len()
+            ));
             egui::ScrollArea::vertical().show(&mut columns[0], |ui| {
                 for (i, item) in self.adventure.items.iter().enumerate() {
+                    if !item_filter.is_empty()
+                        && !item.name.to_lowercase().contains(&item_filter)
+                        && !item.description.to_lowercase().contains(&item_filter)
+                        && !item.id.to_string().contains(&item_filter)
+                    {
+                        continue;
+                    }
                     let selected = self.selected_item == Some(i);
-                    if ui.add(egui::Button::new(format!("{}: {}", item.id, item.name)).selected(selected)).clicked() {
+                    if ui
+                        .add(
+                            egui::Button::new(format!("{}: {}", item.id, item.name))
+                                .selected(selected),
+                        )
+                        .clicked()
+                    {
                         self.selected_item = Some(i);
                     }
                 }
@@ -579,11 +712,22 @@ impl SagaCraftIDE {
                                 .selected_text(format!("{:?}", item.item_type))
                                 .show_ui(ui, |ui: &mut egui::Ui| {
                                     for variant in [
-                                        ItemType::Normal, ItemType::Weapon, ItemType::Armor,
-                                        ItemType::Treasure, ItemType::Readable, ItemType::Edible,
-                                        ItemType::Drinkable, ItemType::Container,
+                                        ItemType::Normal,
+                                        ItemType::Weapon,
+                                        ItemType::Armor,
+                                        ItemType::Treasure,
+                                        ItemType::Readable,
+                                        ItemType::Edible,
+                                        ItemType::Drinkable,
+                                        ItemType::Container,
                                     ] {
-                                        changed |= ui.selectable_value(&mut item.item_type, variant.clone(), format!("{variant:?}")).changed();
+                                        changed |= ui
+                                            .selectable_value(
+                                                &mut item.item_type,
+                                                variant.clone(),
+                                                format!("{variant:?}"),
+                                            )
+                                            .changed();
                                     }
                                 });
                             ui.end_row();
@@ -610,15 +754,21 @@ impl SagaCraftIDE {
 
                             if item.is_weapon {
                                 ui.label("Weapon Type (1-5):");
-                                changed |= ui.add(egui::DragValue::new(&mut item.weapon_type).range(1..=5)).changed();
+                                changed |= ui
+                                    .add(egui::DragValue::new(&mut item.weapon_type).range(1..=5))
+                                    .changed();
                                 ui.end_row();
 
                                 ui.label("Damage Dice:");
-                                changed |= ui.add(egui::DragValue::new(&mut item.weapon_dice).range(1..=10)).changed();
+                                changed |= ui
+                                    .add(egui::DragValue::new(&mut item.weapon_dice).range(1..=10))
+                                    .changed();
                                 ui.end_row();
 
                                 ui.label("Damage Sides:");
-                                changed |= ui.add(egui::DragValue::new(&mut item.weapon_sides).range(2..=20)).changed();
+                                changed |= ui
+                                    .add(egui::DragValue::new(&mut item.weapon_sides).range(2..=20))
+                                    .changed();
                                 ui.end_row();
                             }
 
@@ -628,7 +778,9 @@ impl SagaCraftIDE {
 
                             if item.is_armor {
                                 ui.label("Armor Value:");
-                                changed |= ui.add(egui::DragValue::new(&mut item.armor_value).range(0..=20)).changed();
+                                changed |= ui
+                                    .add(egui::DragValue::new(&mut item.armor_value).range(0..=20))
+                                    .changed();
                                 ui.end_row();
 
                                 ui.label("Wearable:");
@@ -636,7 +788,9 @@ impl SagaCraftIDE {
                                 ui.end_row();
                             }
                         });
-                    if changed { self.modified = true; }
+                    if changed {
+                        self.modified = true;
+                    }
                 }
             } else {
                 columns[1].label("Select an item to edit");
@@ -646,6 +800,14 @@ impl SagaCraftIDE {
 
     fn show_monsters_tab(&mut self, ui: &mut egui::Ui) {
         ui.heading("👹 Monsters");
+
+        ui.horizontal(|ui| {
+            ui.label("Search:");
+            ui.text_edit_singleline(&mut self.monster_filter);
+            if ui.button("Clear").clicked() {
+                self.monster_filter.clear();
+            }
+        });
 
         ui.horizontal(|ui| {
             if ui.button("➕ Add Monster").clicked() {
@@ -661,10 +823,40 @@ impl SagaCraftIDE {
         ui.columns(2, |columns| {
             // Monster list
             columns[0].heading("Monsters");
+            let monster_filter = self.monster_filter.trim().to_lowercase();
+            let visible_monsters = self
+                .adventure
+                .monsters
+                .iter()
+                .filter(|monster| {
+                    monster_filter.is_empty()
+                        || monster.name.to_lowercase().contains(&monster_filter)
+                        || monster.description.to_lowercase().contains(&monster_filter)
+                        || monster.id.to_string().contains(&monster_filter)
+                })
+                .count();
+            columns[0].label(format!(
+                "Showing {} of {}",
+                visible_monsters,
+                self.adventure.monsters.len()
+            ));
             egui::ScrollArea::vertical().show(&mut columns[0], |ui| {
                 for (i, monster) in self.adventure.monsters.iter().enumerate() {
+                    if !monster_filter.is_empty()
+                        && !monster.name.to_lowercase().contains(&monster_filter)
+                        && !monster.description.to_lowercase().contains(&monster_filter)
+                        && !monster.id.to_string().contains(&monster_filter)
+                    {
+                        continue;
+                    }
                     let selected = self.selected_monster == Some(i);
-                    if ui.add(egui::Button::new(format!("{}: {}", monster.id, monster.name)).selected(selected)).clicked() {
+                    if ui
+                        .add(
+                            egui::Button::new(format!("{}: {}", monster.id, monster.name))
+                                .selected(selected),
+                        )
+                        .clicked()
+                    {
                         self.selected_monster = Some(i);
                     }
                 }
@@ -692,7 +884,9 @@ impl SagaCraftIDE {
                             ui.end_row();
 
                             ui.label("Hardiness:");
-                            changed |= ui.add(egui::DragValue::new(&mut monster.hardiness)).changed();
+                            changed |= ui
+                                .add(egui::DragValue::new(&mut monster.hardiness))
+                                .changed();
                             ui.end_row();
 
                             ui.label("Agility:");
@@ -711,13 +905,33 @@ impl SagaCraftIDE {
                             egui::ComboBox::from_id_salt("monster_status")
                                 .selected_text(format!("{:?}", monster.status))
                                 .show_ui(ui, |ui: &mut egui::Ui| {
-                                    changed |= ui.selectable_value(&mut monster.status, MonsterStatus::Neutral, "Neutral").changed();
-                                    changed |= ui.selectable_value(&mut monster.status, MonsterStatus::Friendly, "Friendly").changed();
-                                    changed |= ui.selectable_value(&mut monster.status, MonsterStatus::Hostile, "Hostile").changed();
+                                    changed |= ui
+                                        .selectable_value(
+                                            &mut monster.status,
+                                            MonsterStatus::Neutral,
+                                            "Neutral",
+                                        )
+                                        .changed();
+                                    changed |= ui
+                                        .selectable_value(
+                                            &mut monster.status,
+                                            MonsterStatus::Friendly,
+                                            "Friendly",
+                                        )
+                                        .changed();
+                                    changed |= ui
+                                        .selectable_value(
+                                            &mut monster.status,
+                                            MonsterStatus::Hostile,
+                                            "Hostile",
+                                        )
+                                        .changed();
                                 });
                             ui.end_row();
                         });
-                    if changed { self.modified = true; }
+                    if changed {
+                        self.modified = true;
+                    }
                 }
             } else {
                 columns[1].label("Select a monster to edit");
@@ -727,6 +941,14 @@ impl SagaCraftIDE {
 
     fn show_quests_tab(&mut self, ui: &mut egui::Ui) {
         ui.heading("📜 Quests");
+
+        ui.horizontal(|ui| {
+            ui.label("Search:");
+            ui.text_edit_singleline(&mut self.quest_filter);
+            if ui.button("Clear").clicked() {
+                self.quest_filter.clear();
+            }
+        });
 
         ui.horizontal(|ui| {
             if ui.button("➕ Add Quest").clicked() {
@@ -742,10 +964,40 @@ impl SagaCraftIDE {
         ui.columns(2, |columns| {
             // Quest list
             columns[0].heading("Quests");
+            let quest_filter = self.quest_filter.trim().to_lowercase();
+            let visible_quests = self
+                .adventure
+                .quests
+                .iter()
+                .filter(|quest| {
+                    quest_filter.is_empty()
+                        || quest.title.to_lowercase().contains(&quest_filter)
+                        || quest.description.to_lowercase().contains(&quest_filter)
+                        || quest.id.to_string().contains(&quest_filter)
+                })
+                .count();
+            columns[0].label(format!(
+                "Showing {} of {}",
+                visible_quests,
+                self.adventure.quests.len()
+            ));
             egui::ScrollArea::vertical().show(&mut columns[0], |ui| {
                 for (i, quest) in self.adventure.quests.iter().enumerate() {
+                    if !quest_filter.is_empty()
+                        && !quest.title.to_lowercase().contains(&quest_filter)
+                        && !quest.description.to_lowercase().contains(&quest_filter)
+                        && !quest.id.to_string().contains(&quest_filter)
+                    {
+                        continue;
+                    }
                     let selected = self.selected_quest == Some(i);
-                    if ui.add(egui::Button::new(format!("{}: {}", quest.id, quest.title)).selected(selected)).clicked() {
+                    if ui
+                        .add(
+                            egui::Button::new(format!("{}: {}", quest.id, quest.title))
+                                .selected(selected),
+                        )
+                        .clicked()
+                    {
                         self.selected_quest = Some(i);
                     }
                 }
@@ -797,14 +1049,20 @@ impl SagaCraftIDE {
                             ui.end_row();
 
                             ui.label("Gold Reward:");
-                            changed |= ui.add(egui::DragValue::new(&mut quest.rewards_gold)).changed();
+                            changed |= ui
+                                .add(egui::DragValue::new(&mut quest.rewards_gold))
+                                .changed();
                             ui.end_row();
 
                             ui.label("XP Reward:");
-                            changed |= ui.add(egui::DragValue::new(&mut quest.rewards_xp)).changed();
+                            changed |= ui
+                                .add(egui::DragValue::new(&mut quest.rewards_xp))
+                                .changed();
                             ui.end_row();
                         });
-                    if changed { self.modified = true; }
+                    if changed {
+                        self.modified = true;
+                    }
                 }
             } else {
                 columns[1].label("Select a quest to edit");
@@ -839,7 +1097,7 @@ impl SagaCraftIDE {
                 ui.add(
                     egui::TextEdit::multiline(&mut json.as_str())
                         .font(egui::TextStyle::Monospace)
-                        .interactive(false)
+                        .interactive(false),
                 );
             });
 
@@ -938,7 +1196,6 @@ impl SagaCraftIDE {
     }
 
     fn validate_adventure(&mut self) {
-        // Quick structural checks mirroring AdventureGame requirements
         let mut errors: Vec<String> = Vec::new();
         if self.adventure.title.trim().is_empty() {
             errors.push("Title is empty".to_string());
@@ -946,14 +1203,70 @@ impl SagaCraftIDE {
         if self.adventure.rooms.is_empty() {
             errors.push("No rooms defined".to_string());
         }
-        let room_ids: std::collections::HashSet<i32> = self.adventure.rooms.iter().map(|r| r.id).collect();
+
+        let room_ids: std::collections::HashSet<i32> =
+            self.adventure.rooms.iter().map(|r| r.id).collect();
+        let item_ids: std::collections::HashSet<i32> =
+            self.adventure.items.iter().map(|i| i.id).collect();
+        let monster_ids: std::collections::HashSet<i32> =
+            self.adventure.monsters.iter().map(|m| m.id).collect();
+
         if !room_ids.contains(&self.adventure.start_room) {
-            errors.push(format!("start_room {} does not exist", self.adventure.start_room));
+            errors.push(format!(
+                "start_room {} does not exist",
+                self.adventure.start_room
+            ));
         }
-        // Check for duplicate room IDs
         if room_ids.len() != self.adventure.rooms.len() {
             errors.push("Duplicate room IDs detected".to_string());
         }
+        if item_ids.len() != self.adventure.items.len() {
+            errors.push("Duplicate item IDs detected".to_string());
+        }
+        if monster_ids.len() != self.adventure.monsters.len() {
+            errors.push("Duplicate monster IDs detected".to_string());
+        }
+
+        for room in &self.adventure.rooms {
+            for (direction, dest) in &room.exits {
+                if !room_ids.contains(dest) {
+                    errors.push(format!(
+                        "Room {} has '{}' exit to missing room {}",
+                        room.id, direction, dest
+                    ));
+                }
+            }
+        }
+
+        for item in &self.adventure.items {
+            let valid_location = matches!(item.location, -1 | 0)
+                || room_ids.contains(&item.location)
+                || monster_ids.contains(&item.location);
+            if !valid_location {
+                errors.push(format!(
+                    "Item {} points to missing location {}",
+                    item.id, item.location
+                ));
+            }
+        }
+
+        for monster in &self.adventure.monsters {
+            if !room_ids.contains(&monster.room_id) {
+                errors.push(format!(
+                    "Monster {} points to missing room {}",
+                    monster.id, monster.room_id
+                ));
+            }
+            if let Some(weapon_id) = monster.weapon_id
+                && !item_ids.contains(&weapon_id)
+            {
+                errors.push(format!(
+                    "Monster {} references missing weapon {}",
+                    monster.id, weapon_id
+                ));
+            }
+        }
+
         if errors.is_empty() {
             self.status = format!(
                 "Valid: {} rooms, {} items, {} monsters, {} quests",
@@ -1039,7 +1352,14 @@ impl SagaCraftIDE {
     }
 
     fn add_monster(&mut self) {
-        let id = self.adventure.monsters.iter().map(|r| r.id).max().unwrap_or(0) + 1;
+        let id = self
+            .adventure
+            .monsters
+            .iter()
+            .map(|r| r.id)
+            .max()
+            .unwrap_or(0)
+            + 1;
         let room_id = self.adventure.start_room;
         self.adventure.monsters.push(MonsterData {
             id,
@@ -1067,7 +1387,14 @@ impl SagaCraftIDE {
     }
 
     fn add_quest(&mut self) {
-        let id = self.adventure.quests.iter().map(|r| r.id).max().unwrap_or(0) + 1;
+        let id = self
+            .adventure
+            .quests
+            .iter()
+            .map(|r| r.id)
+            .max()
+            .unwrap_or(0)
+            + 1;
         self.adventure.quests.push(QuestData {
             id,
             title: format!("Quest {}", id),
@@ -1098,12 +1425,14 @@ impl SagaCraftIDE {
         match serde_json::to_string_pretty(&self.adventure) {
             Ok(json) => {
                 if let Err(e) = fs::write(&tmp_path, &json) {
-                    self.game_output.push(format!("Error writing temp file: {e}"));
+                    self.game_output
+                        .push(format!("Error writing temp file: {e}"));
                     return;
                 }
             }
             Err(e) => {
-                self.game_output.push(format!("Error serialising adventure: {e}"));
+                self.game_output
+                    .push(format!("Error serialising adventure: {e}"));
                 return;
             }
         }
@@ -1122,7 +1451,8 @@ impl SagaCraftIDE {
                 self.status = "Game started".to_string();
             }
             Err(e) => {
-                self.game_output.push(format!("Failed to load adventure: {e}"));
+                self.game_output
+                    .push(format!("Failed to load adventure: {e}"));
                 self.status = "Failed to start game".to_string();
             }
         }
@@ -1161,7 +1491,8 @@ impl SagaCraftIDE {
             let lines = game.process_command(&command);
             self.game_output.extend(lines);
         } else {
-            self.game_output.push("No game running. Press \u{25B6} Start Game first.".to_string());
+            self.game_output
+                .push("No game running. Press \u{25B6} Start Game first.".to_string());
         }
     }
 

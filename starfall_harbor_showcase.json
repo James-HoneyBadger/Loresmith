@@ -1,0 +1,478 @@
+{
+  "title": "Starfall Harbor: Beacon of the Deep",
+  "description": "A sprawling maritime mystery across a storm-lashed port city and the abyssal sanctum beneath it.",
+  "intro": "The sea has turned strange around Starfall Harbor. Fishing boats return empty, lighthouse flames burn blue, and whispers of a drowned crown drift through every tavern and alley.\n\nYou arrive just as the harbor’s great beacon begins to fail. To save the city, you will need to navigate smugglers’ routes, question wary locals, restore ancient lamps, and descend beneath the tides into the ruins of a forgotten throne.\n\nThis showcase adventure demonstrates open exploration, combat, consumables, readable clues, NPC dialogue, layered quests, and interconnected routes using both standard and custom exits.",
+  "start_room": 1,
+  "rooms": [
+    {
+      "id": 1,
+      "name": "Beacon Square",
+      "description": "Starfall Harbor’s main plaza is paved with wet stone and ringed by shuttered storefronts. At its center rises an old signal brazier, currently dim and sputtering beneath the rain.",
+      "exits": {
+        "north": 2,
+        "east": 3,
+        "west": 4
+      },
+      "items": [1, 2]
+    },
+    {
+      "id": 2,
+      "name": "Saltwind Market",
+      "description": "Canvas awnings snap in the coastal wind while merchants pack away spices, rope, oil, and charms against bad weather. Rumors move here faster than coin.",
+      "exits": {
+        "south": 1,
+        "north": 5,
+        "east": 6
+      },
+      "items": [3]
+    },
+    {
+      "id": 3,
+      "name": "Tideglass Library",
+      "description": "Rows of barnacle-carved shelves hold sea journals, port records, and maps of reefs no sailor admits to using. The windows glow with pale green light from the surf outside.",
+      "exits": {
+        "west": 1,
+        "east": 7
+      },
+      "items": [4, 5]
+    },
+    {
+      "id": 4,
+      "name": "Fisher Quays",
+      "description": "Tar-black ropes, overturned crab pots, and salt-stiff nets cover the docks. The tide slaps angrily against the pilings, and more than one boat shows signs of a hasty and frightened return.",
+      "exits": {
+        "east": 1,
+        "south": 8
+      },
+      "items": [6]
+    },
+    {
+      "id": 5,
+      "name": "Cliffside Switchback",
+      "description": "A steep stone path winds upward toward the old stormwatch towers. Gulls wheel overhead, and the roar of the surf below makes every shout feel swallowed by the world.",
+      "exits": {
+        "south": 2,
+        "up": 9,
+        "west": 10
+      },
+      "items": [7]
+    },
+    {
+      "id": 6,
+      "name": "Customs Hall",
+      "description": "Ledger desks, inspection crates, and sealed manifests fill this imposing hall. Officials once maintained strict order here, but now the ink is smeared and half the doors are hanging open.",
+      "exits": {
+        "west": 2,
+        "north": 11
+      },
+      "items": [8]
+    },
+    {
+      "id": 7,
+      "name": "Moonpool Garden",
+      "description": "A hidden courtyard full of tide-fed pools and moon-white flowers. Lantern reflections shimmer across the water, and for a moment the whole harbor feels peaceful again.",
+      "exits": {
+        "west": 3,
+        "north": 11,
+        "east": 12
+      },
+      "items": [9]
+    },
+    {
+      "id": 8,
+      "name": "Smuggler Caves",
+      "description": "Sea caves open beneath the docks, full of contraband crates, lantern smoke, and the smell of brine. A narrow tunnel leads deeper inland toward secrets the harbor would rather deny.",
+      "exits": {
+        "north": 4,
+        "east": 13
+      },
+      "items": [10]
+    },
+    {
+      "id": 9,
+      "name": "Stormwatch Ramparts",
+      "description": "From these high walls the whole harbor stretches below like a storm-tossed map. The beacon tower stands close now, its fractured lens flashing erratic blue pulses across the sea.",
+      "exits": {
+        "down": 5,
+        "east": 14
+      },
+      "items": [11]
+    },
+    {
+      "id": 10,
+      "name": "Chapel of the Last Lantern",
+      "description": "A quiet stone chapel where sailors leave prayers, names of the dead, and tiny offerings for safe return. Rows of candles burn low, their reflections trembling in bowls of rainwater.",
+      "exits": {
+        "east": 5
+      },
+      "items": [12]
+    },
+    {
+      "id": 11,
+      "name": "Astronomer's Court",
+      "description": "An open-air terrace of brass astrolabes and chipped observatory tables. Charts pinned beneath glass describe stars that only appear over dangerous waters.",
+      "exits": {
+        "south": 6,
+        "west": 7,
+        "up": 14
+      },
+      "items": [13]
+    },
+    {
+      "id": 12,
+      "name": "Pearl Market Vault",
+      "description": "A reinforced chamber beneath the merchant quarter, stacked with sealed boxes, pearl caskets, and carefully hidden ledgers. Several locks have been forced recently from the inside.",
+      "exits": {
+        "west": 7
+      },
+      "items": [14]
+    },
+    {
+      "id": 13,
+      "name": "Drowned King's Vestibule",
+      "description": "Flooded stone ruins emerge from the darkness beyond the smugglers’ route. Ancient carvings of wave-crowned rulers line the walls, worn smooth by centuries of hidden tide.",
+      "exits": {
+        "west": 8,
+        "north": 14
+      },
+      "items": [15]
+    },
+    {
+      "id": 14,
+      "name": "Abyssal Beacon Crown",
+      "description": "You stand atop the harbor’s sacred beacon where sea-light, wind, and old magic collide. Beneath the cracked lens, the deep itself seems to stare back through a ring of runes and stormfire.",
+      "exits": {
+        "west": 9,
+        "south": 13,
+        "down": 11
+      },
+      "items": [16]
+    }
+  ],
+  "items": [
+    {
+      "id": 1,
+      "name": "Harbor Cutlass",
+      "description": "A practical sailor’s blade, nicked from real use but still sharp enough for close work.",
+      "type": "weapon",
+      "weight": 2,
+      "value": 30,
+      "is_weapon": true,
+      "weapon_type": 5,
+      "weapon_dice": 1,
+      "weapon_sides": 8
+    },
+    {
+      "id": 2,
+      "name": "Smoked Eel Rations",
+      "description": "Wrapped strips of savory eel, preserved for bad weather and longer voyages.",
+      "type": "edible",
+      "weight": 1,
+      "value": 5
+    },
+    {
+      "id": 3,
+      "name": "Beacon Oil",
+      "description": "A rare alchemical fuel used to keep the harbor’s storm-lamps burning even in heavy rain.",
+      "type": "drinkable",
+      "weight": 1,
+      "value": 12
+    },
+    {
+      "id": 4,
+      "name": "Tideglass Index",
+      "description": "A catalog of drowned ships, hidden shoals, and suspicious salvage rights.",
+      "type": "readable",
+      "weight": 1,
+      "value": 18
+    },
+    {
+      "id": 5,
+      "name": "Gullfeather Cloak",
+      "description": "A salt-resistant traveler’s cloak stitched with soft gray feather lining.",
+      "type": "armor",
+      "weight": 2,
+      "value": 24,
+      "is_armor": true,
+      "armor_value": 2,
+      "is_wearable": true
+    },
+    {
+      "id": 6,
+      "name": "Netminder's Journal",
+      "description": "One page is underlined three times: 'Do not go below the quays after moonrise. The caves answer back.'",
+      "type": "readable",
+      "weight": 1,
+      "value": 8
+    },
+    {
+      "id": 7,
+      "name": "Navigator's Tea",
+      "description": "A hot herbal brew concentrate used to steady nerves before rough crossings.",
+      "type": "drinkable",
+      "weight": 0,
+      "value": 9
+    },
+    {
+      "id": 8,
+      "name": "Customs Seal",
+      "description": "A wax-and-brass official seal authorizing access to restricted storage and tower routes.",
+      "type": "treasure",
+      "weight": 0,
+      "value": 20
+    },
+    {
+      "id": 9,
+      "name": "Moonlit Kelp",
+      "description": "A glowing edible frond gathered from tidal pools where moonlight clings to the water.",
+      "type": "edible",
+      "weight": 0,
+      "value": 7
+    },
+    {
+      "id": 10,
+      "name": "Smuggler Brand",
+      "description": "A carved ivory token marking safe passage among the harbor’s black-market crews.",
+      "type": "treasure",
+      "weight": 0,
+      "value": 26
+    },
+    {
+      "id": 11,
+      "name": "Stormglass Prism",
+      "description": "A faceted lens shard meant to refocus the failing beacon flame.",
+      "type": "treasure",
+      "weight": 1,
+      "value": 35
+    },
+    {
+      "id": 12,
+      "name": "Lantern Charm",
+      "description": "A simple devotional charm blessed for safe return through fog and storm.",
+      "type": "treasure",
+      "weight": 0,
+      "value": 10
+    },
+    {
+      "id": 13,
+      "name": "Star Chart",
+      "description": "A waterproof astronomical chart showing an alignment that only occurs during severe coastal squalls.",
+      "type": "readable",
+      "weight": 0,
+      "value": 16
+    },
+    {
+      "id": 14,
+      "name": "Pearl Locket",
+      "description": "A delicate silver locket containing a portrait of the harbor before the strange tides began.",
+      "type": "treasure",
+      "weight": 0,
+      "value": 42
+    },
+    {
+      "id": 15,
+      "name": "Abyssal Conch",
+      "description": "A black shell that hums faintly when held to the ear, as if the sea itself is whispering through it.",
+      "type": "readable",
+      "weight": 1,
+      "value": 28
+    },
+    {
+      "id": 16,
+      "name": "Beacon Heart Shard",
+      "description": "A radiant crystal fragment that burns with contained stormlight and old oath-magic.",
+      "type": "treasure",
+      "weight": 1,
+      "value": 110
+    },
+    {
+      "id": 17,
+      "name": "Tide Harpoon",
+      "description": "A long hooked weapon favored by reef wardens and abyssal sentries.",
+      "type": "weapon",
+      "weight": 0,
+      "value": 0,
+      "is_weapon": true,
+      "weapon_type": 4,
+      "weapon_dice": 1,
+      "weapon_sides": 10
+    }
+  ],
+  "monsters": [
+    {
+      "id": 1,
+      "name": "Harbormaster Mira",
+      "description": "A steady-eyed civic leader who refuses to abandon the people of Starfall, no matter what rises from the surf.",
+      "room_id": 1,
+      "hardiness": 10,
+      "agility": 11,
+      "friendliness": "friendly",
+      "courage": 85,
+      "gold": 20
+    },
+    {
+      "id": 2,
+      "name": "Market Runner Pell",
+      "description": "A quick-footed courier with one eye on the tide charts and the other on profitable gossip.",
+      "room_id": 2,
+      "hardiness": 8,
+      "agility": 12,
+      "friendliness": "neutral",
+      "courage": 50,
+      "gold": 9
+    },
+    {
+      "id": 3,
+      "name": "Archivist Orrin",
+      "description": "A tired but brilliant scholar who sees the harbor’s troubles as a puzzle waiting to be solved.",
+      "room_id": 3,
+      "hardiness": 7,
+      "agility": 9,
+      "friendliness": "friendly",
+      "courage": 55,
+      "gold": 6
+    },
+    {
+      "id": 4,
+      "name": "Dockside Knifehand",
+      "description": "A thug from the harbor gangs, lurking among rope coils and stolen crates.",
+      "room_id": 4,
+      "hardiness": 10,
+      "agility": 12,
+      "friendliness": "hostile",
+      "courage": 70,
+      "gold": 14
+    },
+    {
+      "id": 5,
+      "name": "Storm Gull Flock",
+      "description": "A vicious pack of unnatural sea birds whose eyes flash with cold blue light.",
+      "room_id": 5,
+      "hardiness": 9,
+      "agility": 13,
+      "friendliness": "hostile",
+      "courage": 75,
+      "gold": 8
+    },
+    {
+      "id": 6,
+      "name": "Pearl Broker Selka",
+      "description": "An impeccably dressed merchant who knows every legal and illegal route through the harbor.",
+      "room_id": 12,
+      "hardiness": 8,
+      "agility": 10,
+      "friendliness": "friendly",
+      "courage": 60,
+      "gold": 30
+    },
+    {
+      "id": 7,
+      "name": "Reef Lurker",
+      "description": "A slick deepwater hunter dragging broken nets and barnacled hooks behind it.",
+      "room_id": 8,
+      "hardiness": 12,
+      "agility": 11,
+      "friendliness": "hostile",
+      "courage": 90,
+      "gold": 16
+    },
+    {
+      "id": 8,
+      "name": "Drowned Sentinel",
+      "description": "An armored guardian animated by sea-magic and bound to defend the submerged throne road.",
+      "room_id": 13,
+      "hardiness": 15,
+      "agility": 12,
+      "friendliness": "hostile",
+      "courage": 100,
+      "weapon_id": 17,
+      "gold": 40
+    },
+    {
+      "id": 9,
+      "name": "Abyssal Priest",
+      "description": "A fanatical servant of the deep crowned in coral and stormfire, chanting beneath the broken lens.",
+      "room_id": 14,
+      "hardiness": 18,
+      "agility": 14,
+      "friendliness": "hostile",
+      "courage": 100,
+      "weapon_id": 17,
+      "gold": 80
+    }
+  ],
+  "quests": [
+    {
+      "id": 1,
+      "title": "Rekindle the Beacon",
+      "description": "Recover the lamp fuel and climb to the stormwatch heights so the harbor’s guiding flame can be restored.",
+      "giver_npc": "Harbormaster Mira",
+      "objectives": [
+        {
+          "type": "collect_item",
+          "target_id": "Beacon Oil",
+          "description": "Recover the beacon oil",
+          "count": 1
+        },
+        {
+          "type": "reach_room",
+          "target_id": 9,
+          "description": "Reach the Stormwatch Ramparts",
+          "count": 1
+        }
+      ],
+      "rewards": {
+        "gold": 40,
+        "xp": 70
+      }
+    },
+    {
+      "id": 2,
+      "title": "Break the Smuggler Ring",
+      "description": "Expose the harbor gangs by seizing their mark and defeating the knifehand leading the dockside crews.",
+      "giver_npc": "Archivist Orrin",
+      "objectives": [
+        {
+          "type": "collect_item",
+          "target_id": "Smuggler Brand",
+          "description": "Recover the Smuggler Brand",
+          "count": 1
+        },
+        {
+          "type": "kill_monster",
+          "target_id": "Dockside Knifehand",
+          "description": "Defeat the Dockside Knifehand",
+          "count": 1
+        }
+      ],
+      "rewards": {
+        "gold": 55,
+        "xp": 85
+      }
+    },
+    {
+      "id": 3,
+      "title": "Seal the Abyss Below",
+      "description": "Descend into the old drowned sanctum and defeat the priest using the beacon to call something monstrous from the depths.",
+      "giver_npc": "Pearl Broker Selka",
+      "objectives": [
+        {
+          "type": "reach_room",
+          "target_id": 13,
+          "description": "Reach the Drowned King's Vestibule",
+          "count": 1
+        },
+        {
+          "type": "kill_monster",
+          "target_id": "Abyssal Priest",
+          "description": "Defeat the Abyssal Priest",
+          "count": 1
+        }
+      ],
+      "rewards": {
+        "gold": 125,
+        "xp": 165
+      }
+    }
+  ]
+}

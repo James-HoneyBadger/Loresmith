@@ -9,10 +9,12 @@
 ## Features
 
 ### Game Engine (`sagacraft_rs`)
-- **Room navigation** with compass directions (n/s/e/w/u/d)
+- **Room navigation** with compass directions and named exits
 - **Item system** — pick up, drop, equip weapons & armor, consume food/potions, examine
 - **Turn-based combat** — attack, flee, XP & level-up, equipment bonuses
 - **Quest framework** — accept, track objectives, complete for gold & XP rewards
+- **Dialogue support** — talk to NPCs, ask about topics, and react to friendly/neutral/hostile behavior
+- **Save, load, and autosave** — preserve long play sessions and showcase persistence features
 - **Event system** — quest objectives auto-advance on kills, item pickups, and room exploration
 - **JSON adventure format** — human-readable, easy to create by hand or with the editors
 
@@ -53,11 +55,18 @@ use <item>                  Use/consume an item
 examine / x <item>          Examine an item
 attack / fight <monster>    Attack a monster
 flee / run                  Attempt to flee combat
-say / shout / yell <text>   Speak
+talk <npc>                  Speak directly to someone nearby
+ask <npc> about <topic>     Ask an NPC about a subject
+say / shout / yell <text>   Speak aloud
 status / stats              Show player status & XP
 quests / journal            Show quest journal
 accept <quest_id>           Accept a quest
 complete <quest_id>         Complete a quest
+save [file]                 Save current progress
+load [file]                 Load saved progress
+autosave on [file]          Enable automatic saves
+autosave off                Disable autosave
+autosave status             Show autosave status
 help / ?                    Show command help
 quit / q / exit             Quit (CLI player only)
 ```
@@ -110,6 +119,14 @@ Adventures are JSON files loaded by the engine. Minimal example:
 
 See [`shattered_realms_demo.json`](shattered_realms_demo.json) for a complete example with items, monsters, and quests.
 
+## Showcase Adventures
+
+The workspace also includes larger adventure showcases for demonstrations and testing:
+
+- `clockwork_citadel_showcase.json` — steampunk fortress siege
+- `starfall_harbor_showcase.json` — maritime mystery and abyssal fantasy
+- `iron_assembly_showcase.json` — political intrigue and faction conflict
+
 ## Documentation
 
 | Document | Description |
@@ -131,7 +148,7 @@ cargo build --workspace
 cargo test --workspace
 
 # Lint
-cargo clippy --workspace
+cargo clippy --workspace --all-targets -- -D warnings
 
 # Format
 cargo fmt --all

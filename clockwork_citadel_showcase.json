@@ -1,0 +1,497 @@
+{
+  "title": "Clockwork Citadel: Siege of the Sable Core",
+  "description": "A grand steampunk-fantasy assault on a living fortress of brass, steam, and unstable arcane machinery.",
+  "intro": "Smoke billows above the skyline as the Clockwork Citadel groans awake.\n\nThe Sable Core beneath the fortress has begun to corrupt every gear, gate, and guardian in the city. Friendly engineers still hold a few districts, but the central foundries are overrun. Explore the citadel, recover lost sigils, speak with survivors, and decide whether the great engine will be repaired, shattered, or reborn.\n\nThis showcase adventure is built to demonstrate SagaCraft features: combat, equipment, consumables, readable clues, friendly and hostile NPCs, named exits, multi-step quests, and broad interconnected exploration.",
+  "start_room": 1,
+  "rooms": [
+    {
+      "id": 1,
+      "name": "Brass Gate Plaza",
+      "description": "Once a ceremonial entrance to the citadel, the plaza is now a staging ground littered with broken banners, cooling ash, and snapped chains. Brass statues of forgotten monarchs stare down over the chaos while the main gate pulses with residual heat.",
+      "exits": {
+        "north": 2,
+        "east": 3,
+        "west": 4
+      },
+      "items": [1, 2]
+    },
+    {
+      "id": 2,
+      "name": "Foundry Promenade",
+      "description": "Overhead tracks ferry empty crucibles back and forth, clattering like distant thunder. The air smells of oil, coal, and lightning. This long avenue links the lower city to the citadel’s inner industrial heart.",
+      "exits": {
+        "south": 1,
+        "north": 5,
+        "east": 6
+      },
+      "items": [3]
+    },
+    {
+      "id": 3,
+      "name": "Gearwright Bazaar",
+      "description": "Half-collapsed kiosks are draped with torn blueprints and dangling clockwork trinkets. Even in ruin, the bazaar glitters with invention: brass lenses, spring-loaded tools, and half-finished automata lie everywhere.",
+      "exits": {
+        "west": 1,
+        "east": 7
+      },
+      "items": [4, 5]
+    },
+    {
+      "id": 4,
+      "name": "Pilgrim Docks",
+      "description": "At the western edge of the fortress-city, suspended barges sway over a dizzying gulf. Pilgrims once arrived here to petition the Engine Choir. Now only a cold wind and the hiss of escaping steam answer the bells.",
+      "exits": {
+        "east": 1,
+        "south": 8
+      },
+      "items": [6]
+    },
+    {
+      "id": 5,
+      "name": "Ember Lift Landing",
+      "description": "A huge freight elevator rises through the center of a scorched shaft. Chains thicker than your arm vanish into the shadows above, and a lattice of valves rattles every few seconds with pent-up pressure.",
+      "exits": {
+        "south": 2,
+        "up": 9,
+        "west": 10
+      },
+      "items": [7]
+    },
+    {
+      "id": 6,
+      "name": "Cog Archive",
+      "description": "Tier upon tier of brass cabinets line the walls, each filled with repair ledgers, machine schematics, and decades of engineering notes. The floor has been scattered with copper filings that glitter like frost.",
+      "exits": {
+        "west": 2,
+        "north": 11
+      },
+      "items": [8]
+    },
+    {
+      "id": 7,
+      "name": "Glass Conservatory",
+      "description": "A vaulted greenhouse of crystal panels and iron arches glows with warm amber light. Exotic vines have grown around mechanical irrigation channels, and shattered panes let smoke drift lazily through the canopy.",
+      "exits": {
+        "west": 3,
+        "north": 11,
+        "east": 12
+      },
+      "items": [9]
+    },
+    {
+      "id": 8,
+      "name": "Flooded Intake Tunnels",
+      "description": "These low maintenance passages echo with dripping water and the cough of failing pumps. Pools of black runoff reflect the flicker of broken warning lamps while warped grates rattle underfoot.",
+      "exits": {
+        "north": 4,
+        "east": 13
+      },
+      "items": [10]
+    },
+    {
+      "id": 9,
+      "name": "Upper Relay Walk",
+      "description": "Narrow catwalks lace across the upper furnace vaults, overlooking a sea of rotating pistons and heat chimneys. The whole world seems to tremble beneath your boots as messages once meant for the city’s districts now spark uselessly in the air.",
+      "exits": {
+        "down": 5,
+        "east": 14
+      },
+      "items": [11]
+    },
+    {
+      "id": 10,
+      "name": "Barracks of the Ash Wardens",
+      "description": "Rows of iron bunks and weapon racks stand in military precision, though many have been overturned in a desperate last stand. A handful of surviving wardens left behind armor, maps, and scorched oaths of service.",
+      "exits": {
+        "east": 5
+      },
+      "items": [12]
+    },
+    {
+      "id": 11,
+      "name": "Whispering Observatory",
+      "description": "The observatory dome turns with a soft mechanical hum, aligning lenses toward cracks in the storm-dark sky. Strange whispers slip through the brass speaking tubes, as if the citadel itself is trying to warn you.",
+      "exits": {
+        "south": 6,
+        "west": 7,
+        "up": 14
+      },
+      "items": [13]
+    },
+    {
+      "id": 12,
+      "name": "Clock Chapel",
+      "description": "A chamber of suspended pendulums and polished bronze icons, where engineers once prayed before great repairs. The rhythm here is almost soothing, though one great pendulum has cracked and hangs at an ominous angle.",
+      "exits": {
+        "west": 7
+      },
+      "items": [14]
+    },
+    {
+      "id": 13,
+      "name": "Sable Engine Antechamber",
+      "description": "This circular chamber stands just before the inner reactor vault. Arcane turbines line the walls, their once-orderly glow now spoiled by veins of shadow. A deep pulse beats from beyond the final bulkhead.",
+      "exits": {
+        "west": 8,
+        "north": 14
+      },
+      "items": [15]
+    },
+    {
+      "id": 14,
+      "name": "Heart of the Sable Core",
+      "description": "The core chamber is a cathedral of brass ribs, lightning coils, and rotating rings the size of towers. At its center, a cracked energy sphere leaks black fire into the air, warping everything around it with malignant rhythm.",
+      "exits": {
+        "west": 9,
+        "south": 13,
+        "down": 11
+      },
+      "items": [16]
+    }
+  ],
+  "items": [
+    {
+      "id": 1,
+      "name": "Reforged Saber",
+      "description": "A balanced dueling blade reforged from ceremonial steel and brass fittings.",
+      "type": "weapon",
+      "weight": 2,
+      "value": 35,
+      "is_weapon": true,
+      "weapon_type": 5,
+      "weapon_dice": 1,
+      "weapon_sides": 8
+    },
+    {
+      "id": 2,
+      "name": "Field Ration",
+      "description": "A wrapped meal of smoked roots and preserved meat. Not glamorous, but nourishing.",
+      "type": "edible",
+      "weight": 1,
+      "value": 6
+    },
+    {
+      "id": 3,
+      "name": "Ember Ampoule",
+      "description": "A tiny vial of heated tonic favored by foundry workers during long shifts.",
+      "type": "drinkable",
+      "weight": 0,
+      "value": 8
+    },
+    {
+      "id": 4,
+      "name": "Brass Transit Sigil",
+      "description": "A stamped access emblem that once granted passage through the upper lifts and engine rails.",
+      "type": "treasure",
+      "weight": 0,
+      "value": 40
+    },
+    {
+      "id": 5,
+      "name": "Rivetmail Mantle",
+      "description": "A sleeveless coat reinforced with overlapping riveted plates and insulated seams.",
+      "type": "armor",
+      "weight": 3,
+      "value": 28,
+      "is_armor": true,
+      "armor_value": 2,
+      "is_wearable": true
+    },
+    {
+      "id": 6,
+      "name": "Dockmaster's Ledger",
+      "description": "The final entry reads: 'All outbound lifts halted. Engine corruption spreading. Seal the lower tunnels.'",
+      "type": "readable",
+      "weight": 1,
+      "value": 10
+    },
+    {
+      "id": 7,
+      "name": "Lift Key",
+      "description": "A heavy ignition key etched with the crest of the Ash Wardens.",
+      "type": "treasure",
+      "weight": 1,
+      "value": 18
+    },
+    {
+      "id": 8,
+      "name": "Schematic Codex",
+      "description": "Foldout diagrams reveal emergency bypasses, coolant veins, and relay routes inside the citadel.",
+      "type": "readable",
+      "weight": 1,
+      "value": 22
+    },
+    {
+      "id": 9,
+      "name": "Luminous Bloom",
+      "description": "A conservatory flower that stores trace heat in its petals and glows faintly in the dark.",
+      "type": "edible",
+      "weight": 0,
+      "value": 7
+    },
+    {
+      "id": 10,
+      "name": "Pressure Sealant",
+      "description": "A paste-filled tube used to patch ruptured steam conduits before they burst.",
+      "type": "drinkable",
+      "weight": 1,
+      "value": 12
+    },
+    {
+      "id": 11,
+      "name": "Skyglass Lens",
+      "description": "A polished lens capable of focusing distant light into needle-sharp beams.",
+      "type": "treasure",
+      "weight": 1,
+      "value": 30
+    },
+    {
+      "id": 12,
+      "name": "Warden Pike",
+      "description": "A long ash-wood polearm fitted with a triangular brass spearhead.",
+      "type": "weapon",
+      "weight": 3,
+      "value": 26,
+      "is_weapon": true,
+      "weapon_type": 4,
+      "weapon_dice": 1,
+      "weapon_sides": 10
+    },
+    {
+      "id": 13,
+      "name": "Oracle's Note",
+      "description": "'The core is not dying. It is dreaming badly. Wake it with courage, or end the dream before it swallows the city.'",
+      "type": "readable",
+      "weight": 0,
+      "value": 15
+    },
+    {
+      "id": 14,
+      "name": "Chapel Incense",
+      "description": "Thin aromatic rods still carrying the scent of cedar, copper, and rain.",
+      "type": "treasure",
+      "weight": 0,
+      "value": 9
+    },
+    {
+      "id": 15,
+      "name": "Shock Baton",
+      "description": "A crackling control rod once used by the citadel’s enforcers to subdue malfunctioning constructs.",
+      "type": "weapon",
+      "weight": 2,
+      "value": 32,
+      "is_weapon": true,
+      "weapon_type": 3,
+      "weapon_dice": 2,
+      "weapon_sides": 4
+    },
+    {
+      "id": 16,
+      "name": "Sable Core Fragment",
+      "description": "A sliver of blackened crystal humming with enormous unstable power.",
+      "type": "treasure",
+      "weight": 1,
+      "value": 100
+    },
+    {
+      "id": 17,
+      "name": "Proxy Talons",
+      "description": "Curved metallic claws affixed to the Sable Engine’s elite guardians.",
+      "type": "weapon",
+      "weight": 0,
+      "value": 0,
+      "is_weapon": true,
+      "weapon_type": 1,
+      "weapon_dice": 1,
+      "weapon_sides": 6
+    }
+  ],
+  "monsters": [
+    {
+      "id": 1,
+      "name": "Quartermaster Elira",
+      "description": "A soot-streaked logistics officer directing survivors with fierce clarity despite the chaos all around her.",
+      "room_id": 1,
+      "hardiness": 10,
+      "agility": 11,
+      "friendliness": "friendly",
+      "courage": 80,
+      "gold": 15
+    },
+    {
+      "id": 2,
+      "name": "Brass Hound",
+      "description": "A four-legged patrol construct with red optic lenses and a jaw full of cutting gears.",
+      "room_id": 2,
+      "hardiness": 9,
+      "agility": 13,
+      "friendliness": "hostile",
+      "courage": 90,
+      "gold": 8
+    },
+    {
+      "id": 3,
+      "name": "Market Broker Hesh",
+      "description": "A smooth-talking fixer in a velvet coat who always seems to know where the best salvage ends up.",
+      "room_id": 3,
+      "hardiness": 8,
+      "agility": 10,
+      "friendliness": "neutral",
+      "courage": 55,
+      "gold": 18
+    },
+    {
+      "id": 4,
+      "name": "Dockside Marauder",
+      "description": "A scavenger raider prowling for abandoned supplies among the mooring chains.",
+      "room_id": 4,
+      "hardiness": 10,
+      "agility": 10,
+      "friendliness": "hostile",
+      "courage": 70,
+      "gold": 12
+    },
+    {
+      "id": 5,
+      "name": "Archive Curator Sen",
+      "description": "An elderly archivist who still protects the citadel’s memory with patient determination.",
+      "room_id": 6,
+      "hardiness": 7,
+      "agility": 8,
+      "friendliness": "friendly",
+      "courage": 60,
+      "gold": 5
+    },
+    {
+      "id": 6,
+      "name": "Glass Mantis",
+      "description": "A long-limbed insectile construct with razor-thin crystal forearms.",
+      "room_id": 7,
+      "hardiness": 11,
+      "agility": 14,
+      "friendliness": "hostile",
+      "courage": 95,
+      "gold": 16
+    },
+    {
+      "id": 7,
+      "name": "Tunnel Leech",
+      "description": "A slick mechanical parasite drinking heat and pressure from the citadel’s failing pipes.",
+      "room_id": 8,
+      "hardiness": 12,
+      "agility": 12,
+      "friendliness": "hostile",
+      "courage": 85,
+      "gold": 10
+    },
+    {
+      "id": 8,
+      "name": "Ash Warden Captain",
+      "description": "A scarred officer in dented armor, too stubborn to abandon the barracks she once commanded.",
+      "room_id": 10,
+      "hardiness": 12,
+      "agility": 11,
+      "friendliness": "friendly",
+      "courage": 90,
+      "gold": 25
+    },
+    {
+      "id": 9,
+      "name": "Sable Engine Proxy",
+      "description": "A humanoid guardian wrapped in cables and black fire, animated by the reactor’s fevered will.",
+      "room_id": 13,
+      "hardiness": 14,
+      "agility": 13,
+      "friendliness": "hostile",
+      "courage": 100,
+      "weapon_id": 17,
+      "gold": 35
+    },
+    {
+      "id": 10,
+      "name": "Core Revenant",
+      "description": "A towering shell of brass and shadow fused together by the Sable Core’s corruption.",
+      "room_id": 14,
+      "hardiness": 18,
+      "agility": 14,
+      "friendliness": "hostile",
+      "courage": 100,
+      "weapon_id": 17,
+      "gold": 75
+    }
+  ],
+  "quests": [
+    {
+      "id": 1,
+      "title": "Relight the Lift Network",
+      "description": "Recover the missing transit sigil and reach the upper relay platforms so the surviving districts can communicate again.",
+      "giver_npc": "Quartermaster Elira",
+      "objectives": [
+        {
+          "type": "collect_item",
+          "target_id": "Brass Transit Sigil",
+          "description": "Recover the Brass Transit Sigil",
+          "count": 1
+        },
+        {
+          "type": "reach_room",
+          "target_id": 9,
+          "description": "Reach the Upper Relay Walk",
+          "count": 1
+        }
+      ],
+      "rewards": {
+        "gold": 45,
+        "xp": 70
+      }
+    },
+    {
+      "id": 2,
+      "title": "Patch the Lower Pressure Lines",
+      "description": "The lower tunnels are close to bursting. Find the sealant and purge the worst parasite before the whole district floods.",
+      "giver_npc": "Archive Curator Sen",
+      "objectives": [
+        {
+          "type": "collect_item",
+          "target_id": "Pressure Sealant",
+          "description": "Retrieve the pressure sealant",
+          "count": 1
+        },
+        {
+          "type": "kill_monster",
+          "target_id": "Tunnel Leech",
+          "description": "Destroy the Tunnel Leech",
+          "count": 1
+        }
+      ],
+      "rewards": {
+        "gold": 55,
+        "xp": 85
+      }
+    },
+    {
+      "id": 3,
+      "title": "Break the Sable Heart",
+      "description": "Fight through the corrupted inner sanctum and bring down the revenant bound to the Sable Core.",
+      "giver_npc": "Ash Warden Captain",
+      "objectives": [
+        {
+          "type": "reach_room",
+          "target_id": 13,
+          "description": "Reach the Sable Engine Antechamber",
+          "count": 1
+        },
+        {
+          "type": "kill_monster",
+          "target_id": "Core Revenant",
+          "description": "Defeat the Core Revenant",
+          "count": 1
+        }
+      ],
+      "rewards": {
+        "gold": 120,
+        "xp": 160
+      }
+    }
+  ]
+}

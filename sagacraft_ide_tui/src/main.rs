@@ -3,14 +3,16 @@ use std::path::PathBuf;
 use std::time::Duration;
 
 use crossterm::event::{self, Event, KeyCode, KeyEvent, KeyModifiers};
-use crossterm::terminal::{disable_raw_mode, enable_raw_mode, EnterAlternateScreen, LeaveAlternateScreen};
 use crossterm::execute;
+use crossterm::terminal::{
+    EnterAlternateScreen, LeaveAlternateScreen, disable_raw_mode, enable_raw_mode,
+};
+use ratatui::Terminal;
 use ratatui::backend::CrosstermBackend;
 use ratatui::layout::{Constraint, Direction, Layout, Rect};
 use ratatui::style::{Modifier, Style};
 use ratatui::text::{Line, Span, Text};
 use ratatui::widgets::{Block, Borders, List, ListItem, Paragraph, Wrap};
-use ratatui::Terminal;
 
 use sagacraft_rs::{Adventure, AdventureItem, AdventureRoom};
 
@@ -286,7 +288,10 @@ impl App {
                 self.status = format!("Added room '{id}'");
             }
             Some("del") => {
-                let id = words.get(2).cloned().or_else(|| self.selected_room().map(|r| r.id.clone()));
+                let id = words
+                    .get(2)
+                    .cloned()
+                    .or_else(|| self.selected_room().map(|r| r.id.clone()));
                 let Some(id) = id else {
                     self.status = "no room selected".to_string();
                     return;
@@ -330,7 +335,8 @@ impl App {
                 }
             }
             _ => {
-                self.status = "usage: room add <id> | room del <id?> | room set title|desc <text>".to_string();
+                self.status = "usage: room add <id> | room del <id?> | room set title|desc <text>"
+                    .to_string();
             }
         }
     }
@@ -374,7 +380,8 @@ impl App {
 
         match words.get(1).map(|s| s.as_str()) {
             Some("add") => {
-                let (Some(id), Some(name), Some(desc)) = (words.get(2), words.get(3), words.get(4)) else {
+                let (Some(id), Some(name), Some(desc)) = (words.get(2), words.get(3), words.get(4))
+                else {
                     self.status = "usage: item add <id> <name> <desc>".to_string();
                     return;
                 };
@@ -391,7 +398,10 @@ impl App {
                     self.status = "usage: item del <name>".to_string();
                     return;
                 };
-                let idx = room.items.iter().position(|i| i.name.eq_ignore_ascii_case(name));
+                let idx = room
+                    .items
+                    .iter()
+                    .position(|i| i.name.eq_ignore_ascii_case(name));
                 if let Some(i) = idx {
                     let removed = room.items.remove(i);
                     self.dirty = true;
@@ -498,7 +508,11 @@ fn draw_main(f: &mut ratatui::Frame, area: Rect, app: &App) {
             if i == app.selected_room {
                 style = style.add_modifier(Modifier::BOLD);
             }
-            let start_mark = if r.id == app.adventure.start_room { "*" } else { " " };
+            let start_mark = if r.id == app.adventure.start_room {
+                "*"
+            } else {
+                " "
+            };
             ListItem::new(Line::from(vec![
                 Span::raw(start_mark),
                 Span::raw(" "),
@@ -528,7 +542,10 @@ fn room_details_text(app: &App) -> Text<'static> {
         "Adventure: {} ({})",
         app.adventure.title, app.adventure.id
     )));
-    lines.push(Line::from(format!("Start room: {}", app.adventure.start_room)));
+    lines.push(Line::from(format!(
+        "Start room: {}",
+        app.adventure.start_room
+    )));
     lines.push(Line::from(""));
 
     let Some(room) = app.selected_room() else {
@@ -579,8 +596,11 @@ fn draw_status(f: &mut ratatui::Frame, area: Rect, app: &App) {
         .split(area);
 
     let dirty = if app.dirty { "*" } else { "" };
-    let status = Paragraph::new(app.status.clone())
-        .block(Block::default().borders(Borders::ALL).title(format!("Status{dirty}")));
+    let status = Paragraph::new(app.status.clone()).block(
+        Block::default()
+            .borders(Borders::ALL)
+            .title(format!("Status{dirty}")),
+    );
     f.render_widget(status, left_right[0]);
 
     let mode = match app.mode {
@@ -592,8 +612,7 @@ fn draw_status(f: &mut ratatui::Frame, area: Rect, app: &App) {
         Mode::Command => format!(":{}", app.cmd),
     };
 
-    let cmd = Paragraph::new(cmd_line)
-        .block(Block::default().borders(Borders::ALL).title("Input"));
+    let cmd = Paragraph::new(cmd_line).block(Block::default().borders(Borders::ALL).title("Input"));
     f.render_widget(cmd, left_right[1]);
 }
 
@@ -613,7 +632,8 @@ fn handle_key_normal(app: &mut App, key: KeyEvent) -> bool {
                     true
                 } else {
                     app.quit_confirm = true;
-                    app.status = "Unsaved changes. Press q again to quit, or save with s.".to_string();
+                    app.status =
+                        "Unsaved changes. Press q again to quit, or save with s.".to_string();
                     false
                 }
             } else {

@@ -73,7 +73,9 @@ pub struct Adventure {
 impl Adventure {
     pub fn validate(&self) -> Result<(), AdventureError> {
         if self.id.trim().is_empty() {
-            return Err(AdventureError::Validation("adventure.id is required".to_string()));
+            return Err(AdventureError::Validation(
+                "adventure.id is required".to_string(),
+            ));
         }
         if self.title.trim().is_empty() {
             return Err(AdventureError::Validation(
@@ -94,7 +96,9 @@ impl Adventure {
         let mut ids = HashSet::new();
         for room in &self.rooms {
             if room.id.trim().is_empty() {
-                return Err(AdventureError::Validation("room.id is required".to_string()));
+                return Err(AdventureError::Validation(
+                    "room.id is required".to_string(),
+                ));
             }
             if !ids.insert(room.id.clone()) {
                 return Err(AdventureError::Validation(format!(

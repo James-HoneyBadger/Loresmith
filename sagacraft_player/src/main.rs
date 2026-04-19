@@ -94,9 +94,10 @@ fn print_usage_and_exit() -> ! {
     println!("  sagacraft_player --adventure <path>");
     println!();
     println!("Options:");
-    println!("  -a, --adventure <path>    Adventure JSON file to load (default: {})", DEFAULT_ADVENTURE);
+    println!(
+        "  -a, --adventure <path>    Adventure JSON file to load (default: {})",
+        DEFAULT_ADVENTURE
+    );
     println!("  -h, --help                Show this help");
     std::process::exit(0)
 }
-
-

@@ -21,3 +21,7 @@ release/sagacraft_ide_gui
 
 # Runtime artifacts
 nohup.out
+savegame.json
+autosave.json
+*.save.json
+*.autosave.json
