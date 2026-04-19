@@ -7,6 +7,6 @@ edition = "2024"
 eframe = { version = "0.33", default-features = false, features = ["glow", "wayland", "x11"] }
 egui = "0.33"
 sagacraft_rs = { path = "../sagacraft_rs" }
-rfd = "0.14"
+rfd = "0.15"
 serde_json = "1.0"
 serde = { version = "1.0", features = ["derive"] }
