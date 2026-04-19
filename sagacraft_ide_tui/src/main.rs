@@ -30,7 +30,7 @@ fn main() -> anyhow::Result<()> {
     } else if let Some(p) = &args.new {
         p.clone()
     } else {
-        PathBuf::from("demo_adventure.json")
+        PathBuf::from("examples/adventures/demo_adventure.json")
     };
 
     let mut app = if is_new {

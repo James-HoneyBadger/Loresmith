@@ -34,7 +34,7 @@ tar -xzf sagacraft.tar.gz
 sudo mv sagacraft-* /usr/local/bin/
 
 # Verify installation
-./sagacraft_player demo_adventure.json
+./sagacraft_player examples/adventures/demo_adventure.json
 ```
 
 #### macOS
@@ -49,7 +49,7 @@ tar -xzf sagacraft.tar.gz
 sudo mv sagacraft-* /usr/local/bin/
 
 # Verify installation
-./sagacraft_player demo_adventure.json
+./sagacraft_player examples/adventures/demo_adventure.json
 ```
 
 #### Windows
@@ -64,7 +64,7 @@ Expand-Archive -Path "sagacraft.zip" -DestinationPath "C:\Program Files\SagaCraf
 # Go to System Properties > Environment Variables > Path > Edit > Add "C:\Program Files\SagaCraft"
 
 # Verify installation
-.\sagacraft_player.exe demo_adventure.json
+.\sagacraft_player.exe examples/adventures/demo_adventure.json
 ```
 
 ### Method 2: Building from Source
@@ -124,7 +124,7 @@ cd SagaCraft
 cargo build --release
 
 # Verify the build
-./target/release/sagacraft_player demo_adventure.json
+./target/release/sagacraft_player examples/adventures/demo_adventure.json
 
 # Optional: Run tests
 cargo test
@@ -177,7 +177,7 @@ Place your adventure JSON files anywhere and pass the path to the player:
 cargo run --bin sagacraft_player -- path/to/my_adventure.json
 ```
 
-Two demo adventures are included in the repository root: `demo_adventure.json` and `shattered_realms_demo.json`.
+Bundled demo adventures are included under examples/adventures, including demo_adventure.json and shattered_realms_demo.json.
 
 ## Running SagaCraft
 
@@ -185,7 +185,7 @@ Two demo adventures are included in the repository root: `demo_adventure.json` a
 
 ```bash
 # Play the demo adventure
-sagacraft_player demo_adventure.json
+sagacraft_player examples/adventures/demo_adventure.json
 
 # Load specific adventure
 sagacraft_player path/to/adventure.json
@@ -476,7 +476,7 @@ rustc --version
 cargo --version
 
 # SagaCraft version (no --version flag; just run with a demo file)
-sagacraft_player demo_adventure.json
+sagacraft_player examples/adventures/demo_adventure.json
 
 # Error logs
 RUST_LOG=debug sagacraft_player 2>&1 | head -50

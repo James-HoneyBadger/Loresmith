@@ -5,7 +5,7 @@ This workspace now includes two large example adventures designed to demonstrate
 ## Included showcase files
 
 ### Clockwork Citadel: Siege of the Sable Core
-Path: clockwork_citadel_showcase.json
+Path: examples/adventures/clockwork_citadel_showcase.json
 
 Highlights:
 - dense steampunk-fantasy setting
@@ -16,7 +16,7 @@ Highlights:
 - multi-step quests using collect, explore, and combat objectives
 
 ### Starfall Harbor: Beacon of the Deep
-Path: starfall_harbor_showcase.json
+Path: examples/adventures/starfall_harbor_showcase.json
 
 Highlights:
 - coastal mystery and abyssal fantasy tone
@@ -29,8 +29,8 @@ Highlights:
 
 Build and run either adventure with the CLI player:
 
-cargo run --bin sagacraft_player -- clockwork_citadel_showcase.json
-cargo run --bin sagacraft_player -- starfall_harbor_showcase.json
+cargo run --bin sagacraft_player -- examples/adventures/clockwork_citadel_showcase.json
+cargo run --bin sagacraft_player -- examples/adventures/starfall_harbor_showcase.json
 
 You can also open the same files in the GUI or TUI editors to inspect the structure and modify content.
 

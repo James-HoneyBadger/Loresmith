@@ -16,7 +16,7 @@ Opens the SagaCraft TUI Adventure IDE for creating, editing, and testing adventu
 ./Play.sh
 ```
 
-Launches the CLI player with `demo_adventure.json`.
+Launches the CLI player with the bundled demo in examples/adventures.
 
 Pass a custom adventure file:
 
@@ -27,7 +27,7 @@ Pass a custom adventure file:
 ## Direct Commands (no scripts)
 
 ```bash
-cargo run --bin sagacraft_player -- shattered_realms_demo.json
+cargo run --bin sagacraft_player -- examples/adventures/shattered_realms_demo.json
 cargo run --bin sagacraft_ide_tui
 cargo run --bin sagacraft_ide_gui
 ```

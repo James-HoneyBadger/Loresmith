@@ -4,7 +4,7 @@ A new political-intrigue example adventure has been added to the workspace.
 
 ## Included file
 
-Path: iron_assembly_showcase.json
+Path: examples/adventures/iron_assembly_showcase.json
 
 ## Theme
 
@@ -26,4 +26,4 @@ The Iron Assembly is a showcase centered on:
 
 ## Quick start
 
-cargo run --bin sagacraft_player -- iron_assembly_showcase.json
+cargo run --bin sagacraft_player -- examples/adventures/iron_assembly_showcase.json

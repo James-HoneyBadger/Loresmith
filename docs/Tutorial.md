@@ -24,7 +24,7 @@ cargo build
 or
 
 ```bash
-cargo run --bin sagacraft_player -- demo_adventure.json
+cargo run --bin sagacraft_player -- examples/adventures/demo_adventure.json
 ```
 
 You will see:
@@ -162,7 +162,7 @@ quit
 Now launch the Shattered Realms adventure, which has combat, items, quests, and 15 rooms:
 
 ```
-cargo run --bin sagacraft_player -- shattered_realms_demo.json
+cargo run --bin sagacraft_player -- examples/adventures/shattered_realms_demo.json
 ```
 
 ---
@@ -327,4 +327,4 @@ The GUI IDE provides a full visual editor with tabs for Rooms, Items, Monsters, 
 - Read the **User Manual** for a complete command reference.
 - Read the **Game Design Tips** to start building your own adventure.
 - Read the **Technical Reference** to understand the JSON schema and system API.
-- Create a new adventure file: start with a copy of `demo_adventure.json` and expand it room by room.
+- Create a new adventure file: start with a copy of examples/adventures/demo_adventure.json and expand it room by room.

@@ -51,8 +51,8 @@ cargo run --bin sagacraft_ide_gui
 
 | File | Description |
 |------|-------------|
-| `demo_adventure.json` | Two-room introduction to SagaCraft |
-| `shattered_realms_demo.json` | 15-room epic fantasy adventure with combat and quests |
+| examples/adventures/demo_adventure.json | Two-room introduction to SagaCraft |
+| examples/adventures/shattered_realms_demo.json | 15-room epic fantasy adventure with combat and quests |
 
 ---
 

@@ -32,7 +32,7 @@
 cargo build --release
 
 # Play the included demo adventure
-./target/release/sagacraft_player shattered_realms_demo.json
+./target/release/sagacraft_player examples/adventures/shattered_realms_demo.json
 
 # Or use the TUI editor
 ./target/release/sagacraft_ide_tui
@@ -90,8 +90,8 @@ SagaCraft/
 ├── sagacraft_ide_tui/      # Terminal UI editor
 ├── sagacraft_ide_gui/      # GUI editor (egui/eframe)
 ├── docs/                   # Documentation
-├── demo_adventure.json     # Simple demo adventure
-└── shattered_realms_demo.json  # Full-featured demo
+└── examples/
+    └── adventures/         # Bundled demos and showcase adventures
 ```
 
 ## Adventure JSON Format
@@ -117,15 +117,15 @@ Adventures are JSON files loaded by the engine. Minimal example:
 }
 ```
 
-See [`shattered_realms_demo.json`](shattered_realms_demo.json) for a complete example with items, monsters, and quests.
+See [examples/adventures/shattered_realms_demo.json](examples/adventures/shattered_realms_demo.json) for a complete example with items, monsters, and quests.
 
 ## Showcase Adventures
 
 The workspace also includes larger adventure showcases for demonstrations and testing:
 
-- `clockwork_citadel_showcase.json` — steampunk fortress siege
-- `starfall_harbor_showcase.json` — maritime mystery and abyssal fantasy
-- `iron_assembly_showcase.json` — political intrigue and faction conflict
+- examples/adventures/clockwork_citadel_showcase.json — steampunk fortress siege
+- examples/adventures/starfall_harbor_showcase.json — maritime mystery and abyssal fantasy
+- examples/adventures/iron_assembly_showcase.json — political intrigue and faction conflict
 
 ## Documentation
 

@@ -309,7 +309,7 @@ impl Engine {
 
 Example:
 ```rust
-let mut engine = Engine::load("demo_adventure.json")?;
+let mut engine = Engine::load("examples/adventures/demo_adventure.json")?;
 println!("{}", engine.intro());
 println!("{}", engine.look());
 for line in engine.send("north") {
@@ -489,7 +489,7 @@ cargo build
 cargo build --release
 
 # Run CLI player
-cargo run --bin sagacraft_player -- demo_adventure.json
+cargo run --bin sagacraft_player -- examples/adventures/demo_adventure.json
 
 # Run TUI IDE
 cargo run --bin sagacraft_ide_tui

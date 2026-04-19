@@ -360,7 +360,7 @@ use sagacraft_rs::Engine;
 use std::io::{self, Write};
 
 fn main() -> Result<(), Box<dyn std::error::Error>> {
-    let mut engine = Engine::load("demo_adventure.json")?;
+    let mut engine = Engine::load("examples/adventures/demo_adventure.json")?;
     let intro = engine.intro();
     if !intro.is_empty() {
         println!("{}", intro);

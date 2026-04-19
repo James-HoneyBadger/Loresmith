@@ -2,7 +2,7 @@ use std::io::{self, Write};
 
 use sagacraft_rs::Engine;
 
-const DEFAULT_ADVENTURE: &str = "shattered_realms_demo.json";
+const DEFAULT_ADVENTURE: &str = "examples/adventures/shattered_realms_demo.json";
 
 fn main() {
     let adventure_path = parse_args(std::env::args().skip(1));

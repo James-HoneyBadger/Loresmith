@@ -18,7 +18,7 @@
 
 ```bash
 # Play the included demo adventure
-./sagacraft_player demo_adventure.json
+./sagacraft_player examples/adventures/demo_adventure.json
 
 # Or use the TUI editor
 ./sagacraft_ide_tui
