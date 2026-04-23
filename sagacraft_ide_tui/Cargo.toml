@@ -5,6 +5,6 @@ edition = "2024"
 
 [dependencies]
 anyhow = "1"
-crossterm = "0.28"
+crossterm = "0.29"
 ratatui = "0.30"
 sagacraft_rs = { path = "../sagacraft_rs" }
