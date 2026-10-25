@@ -1,39 +1,69 @@
-# Quick Launch
+# Saga Foundry — Quick Launch
 
-SagaCraft includes two convenience scripts in the project root:
+Saga Foundry is a suite of separate applications. Use the suite launcher or run an app directly.
 
-## IDE — Adventure Creator
+## Suite launcher
 
 ```bash
-./Saga.sh
+./Suite.sh                 # standalone graphical player (default)
+./Suite.sh player          # standalone graphical player
+./Suite.sh studio          # graphical adventure editor
+./Suite.sh workbench       # terminal adventure editor
+./Suite.sh console         # terminal player
 ```
 
-Opens the SagaCraft TUI Adventure IDE for creating, editing, and testing adventures.
+Pass an adventure to either player:
 
-## Player — Adventure Player
+```bash
+./Suite.sh player examples/adventures/starfall_harbor_showcase.json
+./Suite.sh console examples/adventures/demo_adventure.json
+```
+
+## Player — standalone game application
 
 ```bash
 ./Play.sh
-```
-
-Launches the CLI player with the bundled demo in examples/adventures.
-
-Pass a custom adventure file:
-
-```bash
 ./Play.sh my_adventure.json
 ```
 
-## Direct Commands (no scripts)
+The Player contains no editor or authoring tools. It discovers bundled adventures, remembers recent files and theme choice, and provides story, character, inventory, journal, save/load, restart, and victory/defeat views.
+
+## Studio — graphical adventure editor
 
 ```bash
+./Studio.sh
+```
+
+Full room, item, monster, quest, shop, ending, starting-inventory, lock, light, dialogue, JSON diff, validation, undo/redo, and Play test tooling.
+
+## Workbench — terminal adventure editor
+
+```bash
+./Workbench.sh
+# or
+./Saga.sh
+```
+
+## Console — terminal player
+
+```bash
+./Console.sh
+./Console.sh my_adventure.json
+```
+
+## Direct binaries
+
+```bash
+cargo run --bin sagacraft_play -- examples/adventures/starfall_harbor_showcase.json
+cargo run --bin sagacraft_ide_gui
 cargo run --bin sagacraft_player -- examples/adventures/shattered_realms_demo.json
 cargo run --bin sagacraft_ide_tui
-cargo run --bin sagacraft_ide_gui
 ```
 
 ## Documentation
 
+- [Suite Overview](docs/Suite.md)
+- [Adventure Schema](docs/Adventure_Schema.md)
 - [User Manual](docs/User_Manual.md)
 - [Game Designer Manual](docs/Game_Designer_Manual.md)
 - [Technical Reference](docs/Technical_Reference.md)

@@ -1,11 +1,69 @@
-# SagaCraft Changelog
+# Saga Foundry Changelog
 
-All notable changes to SagaCraft will be documented in this file.
+All notable changes to Saga Foundry will be documented in this file.
 
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 ## [Unreleased]
+
+## [4.1.0] - 2026-10-24
+
+### Added
+- Canonical, versioned `AdventureDocument` model (`schema_version: 2`) with lossless round-trips and legacy string-ID/integer-ID adapters
+- Staged quests, verified turn-in, quest IDs in the journal, reward items, reputation, and `abandon`
+- `TalkedTo` events and working `talk_to_npc` objectives with optional topics
+- Per-NPC dialogue greetings, topic replies, and unknown-topic fallback
+- Locked exits with keys, optional key consumption, `unlock`, and `ExitUnlocked` events
+- Shops with finite gold/stock, `buy`/`sell`, and charisma-based pricing
+- Light sources and dark-room visibility
+- Victory/defeat endings, `game_won`, ending text, and `restart`
+- Monster loot and weapon drops
+- Numeric-schema `player_start_inventory` and corrected `location: 0` semantics
+- Portable save v2 (embedded document, atomic writes) with v1 migration
+- `Engine::from_document`, `load_from_str`, `restart`, `won`, and `ending`
+- GUI editors for shops, dialogue, locks, light sources, staged objectives, starting inventory, and endings
+- GUI validation panel, JSON diff, clipboard copy, undo/redo, keyboard shortcuts, and play-mode sidebar
+- GUI visual redesign: branded shell, workspace navigation rail, themed cards and stat tiles, redesigned Play and Preview tabs, and full-height scrolling editors
+- GUI dark and light themes selectable from View → Theme and persisted between sessions
+- Standalone graphical **SagaCraft Player** (`sagacraft_play`) with adventure library, recent files, story log, character sidebar, journal shortcuts, native save/load, and dark/light themes
+- Shared `sagacraft_ui` crate for the egui palette and common widgets used by Player and Studio
+- Suite launchers (`Suite.sh`, `Play.sh`, `Studio.sh`, `Workbench.sh`, `Console.sh`) and [docs/Suite.md](docs/Suite.md)
+- The suite is branded **Saga Foundry**; application titles, banners, About dialogs, package descriptions, and docs use the new name while `sagacraft_*` binary identifiers remain compatible in 4.1.x
+- Release archives are named `SagaFoundry-v<version>-<target>` going forward
+- TUI canonical-document editing for items, monsters, quests, shops, exits, and validation
+- Integration tests for every bundled adventure and all new features
+- `docs/Adventure_Schema.md`
+
+### Changed
+- GUI and TUI now edit the canonical document directly; saving no longer drops fields
+- GUI Save & Exit only exits after a successful save; New/Open and window close protect unsaved work
+- TUI fails loudly on load errors instead of silently replacing the file with a demo
+- Combat uses `weapon_ability` and `armor_expertise`; flee picks a deterministic safe exit
+- Quest targets match by ID or punctuation-insensitive name
+- Level-ups loop for large XP awards
+- Exit keys are lowercased on load
+- Workspace metadata and MSRV (1.95) centralized; dependencies upgraded through 2026
+- CI adds docs, all-target tests, MSRV, deny checks, and a multi-platform release workflow
+
+### Fixed
+- Shop pricing defaults corrected to buy `1.0` and sell `0.5`; charisma and multiplier values are clamped, and same-shop buy/sell arbitrage is blocked
+- Buying an item now progresses collect objectives and reports sold-out stock correctly
+- Shop listings now show shop gold, stock buy prices, and sell offers for carried items
+- Multiple shops in one room are now all reachable: `shop` lists them, `shop <name>` filters, `buy` chooses the cheapest offer, and `sell` chooses the best affordable offer
+- Iron Assembly quest 3 could never auto-complete because of apostrophe normalization
+- `complete` paid rewards with unfinished objectives
+- Quest XP never triggered level-ups
+- `location: 0` items were invisible and starting inventory was unsupported
+- `go N` and `unequip Weapon` were case-sensitive
+- GUI could not open the bundled showcase adventures
+- GUI "Copy JSON" faked success; Preview TODO buttons removed
+- TUI `:q` skipped the unsaved-changes check; deleting a room left dangling references
+- Autosave is atomic and no longer corruptible on crash
+
+### Removed
+- Phantom editor-only gameplay claims (unsupported traps, ambient audio, safe zones) from documentation; the fields are preserved as metadata
+- Fictional community resources and unpublished install instructions
 
 ## [4.0.3] - 2026-04-18
 

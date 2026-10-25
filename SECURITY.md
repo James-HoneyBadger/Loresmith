@@ -2,7 +2,7 @@
 
 ## Supported Versions
 
-SagaCraft is currently maintained on the latest `main` branch.
+Saga Foundry is currently maintained on the latest `main` branch.
 
 | Version | Supported |
 | ------- | --------- |

@@ -1,30 +1,32 @@
-# SagaCraft
+# Saga Foundry
 
-[![Rust](https://img.shields.io/badge/Rust-1.85%2B-orange)](https://www.rust-lang.org/)
+[![Rust](https://img.shields.io/badge/Rust-1.95%2B-orange)](https://www.rust-lang.org/)
 [![License](https://img.shields.io/badge/License-MIT-blue.svg)](LICENSE)
-[![Version](https://img.shields.io/badge/Version-4.0.3-green.svg)]()
+[![Version](https://img.shields.io/badge/Version-4.1.0-green.svg)]()
 
 > A text-based adventure game engine and development suite written in Rust. Create, edit, and play interactive fiction adventures with a JSON-based format.
 
 ## Included Binaries
 
-| Binary | Description |
-|--------|-------------|
-| `sagacraft_player` | CLI adventure player (REPL) |
-| `sagacraft_ide_tui` | Terminal UI adventure editor (ratatui) |
-| `sagacraft_ide_gui` | Graphical adventure editor (egui) with built-in Play tab |
+| Binary | Product | Description |
+|--------|---------|-------------|
+| `sagacraft_play` | Player | Standalone graphical game player (egui) |
+| `sagacraft_ide_gui` | Studio | Graphical adventure editor (egui) |
+| `sagacraft_player` | Console | CLI adventure player (REPL) |
+| `sagacraft_ide_tui` | Workbench | Terminal UI adventure editor (ratatui) |
 
 ## Quick Start
 
 ```bash
-# Play the included demo adventure
-./sagacraft_player examples/adventures/demo_adventure.json
+# Standalone graphical player
+./sagacraft_play examples/adventures/demo_adventure.json
 
-# Or use the TUI editor
-./sagacraft_ide_tui
-
-# Or use the GUI editor
+# Graphical editor
 ./sagacraft_ide_gui
+
+# Terminal player and editor
+./sagacraft_player examples/adventures/demo_adventure.json
+./sagacraft_ide_tui
 ```
 
 ## In-Game Commands
@@ -37,12 +39,16 @@ take / get <item>           Pick up an item
 drop <item>                 Drop an item
 equip / wield / wear        Equip weapon or armor
 unequip / remove <slot>     Unequip weapon or armor
-use / eat / drink <item>    Consume or read an item
+use / consume / eat / drink <item>  Consume or read an item
 examine / x <item>          Inspect an item
 attack / kill <target>      Attack a hostile monster
 flee / run / escape         Attempt to flee combat
 status / score              View player stats
-quests / journal            View quest log
+quests / journal            View quest log (with IDs)
+shop / trade                Browse a shop
+buy / sell <item>           Trade with a shop
+unlock <direction>          Unlock an exit with a key
+restart                     Restart the adventure
 accept <quest_id>           Accept a quest
 complete / finish <id>      Turn in a completed quest
 say / shout <text>          Speak aloud

@@ -1,3 +1,9 @@
+//! Legacy string-ID adventure format.
+//!
+//! This module remains for reading historical TUI/demo files. New content
+//! should use [`crate::document::AdventureDocument`], which normalises this
+//! format to the canonical integer-ID schema.
+
 use serde::{Deserialize, Serialize};
 use std::collections::{HashMap, HashSet};
 use std::fs;

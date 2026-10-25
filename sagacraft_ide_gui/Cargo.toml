@@ -1,12 +1,27 @@
 [package]
 name = "sagacraft_ide_gui"
-version = "4.0.3"
-edition = "2024"
+version.workspace = true
+edition.workspace = true
+rust-version.workspace = true
+license.workspace = true
+authors.workspace = true
+repository.workspace = true
+description = "Saga Foundry Studio — graphical adventure editor"
 
 [dependencies]
-eframe = { version = "0.33", default-features = false, features = ["glow", "wayland", "x11"] }
-egui = "0.33"
-sagacraft_rs = { path = "../sagacraft_rs" }
-rfd = "0.15"
-serde_json = "1.0"
-serde = { version = "1.0", features = ["derive"] }
+eframe = { version = "0.37", default-features = false, features = [
+    "glow",
+    "wayland",
+    "x11",
+    "default_fonts",
+    "system_fonts",
+    "clipboard",
+    "links",
+    "accesskit",
+] }
+egui = "0.37"
+sagacraft_rs = { path = "../sagacraft_rs", version = "4.1.0" }
+sagacraft_ui = { path = "../sagacraft_ui", version = "4.1.0" }
+rfd = "0.17"
+serde_json.workspace = true
+serde.workspace = true

@@ -1,0 +1,29 @@
+[package]
+name = "sagacraft_play"
+version.workspace = true
+edition.workspace = true
+rust-version.workspace = true
+license.workspace = true
+authors.workspace = true
+repository.workspace = true
+description = "Saga Foundry Player — standalone graphical game player"
+
+[[bin]]
+name = "sagacraft_play"
+path = "src/main.rs"
+
+[dependencies]
+eframe = { version = "0.37", default-features = false, features = [
+    "glow",
+    "wayland",
+    "x11",
+    "default_fonts",
+    "system_fonts",
+    "clipboard",
+    "links",
+    "accesskit",
+] }
+egui = "0.37"
+sagacraft_rs = { path = "../sagacraft_rs", version = "4.1.0" }
+sagacraft_ui = { path = "../sagacraft_ui", version = "4.1.0" }
+rfd = "0.17"

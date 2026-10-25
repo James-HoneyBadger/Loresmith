@@ -1,8 +1,8 @@
-# SagaCraft Installation Guide
+# Saga Foundry Installation Guide
 
 ## System Requirements
 
-Before installing SagaCraft, ensure your system meets these requirements:
+Before installing Saga Foundry, ensure your system meets these requirements:
 
 ### Minimum Requirements
 - **Operating System**: Linux, macOS, or Windows 10+
@@ -24,47 +24,47 @@ Before installing SagaCraft, ensure your system meets these requirements:
 
 #### Linux
 ```bash
-# Download the latest release
-curl -L https://github.com/James-HoneyBadger/SagaCraft/releases/latest/download/sagacraft-linux-x86_64.tar.gz -o sagacraft.tar.gz
+# Download the latest Linux release (replace <version> with e.g. 4.1.0)
+curl -L https://github.com/James-HoneyBadger/SagaCraft/releases/download/v<version>/SagaFoundry-v<version>-linux-x86_64.tar.gz -o sagafoundry.tar.gz
 
 # Extract the archive
-tar -xzf sagacraft.tar.gz
+tar -xzf sagafoundry.tar.gz
 
 # Move to a directory in your PATH (optional)
 sudo mv sagacraft-* /usr/local/bin/
 
 # Verify installation
-./sagacraft_player examples/adventures/demo_adventure.json
+./sagacraft_play examples/adventures/demo_adventure.json
 ```
 
 #### macOS
 ```bash
-# Download the latest release
-curl -L https://github.com/James-HoneyBadger/SagaCraft/releases/latest/download/sagacraft-macos-x86_64.tar.gz -o sagacraft.tar.gz
+# Download the latest macOS release (replace <version> and <arch>)
+curl -L https://github.com/James-HoneyBadger/SagaCraft/releases/download/v<version>/SagaFoundry-v<version>-macos-<arch>.tar.gz -o sagafoundry.tar.gz
 
 # Extract the archive
-tar -xzf sagacraft.tar.gz
+tar -xzf sagafoundry.tar.gz
 
 # Move to a directory in your PATH (optional)
 sudo mv sagacraft-* /usr/local/bin/
 
 # Verify installation
-./sagacraft_player examples/adventures/demo_adventure.json
+./sagacraft_play examples/adventures/demo_adventure.json
 ```
 
 #### Windows
 ```powershell
 # Download the latest release
-Invoke-WebRequest -Uri "https://github.com/James-HoneyBadger/SagaCraft/releases/latest/download/sagacraft-windows-x86_64.zip" -OutFile "sagacraft.zip"
+Invoke-WebRequest -Uri "https://github.com/James-HoneyBadger/SagaCraft/releases/download/v<version>/SagaFoundry-v<version>-windows-x86_64.zip" -OutFile "sagafoundry.zip"
 
 # Extract the archive
-Expand-Archive -Path "sagacraft.zip" -DestinationPath "C:\Program Files\SagaCraft"
+Expand-Archive -Path "sagafoundry.zip" -DestinationPath "C:\Program Files\SagaFoundry"
 
 # Add to PATH (optional)
-# Go to System Properties > Environment Variables > Path > Edit > Add "C:\Program Files\SagaCraft"
+# Go to System Properties > Environment Variables > Path > Edit > Add "C:\Program Files\SagaFoundry"
 
 # Verify installation
-.\sagacraft_player.exe examples/adventures/demo_adventure.json
+.\sagacraft_play.exe examples/adventures/demo_adventure.json
 ```
 
 ### Method 2: Building from Source
@@ -87,6 +87,10 @@ cargo --version
 ```bash
 sudo apt update
 sudo apt install build-essential pkg-config libssl-dev
+
+# GUI editor dependencies (eframe/winit/rfd)
+sudo apt install libxkbcommon-dev libwayland-dev libx11-dev libxcursor-dev \
+  libxrandr-dev libxi-dev libgl1-mesa-dev
 ```
 
 **CentOS/RHEL/Fedora:**
@@ -113,7 +117,7 @@ xcode-select --install
 choco install visualstudio2019buildtools
 ```
 
-#### Building SagaCraft
+#### Building Saga Foundry
 
 ```bash
 # Clone the repository
@@ -124,7 +128,7 @@ cd SagaCraft
 cargo build --release
 
 # Verify the build
-./target/release/sagacraft_player examples/adventures/demo_adventure.json
+./target/release/sagacraft_play examples/adventures/demo_adventure.json
 
 # Optional: Run tests
 cargo test
@@ -146,40 +150,44 @@ export PATH="$HOME/bin:$PATH"
 
 #### Cargo (Rust Package Manager)
 ```bash
-# Install directly from crates.io (when published)
-cargo install sagacraft
-
-# Or install from git
-cargo install --git https://github.com/James-HoneyBadger/SagaCraft.git
+# Saga Foundry is not published on crates.io. Install the binaries from git:
+cargo install --git https://github.com/James-HoneyBadger/SagaCraft.git --bin sagacraft_play
+cargo install --git https://github.com/James-HoneyBadger/SagaCraft.git --bin sagacraft_player
+cargo install --git https://github.com/James-HoneyBadger/SagaCraft.git --bin sagacraft_ide_tui
+cargo install --git https://github.com/James-HoneyBadger/SagaCraft.git --bin sagacraft_ide_gui
 ```
 
-#### Snap (Linux)
-```bash
-# When available in Snap Store
-sudo snap install sagacraft
-```
+#### Snap and Homebrew
 
-#### Homebrew (macOS)
-```bash
-# When available in Homebrew
-brew install sagacraft
-```
+Snap and Homebrew packages are not currently published. Use the pre-built assets or
+build from source.
 
 ## Post-Installation Setup
 
-SagaCraft does not require a configuration directory or config file. All settings are contained within the adventure JSON files themselves.
+Saga Foundry does not require a configuration directory or config file. All settings are contained within the adventure JSON files themselves.
 
 ### Adventure Files
 
-Place your adventure JSON files anywhere and pass the path to the player:
+Place your adventure JSON files anywhere and pass the path to either player:
 
 ```bash
+cargo run --bin sagacraft_play -- path/to/my_adventure.json
 cargo run --bin sagacraft_player -- path/to/my_adventure.json
 ```
 
 Bundled demo adventures are included under examples/adventures, including demo_adventure.json and shattered_realms_demo.json.
 
-## Running SagaCraft
+## Running Saga Foundry
+
+### Graphical Player
+
+```bash
+# Choose from the adventure library
+sagacraft_play
+
+# Open a specific adventure
+sagacraft_play path/to/adventure.json
+```
 
 ### Command Line Player
 
@@ -201,14 +209,11 @@ sagacraft_ide_tui
 sagacraft_ide_tui path/to/adventure.json
 ```
 
-### GUI Editor (when available)
+### Graphical Editor (Studio)
 
 ```bash
 # Start the graphical editor
 sagacraft_ide_gui
-
-# Open specific adventure
-sagacraft_ide_gui path/to/adventure.json
 ```
 
 ## Troubleshooting Installation
@@ -217,7 +222,7 @@ sagacraft_ide_gui path/to/adventure.json
 
 #### "Command not found" Error
 
-**Problem:** SagaCraft commands are not recognized.
+**Problem:** Saga Foundry commands are not recognized.
 
 **Solutions:**
 1. Check if binaries are in your PATH:
@@ -303,7 +308,7 @@ chmod +x sagacraft_*
 rustup update
 
 # Check version
-rustc --version  # Should be 1.70 or newer
+rustc --version  # Should be 1.95 or newer
 ```
 
 #### Missing System Libraries
@@ -388,7 +393,7 @@ chmod +x .git/hooks/pre-commit
 cargo watch -x 'run --bin sagacraft_player'
 ```
 
-## Updating SagaCraft
+## Updating Saga Foundry
 
 ### Automatic Updates
 
@@ -420,7 +425,7 @@ sagacraft_player --version
 curl -s https://api.github.com/repos/James-HoneyBadger/SagaCraft/releases/latest | grep '"tag_name"'
 ```
 
-## Uninstalling SagaCraft
+## Uninstalling Saga Foundry
 
 ### Remove Binaries
 
@@ -475,7 +480,7 @@ uname -a
 rustc --version
 cargo --version
 
-# SagaCraft version (no --version flag; just run with a demo file)
+# Saga Foundry version (no --version flag; just run with a demo file)
 sagacraft_player examples/adventures/demo_adventure.json
 
 # Error logs
@@ -484,4 +489,4 @@ RUST_LOG=debug sagacraft_player 2>&1 | head -50
 
 ---
 
-**Installation complete!** You're now ready to explore the world of SagaCraft. Start with the [User Manual](User_Manual.md) to learn how to play, or dive into the [Game Designer Manual](Game_Designer_Manual.md) to create your own adventures.
+**Installation complete!** You're now ready to explore the world of Saga Foundry. Start with the [User Manual](User_Manual.md) to learn how to play, or dive into the [Game Designer Manual](Game_Designer_Manual.md) to create your own adventures.

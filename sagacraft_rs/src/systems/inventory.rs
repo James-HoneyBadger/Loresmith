@@ -33,7 +33,7 @@ impl System for InventorySystem {
                     Some(result.trim_end().to_string())
                 }
             }
-            "take" | "get" => {
+            "take" | "get" | "grab" | "pick" => {
                 let item_name = args.join(" ");
                 if item_name.is_empty() {
                     Some("Take what?".to_string())
@@ -62,9 +62,12 @@ impl System for InventorySystem {
             }
             "unequip" | "remove" => match args.first().copied() {
                 None => Some("Unequip what? Specify 'weapon' or 'armor'.".to_string()),
-                Some(slot) => Some(game.unequip_slot(slot).unwrap_or_else(|e| e)),
+                Some(slot) => Some(
+                    game.unequip_slot(&slot.to_lowercase())
+                        .unwrap_or_else(|e| e),
+                ),
             },
-            "use" => {
+            "use" | "consume" | "eat" | "drink" => {
                 let item_name = args.join(" ");
                 if item_name.is_empty() {
                     Some("Use what?".to_string())

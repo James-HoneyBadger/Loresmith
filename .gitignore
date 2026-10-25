@@ -13,10 +13,12 @@ target/
 Thumbs.db
 
 # Release binaries and archives
+release/sagacraft_play
 release/sagacraft_player
 release/sagacraft_ide_tui
 release/sagacraft_ide_gui
 release/SagaCraft-*/
+release/SagaFoundry-*/
 *.tar.gz
 *.zip
 

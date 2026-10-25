@@ -1,12 +1,12 @@
-# SagaCraft Tutorial: Your First Adventure
+# Saga Foundry Tutorial: Your First Adventure
 
-This tutorial walks you through playing your first SagaCraft adventure from start to finish. You will learn every core mechanic in about 20 minutes.
+This tutorial walks you through playing your first Saga Foundry adventure from start to finish. You will learn every core mechanic in about 20 minutes.
 
 ---
 
 ## Before You Start
 
-Make sure SagaCraft is compiled:
+Make sure Saga Foundry is compiled:
 
 ```bash
 cd ~/SagaCraft
@@ -18,12 +18,14 @@ cargo build
 ## Step 1 — Launch the Demo
 
 ```bash
-./Play.sh
+./Play.sh examples/adventures/demo_adventure.json
 ```
 
-or
+The standalone graphical Player opens directly into the demo. If you prefer the terminal:
 
 ```bash
+./Console.sh examples/adventures/demo_adventure.json
+# or
 cargo run --bin sagacraft_player -- examples/adventures/demo_adventure.json
 ```
 
@@ -293,9 +295,9 @@ complete 1
 
 ---
 
-## Step 14 — Try the TUI IDE
+## Step 14 — Try the Workbench (TUI editor)
 
-The terminal UI IDE lets you edit adventures while viewing their structure. Quit the player first, then:
+The terminal Workbench lets you edit adventures while viewing their structure. Quit the player first, then:
 
 ```
 ./Saga.sh
@@ -312,13 +314,17 @@ The terminal UI IDE lets you edit adventures while viewing their structure. Quit
 
 ---
 
-## Step 15 — Try the Graphical IDE
+## Step 15 — Try Studio (graphical editor)
 
-```
+```bash
+./Studio.sh
+# or
 cargo run --bin sagacraft_ide_gui
 ```
 
-The GUI IDE provides a full visual editor with tabs for Rooms, Items, Monsters, Quests, and a live game preview. You can open any `.json` adventure file, edit it, and save it without touching the JSON directly.
+Studio provides a full visual editor with tabs for Rooms, Items, Monsters, Quests, Shops, endings, dialogue, and a live Play tab. You can open any `.json` adventure file, edit it, and save it without touching the JSON directly.
+
+The standalone Player remains the focused way to play; Studio is for authoring.
 
 ---
 

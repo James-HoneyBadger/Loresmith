@@ -1,8 +1,8 @@
-# SagaCraft Technical Reference
+# Saga Foundry Technical Reference
 
-**Version 4.0 · Audience: Developers & Advanced Modders**
+**Version 4.1 · Audience: Developers & Advanced Modders**
 
-This document describes the SagaCraft engine internals: architecture, data structures, the adventure JSON schema, the system trait API, and build instructions. All information reflects the actual source at `sagacraft_rs/`.
+This document describes the Saga Foundry engine internals: architecture, data structures, the adventure JSON schema, the system trait API, and build instructions. All information reflects the actual source at `sagacraft_rs/`.
 
 ---
 
@@ -31,37 +31,47 @@ SagaCraft/
 │   └── src/
 │       ├── lib.rs              # Public re-exports
 │       ├── engine.rs           # High-level Engine wrapper
-│       ├── game_state.rs       # AdventureGame, Room, Item, Monster, Player
-│       ├── adventure.rs        # Adventure / AdventureRoom types (secondary format)
+│       ├── document.rs         # Canonical AdventureDocument + legacy adapters
+│       ├── game_state.rs       # AdventureGame, runtime types, loaders, saves
+│       ├── adventure.rs        # Legacy string-ID format (read support)
+│       ├── util.rs             # Atomic file writes
 │       └── systems/
 │           ├── mod.rs          # System trait definition
-│           ├── basic_world.rs  # Movement, look, say
+│           ├── basic_world.rs  # Movement, look, talk, locks, saves
 │           ├── inventory.rs    # Item management
-│           ├── combat.rs       # Attack/fight, status
-│           └── quests.rs       # Quest tracker, QuestSystem
-├── sagacraft_player/           # CLI binary
-├── sagacraft_ide_tui/          # Ratatui terminal IDE
-└── sagacraft_ide_gui/          # egui graphical IDE
+│           ├── combat.rs       # Combat, XP, loot, endings
+│           ├── quests.rs       # Quest tracker, stages, rewards
+│           └── shops.rs        # Shops and trading
+├── sagacraft_play/             # Standalone egui game player
+├── sagacraft_ide_gui/          # Studio — egui graphical editor
+├── sagacraft_player/           # Console — CLI player
+├── sagacraft_ide_tui/          # Workbench — ratatui terminal editor
+└── sagacraft_ui/               # Shared egui theme and widgets
 ```
 
 ---
 
 ## Crate Overview
 
-The `sagacraft_rs` library is the only dependency shared by all three front-ends. The three binaries are thin shells that set up the engine and pass user input through it.
+Every front-end depends on `sagacraft_rs` for loading, validation, runtime state, systems, and saves. The graphical applications (Player and Studio) also share `sagacraft_ui` for the theme and common widgets. Each application owns its layout and workflow; only the engine and UI foundation are shared.
 
 ### Public re-exports (`lib.rs`)
 
 ```rust
 pub use adventure::{Adventure, AdventureError, AdventureItem, AdventureRoom};
+pub use document::{
+    AdventureDocument, AdventureSettings, DialogueDef, EndingConditions, EndingDef, ExitDef,
+    InventoryRef, ItemDef, LockedExitDef, MonsterDef, ObjectiveDef, ObjectiveKind, QuestDef,
+    QuestDifficultyDef, QuestRewardsDef, RewardItem, RoomDef, ShopDef, ShopStockDef, StageDef,
+    StructuredObjective, ValidationReport,
+};
 pub use engine::Engine;
 pub use game_state::{
-    AdventureGame, GameEvent, Item, ItemType,
-    Monster, MonsterStatus, Player, Room,
+    AdventureGame, Dialogue, GameEvent, Item, ItemType, Monster, MonsterStatus, Player, Room,
+    Shop, ShopStock, award_experience,
 };
 pub use systems::{
-    BasicWorldSystem, CombatSystem, InventorySystem,
-    QuestSystem, System,
+    BasicWorldSystem, CombatSystem, InventorySystem, QuestSystem, ShopSystem, System,
 };
 ```
 
@@ -89,11 +99,13 @@ pub struct Item {
     pub armor_value: i32,
     pub is_takeable: bool,       // default true
     pub is_wearable: bool,
-    pub location: i32,           // room_id | 0=inventory | -1=worn
+    pub is_light_source: bool,   // reveals dark rooms when carried
+    pub container_capacity: i32, // reserved
+    pub location: i32,           // room_id | 0=carried | -1=worn | -2=shop stock
 }
 ```
 
-`Item::get_damage()` rolls `weapon_dice` * `weapon_sides` using `rand::thread_rng`.
+`Item::get_damage()` rolls `weapon_dice` d `weapon_sides` using `rand::rng()`.
 
 **`ItemType` variants (JSON lowercase strings):**
 
@@ -125,12 +137,17 @@ pub struct Monster {
     pub gold: i32,               // dropped on death
     pub is_dead: bool,
     pub current_health: i32,          // initialized to hardiness
+    pub dialogue: Option<Dialogue>,   // greeting, topics, unknown fallback
+    pub loot: Vec<i32>,               // item IDs dropped on death
 }
 ```
 
 `MonsterStatus` variants: `Friendly`, `Neutral`, `Hostile`. Only `Hostile` monsters can be attacked.
+Friendly and neutral NPCs respond to `talk` and `ask`.
 
-Counter-attack damage formula: `1 ..= (monster.agility / 3 + 1).max(2)` → subtract player's equipped `armor_value`, with a floor of 1.
+Counter-attack damage formula:
+`max(1, agility / 3 + 1 - (player armor_value + armor_expertise / 5))`.
+On death, `loot` items and the monster's `weapon_id` move into its room and become takeable.
 
 ### `Room`
 
@@ -258,9 +275,9 @@ Register before `load_adventure` to ensure `init`-style behaviour in the first o
 
 ### `BasicWorldSystem`
 
-Handles: `look`/`l`, direction movement (all six cardinal directions plus aliases `n`/`s`/`e`/`w`/`u`/`d`), `go`/`move <dir>`, `say`/`shout`/`yell`, `help`/`?`.
+Handles: `look`/`l`, direction movement (all six cardinal directions plus aliases `n`/`s`/`e`/`w`/`u`/`d`), `go`/`move <dir>`, `talk`/`speak`/`greet`/`hello`, `ask <npc> about <topic>`, `say`/`shout`/`yell`, `unlock <dir>`, `save`, `load`, `saves`, `autosave`, `restart`, `help`/`?`.
 
-Direction abbreviations are expanded to full words before exit lookup. When `say` is used and a non-hostile NPC is present, the NPC's name is included in the response.
+Direction abbreviations are expanded to full words before exit lookup. `talk` and `ask` use NPC dialogue data and push `TalkedTo` events. Moving into a locked exit attempts to unlock it with a carried key.
 
 ### `InventorySystem`
 
@@ -274,20 +291,24 @@ Combat flow per `attack` call:
 1. Find matching monster in current room (case-insensitive partial name match).
 2. Refuse if monster is not `Hostile`.
 3. Calculate player damage and apply to monster HP.
-4. If monster dies: set `is_dead = true`, transfer gold, push `MonsterKilled` event.
+4. If monster dies: set `is_dead = true`, transfer gold, award XP (looping level-ups), drop loot/weapon into the room, and push `MonsterKilled`.
 5. If monster survives: calculate monster counter-attack with armor mitigation, apply to player HP. If player HP ≤ 0, set `game_over = true`.
 
 ### `QuestSystem`
 
-Handles: `quests`/`journal`, `accept <id>`, `complete`/`finish <id>`.
+Handles: `quests`/`journal`, `accept <id>`, `complete`/`finish <id>`, `abandon <id>`.
 
-Implements `on_events()` to auto-advance quest objectives on `MonsterKilled`, `ItemCollected`, and `RoomEntered` events. On first call, loads quests from `game.quests` (the raw JSON array). Supports `Kill`, `Collect`, and `Explore` objective auto-progress.
+Implements `on_events()` to auto-advance quest objectives on `MonsterKilled`, `ItemCollected`, `RoomEntered`, and `TalkedTo` events. It supports Kill, Collect, Explore, Talk, and the reserved custom types. Objectives match by ID or by a case- and punctuation-insensitive name. Stages advance automatically; `complete` verifies the final stage and pays gold, XP, item, and reputation rewards.
+
+### `ShopSystem`
+
+Handles: `shop`/`trade`/`store`, `buy`/`purchase <item>`, `sell <item>`. Shops are selected by the current room (lowest shop ID if several), have finite gold and stock, and price items from `value` and the player's `charisma`.
 
 ---
 
 ## Engine and AdventureGame
 
-`Engine` (`engine.rs`) is a thin wrapper that pre-wires all four default systems:
+`Engine` (`engine.rs`) is a thin wrapper that pre-wires all five default systems (world, inventory, combat, quests, shops):
 
 ```rust
 impl Engine {
@@ -301,7 +322,7 @@ impl Engine {
 }
 ```
 
-- `new()` creates the engine with all four systems registered.
+- `new()` creates the engine with all five systems registered.
 - `start()` calls `load_adventure()` and captures the intro text.
 - `load()` is a shorthand for `new()` + `start()`.
 - `intro()` returns the intro/banner text captured at load time.
@@ -321,7 +342,12 @@ for line in engine.send("north") {
 
 ## Adventure JSON Schema
 
-This section documents every field accepted by `AdventureGame::load_adventure`.
+This section documents the 4.0.x-compatible integer-ID shape. The canonical
+`schema_version: 2` format adds locked exits, dialogue, shops, quest stages, endings, and
+starting inventory; see [Adventure_Schema.md](Adventure_Schema.md) for those fields.
+
+Every example here is still accepted by `AdventureDocument::from_json_str` and
+`AdventureGame::load_adventure`.
 
 ### Top-level object
 
@@ -358,7 +384,7 @@ This section documents every field accepted by `AdventureGame::load_adventure`.
 
 `exits` keys can be any string; standard values are `north`, `south`, `east`, `west`, `up`, `down`.
 
-Rooms referenced in `exits` must exist in the `rooms` array or the exit will be silently ignored.
+Rooms referenced in `exits` must exist; the loader reports a validation error otherwise. Exit keys are lowercased on load.
 
 The `items` array in a room lists item IDs whose `location` field will be interpreted as that room's ID. Alternatively, set `"location": <room_id>` on each item directly.
 
@@ -416,7 +442,7 @@ For **consumables** set `type` to `"edible"` or `"drinkable"` and set `value` to
   "objectives": [
     {
       "type": "kill_monster",   // "kill_monster"|"collect_item"|"reach_room"|"talk_to_npc"
-      "target_id": 202,         // integer id used as partial-name match string
+      "target_id": 202,         // monster ID (names are also accepted)
       "description": "Kill the Goblin King"
     },
     {
@@ -442,6 +468,12 @@ pub enum GameEvent {
     ItemCollected { item_name: String, item_id: i32 },
     RoomEntered   { room_id: i32 },
     ItemUsed      { item_name: String },
+    TalkedTo      { npc_name: String, topic: Option<String> },
+    ItemPurchased { item_name: String, item_id: i32 },
+    ItemSold      { item_name: String, item_id: i32 },
+    ExitUnlocked  { room_id: i32, direction: String },
+    QuestCompleted { quest_id: String, title: String },
+    GameWon       { text: String },
 }
 ```
 
@@ -467,8 +499,26 @@ Events are pushed to `game.events` during the primary pass and consumed in the o
 
 ```
 Available → Active → Completed
-                  → Failed
+                  → Abandoned (removed from the tracker)
 ```
+
+Objectives advance on `MonsterKilled`, `ItemCollected`, `RoomEntered`, and `TalkedTo`.
+Stages advance automatically; final rewards are paid only by `complete`, which verifies
+that every objective is finished.
+
+---
+
+## Shops, Locks, Light, and Endings
+
+These systems are documented field-by-field in [Adventure_Schema.md](Adventure_Schema.md).
+
+- **Locks:** `Room.locked_exits` holds runtime lock state; `move_player` unlocks with a
+  carried key and emits `ExitUnlocked`.
+- **Light:** `Item.is_light_source` lets `look` reveal dark rooms.
+- **Shops:** `AdventureGame.shops` holds runtime stock/gold; `ShopSystem` handles pricing.
+- **Endings:** `AdventureGame.check_ending` evaluates the document's conditions after
+  movement, pickups, combat, and quest completion and sets `game_won`.
+- **Saves:** snapshot v2 embeds the full document, writes atomically, and migrates v1.
 
 ---
 
@@ -476,7 +526,7 @@ Available → Active → Completed
 
 ### Prerequisites
 
-- Rust 1.70+ (`rustup update stable`)
+- Rust 1.95+ (`rustup update stable`)
 - GUI build additionally requires system OpenGL/EGL headers
 
 ### Compile and run
@@ -488,13 +538,16 @@ cargo build
 # Release build
 cargo build --release
 
+# Run standalone graphical player
+cargo run --bin sagacraft_play -- examples/adventures/demo_adventure.json
+
 # Run CLI player
 cargo run --bin sagacraft_player -- examples/adventures/demo_adventure.json
 
-# Run TUI IDE
+# Run terminal editor
 cargo run --bin sagacraft_ide_tui
 
-# Run GUI IDE
+# Run graphical editor
 cargo run --bin sagacraft_ide_gui
 
 # Run tests
@@ -509,7 +562,7 @@ cargo doc --open
 
 ### Compile-time warnings
 
-`ashpd` (Linux portal integration used by egui) may emit future-incompatibility warnings as of Rust 1.85+. These are upstream issues and do not affect functionality.
+`ashpd` (Linux portal integration used by egui) may emit future-incompatibility warnings as of Rust 1.95+. These are upstream issues and do not affect functionality.
 
 ---
 

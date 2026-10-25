@@ -1,6 +1,6 @@
-# SagaCraft Game Design Tips
+# Saga Foundry Game Design Tips
 
-**Audience:** Adventure designers creating `.json` files for the SagaCraft engine.
+**Audience:** Adventure designers creating `.json` files for the Saga Foundry engine.
 
 This guide covers the craft of making text adventures people actually want to play: how to write memorable rooms, balance combat, pace a story, and avoid common pitfalls.
 
@@ -85,6 +85,7 @@ The room description is the most important text in your adventure. Players will 
 
 ### Do
 - Use concrete nouns and active verbs: *"A torch gutters in the iron bracket"* not *"There is some light."*
+- Mark portable light sources with `is_light_source: true`; dark rooms are otherwise unreadable.
 - Imply exits through description: *"A heavy oak door stands to the north"* before the exits list.
 - Hint at items without name-dropping them: *"Something shiny"*, not *"You see the Golden Key (takes 0 weight)"*.
 - Vary sentence rhythm — mix short punchy sentences with longer atmospheric ones.
@@ -168,7 +169,8 @@ The default player has **hardiness 12** (12 HP), no weapon equipped, and no armo
 
 ### Damage math
 
-**Unarmed player:** rolls 1 to 5 damage (based on default weapon_ability of 5).
+**Unarmed player:** rolls 1 to the best `weapon_ability` value (5 by default), and adds
+`best_ability / 5` (so 1–6 damage at defaults).
 
 **Example weapon progression:**
 
@@ -180,7 +182,11 @@ The default player has **hardiness 12** (12 HP), no weapon equipped, and no armo
 | Battleaxe | 1d10 | 5.5 | Late-game |
 | Great Sword | 2d6 | 7.0 | Boss reward |
 
-**Monster counter-attack:** formula is `1 to (agility÷3)+1` (minimum 2), minus player armor (floor 1). With armor_value 0 on the player:
+**Weapon damage:** weapon dice + `weapon_ability[weapon_type] / 5`, minus monster
+`armor_worn`, floor 1.
+
+**Monster counter-attack:** `max(1, agility÷3 + 1 - (player armor_value + armor_expertise÷5))`.
+With armor_value 0 and armor_expertise 0 on the player:
 
 | Monster agility | Max hits per round | Attacks to kill default player (no armor) |
 |-----------------|-------------------|-------------------------------------------|
@@ -214,14 +220,15 @@ Place one mid-tier consumable (value 4–6) per 3–4 combat rooms. Place a high
 
 | JSON `type` | Tracks when |
 |-------------|-------------|
-| `kill_monster` | You `attack` and kill a monster whose name contains `target_id` (as a string) |
-| `collect_item` | You `take` an item whose name contains `target_id` (as a string) |
-| `reach_room` | You enter a room with id matching `target_id` |
-| `talk_to_npc` | You `say` to a non-hostile NPC matching `target_id` |
+| `kill_monster` | You kill a monster whose ID or name matches `target_id` |
+| `collect_item` | You `take` an item whose ID or name matches `target_id` |
+| `reach_room` | You enter a room whose ID or name matches `target_id` |
+| `talk_to_npc` | You `talk`/`ask` a non-hostile NPC matching `target_id` |
 
-> **Tip:** `target_id` is an integer in JSON but is matched as a **partial string** against monster/item names. If your quest target is monster id `202` whose name is `"Goblin King"`, the system checks whether `"goblin king"` contains `"202"` — which it does not. Use the monster's id as a substring of its name for reliable matching:  
-> Name: `"Goblin 202"` and `target_id: 202` — this works.  
-> Better pattern: keep `target_id` as a meaningful number and name your monster something unique enough to match unambiguously.
+> **Tip:** numeric `target_id` values match IDs directly. String values match names
+> case-insensitively and ignore punctuation, so `"Usurper's Champion"` matches
+> `"usurper s champion"` and `"Usurper's Champion"`. Prefer IDs for unambiguous targets
+> and names for author-friendly content.
 
 ### Quest chain design
 
@@ -233,13 +240,13 @@ Place one mid-tier consumable (value 4–6) per 3–4 combat rooms. Place a high
 
 ## NPC Design
 
-In SagaCraft, NPCs are monsters with `friendliness: "friendly"` or `"neutral"`. They cannot be attacked if friendly.
+In Saga Foundry, NPCs are monsters with `friendliness: "friendly"` or `"neutral"`. They cannot be attacked if friendly.
 
 ### Friendly NPC tips
 
 - Give them a high `hardiness` so they appear robust (not that they fight, but `status` won't show them as frail).
 - Write their `description` assuming the player will `examine` them.
-- Hook dialogue into quests: the `talk_to_npc` objective type triggers when the player `say`s near a matching NPC.
+- Hook dialogue into quests: the `talk_to_npc` objective type triggers on `talk` and `ask <npc> about <topic>` for a matching NPC. Use the objective's optional `topic` field to require a specific conversation topic.
 
 ### Neutral NPC tips
 
@@ -300,7 +307,7 @@ python3 -m json.tool my_adventure.json > /dev/null && echo "JSON valid" || echo 
 
 ### "My adventure just says Unknown command"
 
-Players typed something you didn't expect. SagaCraft handles a fixed set of verbs — if you want custom interactions, use the quest `talk_to_npc` objective or implement a custom system in Rust.
+Players typed something you didn't expect. Saga Foundry handles a fixed set of verbs — if you want custom interactions, use the quest `talk_to_npc` objective or implement a custom system in Rust.
 
 ### "Monsters are too hard / too easy"
 

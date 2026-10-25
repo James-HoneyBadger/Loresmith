@@ -15,7 +15,7 @@ fn main() {
         }
     };
 
-    println!("SagaCraft — CLI Player");
+    println!("Saga Foundry Console");
     println!("Type 'help' for commands. Type 'quit' to exit.\n");
 
     // Print intro/banner text from adventure file, then room description
@@ -26,10 +26,24 @@ fn main() {
     println!("{}", engine.look());
 
     let stdin = io::stdin();
+    let mut over_announced = false;
     loop {
-        if engine.is_over() {
-            println!("\n--- Game Over ---");
-            break;
+        if engine.is_over() && !over_announced {
+            if engine.won() {
+                println!(
+                    "\n--- Victory ---\n{}",
+                    engine.ending().unwrap_or("The adventure is complete.")
+                );
+            } else {
+                println!(
+                    "\n--- Game Over ---\n{}",
+                    engine.ending().unwrap_or("You have been slain.")
+                );
+            }
+            println!("Type 'restart' to play again or 'quit' to exit.");
+            over_announced = true;
+        } else if !engine.is_over() {
+            over_announced = false;
         }
 
         print!("> ");
@@ -48,6 +62,16 @@ fn main() {
 
         match input.to_lowercase().as_str() {
             "quit" | "q" | "exit" => break,
+            "restart" => match engine.restart() {
+                Ok(intro) => {
+                    if !intro.is_empty() {
+                        println!("{}", intro);
+                    }
+                    println!("{}", engine.look());
+                    over_announced = false;
+                }
+                Err(error) => println!("Failed to restart: {}", error),
+            },
             _ => {
                 for line in engine.send(input) {
                     println!("{}", line);
@@ -64,6 +88,13 @@ fn parse_args(mut args: impl Iterator<Item = String>) -> String {
         match arg.as_str() {
             "--help" | "-h" => {
                 print_usage_and_exit();
+            }
+            "--version" | "-V" => {
+                println!(
+                    "Saga Foundry Console {} (sagacraft_player)",
+                    env!("CARGO_PKG_VERSION")
+                );
+                std::process::exit(0);
             }
             "--adventure" | "-a" => {
                 if let Some(path) = args.next() {
@@ -88,7 +119,7 @@ fn parse_args(mut args: impl Iterator<Item = String>) -> String {
 }
 
 fn print_usage_and_exit() -> ! {
-    println!("SagaCraft — CLI Player");
+    println!("Saga Foundry Console");
     println!("Usage:");
     println!("  sagacraft_player [<adventure.json>]");
     println!("  sagacraft_player --adventure <path>");
@@ -99,5 +130,6 @@ fn print_usage_and_exit() -> ! {
         DEFAULT_ADVENTURE
     );
     println!("  -h, --help                Show this help");
+    println!("  -V, --version             Show the version");
     std::process::exit(0)
 }

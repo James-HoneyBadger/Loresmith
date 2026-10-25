@@ -1,8 +1,8 @@
-# SagaCraft Development Guide
+# Saga Foundry Development Guide
 
-## Contributing to SagaCraft
+## Contributing to Saga Foundry
 
-Welcome to the SagaCraft development community! This guide will help you get started with contributing to the project, whether you're fixing bugs, adding features, or creating documentation.
+Welcome to the Saga Foundry development community! This guide will help you get started with contributing to the project, whether you're fixing bugs, adding features, or creating documentation.
 
 ## Table of Contents
 
@@ -21,7 +21,7 @@ Welcome to the SagaCraft development community! This guide will help you get sta
 
 Before contributing, ensure you have:
 
-- **Rust**: Version 1.70 or later
+- **Rust**: Version 1.95 or later (the workspace uses edition 2024)
 - **Git**: Version control system
 - **Text Editor**: VS Code, Vim, Emacs, or your preferred editor
 - **Terminal**: Bash, Zsh, or compatible shell
@@ -54,6 +54,7 @@ cargo build
 cargo test
 
 # Verify everything works
+cargo run --bin sagacraft_play
 cargo run --bin sagacraft_player
 ```
 
@@ -195,30 +196,41 @@ pub fn process_command(command: &str) -> Result<(), GameError> {
 ```
 src/
 ├── lib.rs              # Main library interface
-├── adventure.rs        # Adventure loading and validation
-├── command.rs          # Command parsing and handling
-├── game_state.rs       # Core game state structures
+├── document.rs         # Canonical AdventureDocument + legacy adapters
+├── adventure.rs        # Legacy string-ID format (read support)
+├── engine.rs           # High-level Engine wrapper
+├── game_state.rs       # Runtime state, loaders, saves, events
+├── util.rs             # Atomic file writes
 └── systems/            # Game systems
     ├── mod.rs
-    ├── basic_world.rs  # Room navigation
-    ├── combat.rs       # Combat mechanics
+    ├── basic_world.rs  # Navigation, look, talk, locks, saves
+    ├── combat.rs       # Combat, XP, loot, endings
     ├── inventory.rs    # Item management
-    └── quests.rs       # Quest tracking
+    ├── quests.rs       # Quests, stages, rewards
+    └── shops.rs        # Shops and trading
 ```
 
 ### Applications
 
 ```
-sagacraft_player/       # CLI game player
+sagacraft_play/         # Standalone graphical player
 ├── src/main.rs
 └── Cargo.toml
 
-sagacraft_ide_tui/      # Terminal UI editor
+sagacraft_ide_gui/      # Graphical editor (Studio)
 ├── src/main.rs
 └── Cargo.toml
 
-sagacraft_ide_gui/      # GUI editor
+sagacraft_player/       # CLI player (Console)
 ├── src/main.rs
+└── Cargo.toml
+
+sagacraft_ide_tui/      # Terminal editor (Workbench)
+├── src/main.rs
+└── Cargo.toml
+
+sagacraft_ui/           # Shared egui theme and widgets
+├── src/lib.rs
 └── Cargo.toml
 ```
 
@@ -233,59 +245,63 @@ Cargo.toml              # Workspace configuration
 
 ### Unit Tests
 
-Write comprehensive unit tests for all public functions:
+Test document parsing, validation, and runtime helpers:
 
 ```rust
 #[cfg(test)]
 mod tests {
-    use super::*;
+    use sagacraft_rs::AdventureDocument;
 
     #[test]
-    fn test_calculate_damage_basic() {
-        let attacker = Player::new("Hero");
-        let defender = Monster::new(1, "Goblin");
+    fn legacy_string_schema_is_normalised() {
+        let document = AdventureDocument::from_json_str(
+            r#"{
+                "id": "demo",
+                "title": "Demo",
+                "start_room": "village",
+                "rooms": [
+                    {"id": "village", "title": "Village", "description": "Home", "exits": {}},
+                    {"id": "forest", "title": "Forest", "description": "Trees", "exits": {}}
+                ]
+            }"#,
+        )
+        .expect("document should parse");
 
-        let damage = calculate_damage(&attacker, &defender);
-        assert!(damage >= 1);
-        assert!(damage <= attacker.weapon_damage());
+        assert_eq!(document.start_room, 1);
+        document.validate().expect("document should validate");
     }
 
     #[test]
-    fn test_calculate_damage_with_armor() {
-        let mut attacker = Player::new("Hero");
-        let mut defender = Monster::new(1, "Armored Goblin");
-
-        defender.set_armor(5);
-        let damage = calculate_damage(&attacker, &defender);
-
-        // Damage should be reduced by armor
-        assert!(damage < attacker.weapon_damage());
+    fn broken_exits_are_rejected() {
+        let document = AdventureDocument::from_json_str(
+            r#"{"title":"Broken","start_room":1,
+                "rooms":[{"id":1,"name":"A","description":"A","exits":{"north":99}}]}"#,
+        )
+        .expect("document should parse");
+        assert!(document.report().errors.iter().any(|error| error.contains("unknown room")));
     }
 }
 ```
 
 ### Integration Tests
 
-Test complete workflows in `tests/` directory:
+The repository has real integration tests in `sagacraft_rs/tests/`:
+
+- `bundled.rs` loads, validates, and starts every adventure in `examples/adventures/`.
+- `features.rs` covers quest matching, talk objectives, locks, light, shops, victory, and XP.
+
+Add a new end-to-end test with the high-level engine:
 
 ```rust
-// tests/integration_tests.rs
-use sagacraft_rs::{AdventureGame, BasicWorldSystem};
+use sagacraft_rs::Engine;
 
 #[test]
-fn test_complete_adventure_flow() {
-    let mut game = AdventureGame::new("test_adventure.json".to_string());
-    assert!(game.load_adventure().is_ok());
-
-    game.add_system(Box::new(BasicWorldSystem::default()));
-
-    // Test movement
-    let output = game.process_command("go north");
-    assert!(!output.is_empty());
-
-    // Test item interaction
-    let output = game.process_command("take sword");
-    assert!(output.iter().any(|line| line.contains("taken")));
+fn player_can_walk_and_check_status() {
+    let mut engine = Engine::load("../examples/adventures/shattered_realms_demo.json")
+        .expect("adventure should load");
+    assert!(!engine.look().is_empty());
+    let status = engine.send("status").join("\n");
+    assert!(status.contains("Health:"));
 }
 ```
 
@@ -296,7 +312,7 @@ fn test_complete_adventure_flow() {
 cargo test
 
 # Run specific test
-cargo test test_calculate_damage
+cargo test document::
 
 # Run with coverage
 cargo tarpaulin --out Html
@@ -559,6 +575,6 @@ Contributors are recognized through:
 
 ---
 
-**Thank you for contributing to SagaCraft!** Your efforts help make text-based adventures more accessible and enjoyable for everyone. Whether you're fixing a small bug or implementing a major feature, every contribution matters.
+**Thank you for contributing to Saga Foundry!** Your efforts help make text-based adventures more accessible and enjoyable for everyone. Whether you're fixing a small bug or implementing a major feature, every contribution matters.
 
 For questions or help getting started, don't hesitate to reach out through GitHub Issues or Discussions.

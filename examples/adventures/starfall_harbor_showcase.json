@@ -74,7 +74,13 @@
       "exits": {
         "west": 3,
         "north": 11,
-        "east": 12
+        "east": {
+          "to": 12,
+          "locked": true,
+          "key": "Customs Seal",
+          "consume_key": false,
+          "message": "The vault door bears a customs seal."
+        }
       },
       "items": [9]
     },
@@ -86,7 +92,8 @@
         "north": 4,
         "east": 13
       },
-      "items": [10]
+      "items": [10],
+      "is_dark": true
     },
     {
       "id": 9,
@@ -251,7 +258,8 @@
       "description": "A simple devotional charm blessed for safe return through fog and storm.",
       "type": "treasure",
       "weight": 0,
-      "value": 10
+      "value": 10,
+      "is_light_source": true
     },
     {
       "id": 13,
@@ -308,7 +316,16 @@
       "agility": 11,
       "friendliness": "friendly",
       "courage": 85,
-      "gold": 20
+      "gold": 20,
+      "dialogue": {
+        "greeting": "The beacon has been dark for three nights. The harbor is blind without it.",
+        "topics": {
+          "beacon": "The lamp needs beacon oil, and someone must carry it to the stormwatch.",
+          "storm": "It will break by dusk. We have hours, not days.",
+          "harbor": "Every ship out there is sailing on memory tonight."
+        },
+        "unknown": "I wish I had an answer for that."
+      }
     },
     {
       "id": 2,
@@ -319,7 +336,14 @@
       "agility": 12,
       "friendliness": "neutral",
       "courage": 50,
-      "gold": 9
+      "gold": 9,
+      "dialogue": {
+        "greeting": "Pell barely pauses. \"Buying or selling?\"",
+        "topics": {
+          "market": "The market keeps moving even when the sea doesn't."
+        },
+        "unknown": "Pell shrugs and keeps moving."
+      }
     },
     {
       "id": 3,
@@ -330,7 +354,15 @@
       "agility": 9,
       "friendliness": "friendly",
       "courage": 55,
-      "gold": 6
+      "gold": 6,
+      "dialogue": {
+        "greeting": "Orrin looks up from a water-stained index. \"Mind the tide charts.\"",
+        "topics": {
+          "beacon": "The old lamp was built by the Lantern Guild. Their charm still holds light.",
+          "library": "Half these books survived three floods. The other half are lies."
+        },
+        "unknown": "Orrin taps the index. \"Not in the catalogue.\""
+      }
     },
     {
       "id": 4,
@@ -341,7 +373,8 @@
       "agility": 12,
       "friendliness": "hostile",
       "courage": 70,
-      "gold": 14
+      "gold": 14,
+      "weapon_id": 17
     },
     {
       "id": 5,
@@ -351,7 +384,7 @@
       "hardiness": 9,
       "agility": 13,
       "friendliness": "hostile",
-      "courage": 75,
+      "courage": 20,
       "gold": 8
     },
     {
@@ -363,7 +396,15 @@
       "agility": 10,
       "friendliness": "friendly",
       "courage": 60,
-      "gold": 30
+      "gold": 30,
+      "dialogue": {
+        "greeting": "Selka weighs a pearl without looking up. \"The vault is sealed for a reason.\"",
+        "topics": {
+          "vault": "A customs seal opens the pearl vault. Don't lose it.",
+          "pearls": "Every pearl here has a story. Most of them are debts."
+        },
+        "unknown": "Selka smiles thinly. \"Ask a cheaper question.\""
+      }
     },
     {
       "id": 7,
@@ -408,6 +449,13 @@
       "description": "Recover the lamp fuel and climb to the stormwatch heights so the harbor’s guiding flame can be restored.",
       "giver_npc": "Harbormaster Mira",
       "objectives": [
+        {
+          "type": "talk_to_npc",
+          "target_id": "Harbormaster Mira",
+          "topic": "beacon",
+          "description": "Ask Harbormaster Mira about the beacon",
+          "count": 1
+        },
         {
           "type": "collect_item",
           "target_id": "Beacon Oil",
@@ -474,5 +522,36 @@
         "xp": 165
       }
     }
-  ]
+  ],
+  "shops": [
+    {
+      "id": 1,
+      "name": "Saltwind Chandlery",
+      "room_id": 2,
+      "gold": 300,
+      "stock": [
+        {
+          "item_id": 1,
+          "quantity": 1
+        },
+        {
+          "item_id": 2,
+          "quantity": 3
+        },
+        {
+          "item_id": 5,
+          "quantity": 1
+        }
+      ],
+      "buy_multiplier": 1.0,
+      "sell_multiplier": 0.5
+    }
+  ],
+  "ending": {
+    "victory_text": "The beacon burns again, and the harbor answers with a hundred lanterns.",
+    "defeat_text": "The dark takes the harbor, and the beacon never wakes.",
+    "conditions": {
+      "all_quests": true
+    }
+  }
 }

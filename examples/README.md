@@ -1,6 +1,6 @@
 # Examples
 
-SagaCraft keeps its bundled playable content in the adventures folder.
+Saga Foundry keeps its bundled playable content in the adventures folder. All files load through the canonical document model and are covered by integration tests.
 
 ## Included content
 
@@ -10,6 +10,10 @@ SagaCraft keeps its bundled playable content in the adventures folder.
 - adventures/starfall_harbor_showcase.json — maritime mystery showcase
 - adventures/iron_assembly_showcase.json — political intrigue showcase
 
-Run any of them with:
+Run any of them with the standalone player:
+
+cargo run --bin sagacraft_play -- examples/adventures/<file>.json
+
+Or in the terminal:
 
 cargo run --bin sagacraft_player -- examples/adventures/<file>.json

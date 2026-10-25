@@ -1,8 +1,8 @@
-# SagaCraft Game Designer Manual
+# Saga Foundry Game Designer Manual
 
-## Creating Adventures with SagaCraft
+## Creating Adventures with Saga Foundry
 
-This comprehensive guide will teach you how to design, create, and publish your own text-based adventures using the SagaCraft engine. Whether you're a first-time designer or an experienced developer, this manual covers everything you need to know.
+This comprehensive guide will teach you how to design, create, and publish your own text-based adventures using the Saga Foundry engine. Whether you're a first-time designer or an experienced developer, this manual covers everything you need to know.
 
 ## Table of Contents
 
@@ -20,9 +20,9 @@ This comprehensive guide will teach you how to design, create, and publish your 
 
 ## Introduction
 
-### What is SagaCraft?
+### What is Saga Foundry?
 
-SagaCraft is a text-based adventure game engine that focuses on:
+Saga Foundry is a text-based adventure game suite that focuses on:
 - **Simplicity**: Easy to learn, powerful to use
 - **Flexibility**: Support for various game genres
 - **Performance**: Fast loading and execution
@@ -30,7 +30,7 @@ SagaCraft is a text-based adventure game engine that focuses on:
 
 ### Design Philosophy
 
-SagaCraft adventures emphasize:
+Saga Foundry adventures emphasize:
 - **Storytelling**: Rich narratives and character development
 - **Exploration**: Discovery and player choice
 - **Immersion**: Detailed descriptions and atmosphere
@@ -40,7 +40,7 @@ SagaCraft adventures emphasize:
 
 ### JSON Format Overview
 
-All SagaCraft adventures are stored in JSON format:
+All Saga Foundry adventures are stored in JSON format:
 
 ```json
 {
@@ -121,7 +121,7 @@ Start with a simple two-room adventure:
 
 ### Step 3: Test Your Adventure
 
-Use the SagaCraft editors to test:
+Use Saga Foundry Studio or Workbench to test:
 
 ```bash
 # Terminal UI Editor
@@ -155,7 +155,7 @@ Create multiple paths through your story:
 
 ### Conditional Content
 
-SagaCraft does not currently support conditional room descriptions. Instead, use quest objectives and item placement to gate narrative progression. Players discover story through exploration and item examination.
+Saga Foundry does not currently support conditional room descriptions. Instead, use quest objectives and item placement to gate narrative progression. Players discover story through exploration and item examination.
 
 ### Puzzles and Challenges
 
@@ -170,7 +170,7 @@ Design engaging puzzles:
 
 ### Item Types
 
-SagaCraft supports various item types:
+Saga Foundry supports various item types:
 
 ```json
 {
@@ -227,18 +227,28 @@ For unique items, use descriptive text in the `description` field. The engine do
   "courage": 3,
   "weapon_id": null,
   "armor_worn": 0,
-  "gold": 50,
-  "is_dead": false
+  "gold": 50
 }
 ```
 
 ### NPC Behaviors
 
-- **Friendly**: Cannot be attacked. Will respond when the player uses `say` nearby.
-- **Neutral**: Cannot be attacked by default. May respond to `say`.
-- **Hostile**: Will fight back when attacked by the player.
+- **Friendly**: Cannot be attacked. Responds to `talk` and `ask`.
+- **Neutral**: Cannot be attacked by default. Responds cautiously to `talk` and `ask`.
+- **Hostile**: Refuses peaceful conversation and fights back when attacked.
 
-SagaCraft does not have a dialogue tree system. NPC interaction is through the `say` command and quest `talk_to_npc` objectives.
+NPCs can carry a `dialogue` object with a `greeting`, a map of `topics`, and an
+`unknown` fallback. `talk <npc>` uses the greeting; `ask <npc> about <topic>` matches
+topic keys case-insensitively. Quest `talk_to_npc` objectives progress on these commands
+and may require a specific `topic`:
+
+```json
+"dialogue": {
+  "greeting": "The beacon has been dark for three nights.",
+  "topics": { "beacon": "It needs oil before the storm." },
+  "unknown": "I can't help with that."
+}
+```
 
 ## Combat Design
 
@@ -257,8 +267,7 @@ SagaCraft does not have a dialogue tree system. NPC interaction is through the `
   "weapon_id": 200,
   "armor_worn": 1,
   "gold": 25,
-  "is_dead": false,
-  "current_health": 12
+  "loot": []
 }
 ```
 
@@ -302,11 +311,15 @@ Quests use integer IDs and have objectives that auto-track during gameplay:
       "target_id": 10,
       "description": "Travel to the temple location"
     }
-  ]
+  ],
+  "rewards": { "gold": 80, "xp": 120, "items": [105], "reputation": { "Village": 5 } }
 }
 ```
 
-Rewards (gold and XP) are defined as flat values on quest completion.
+Rewards can include gold, XP, item IDs/names, and reputation. Stages add ordered phases
+with their own objectives and `stage_reward_xp`. `complete` verifies that every objective
+is finished before paying. See [Adventure_Schema.md](Adventure_Schema.md) for the full
+quest, shop, lock, dialogue, light, and ending schemas.
 
 ### Quest Types
 
@@ -356,25 +369,34 @@ cargo test
 
 ### Distribution
 
+Use the real top-level fields. Unknown fields are preserved by the editor, but the
+engine only interprets the documented ones:
+
 ```json
 {
-  "metadata": {
-    "author": "Your Name",
-    "version": "1.0.0",
-    "genre": "Fantasy",
-    "difficulty": "Medium",
-    "estimated_time": "2-3 hours",
-    "target_audience": "All ages"
-  }
+  "id": "my_adventure",
+  "title": "My Adventure",
+  "description": "A two-hour fantasy mystery.",
+  "author": "Your Name",
+  "intro": "A storm is coming...",
+  "start_room": 1,
+  "rooms": [],
+  "items": [],
+  "monsters": [],
+  "quests": [],
+  "shops": [],
+  "ending": { "victory_text": "You win." }
 }
 ```
+
+See [Adventure_Schema.md](Adventure_Schema.md) for every supported field.
 
 ### Sharing Platforms
 
 - **GitHub**: Host adventure files and source code
 - **Itch.io**: Game distribution platform
 - **Personal Website**: Direct download links
-- **Community Forums**: Share with other SagaCraft users
+- **Community Forums**: Share with other Saga Foundry users
 
 ## Best Practices
 
@@ -418,7 +440,7 @@ cargo test
 
 ### Custom Systems
 
-Extend SagaCraft with custom mechanics by implementing the `System` trait in Rust:
+Extend Saga Foundry with custom mechanics by implementing the `System` trait in Rust:
 
 ```rust
 // Example: Weather system
@@ -450,17 +472,16 @@ engine.start()?;
 
 ### Tools and Templates
 
-- **Adventure Template**: Start with a basic structure
-- **Item Database**: Pre-made items for common tropes
-- **Room Generator**: Tools for creating room descriptions
-- **Dialogue Editor**: Visual dialogue tree creation
+- **New Adventure**: The GUI and TUI can create a starter document.
+- **Bundled examples**: See `examples/adventures/` for complete adventures.
+- **Schema reference**: See [Adventure_Schema.md](Adventure_Schema.md).
+- **Validation**: Use the GUI validation panel, the TUI `:validate` command, or
+  `cargo test --workspace` to verify content.
 
-### Community Resources
+### Community
 
-- **SagaCraft Forums**: Share tips and get feedback
-- **Adventure Showcase**: See what others have created
-- **Asset Library**: Shared art, music, and sound effects
-- **Tutorials**: Video and written guides
+There are no official Saga Foundry forums, asset libraries, or hosted showcases. Share
+adventures through your own repository or the project's GitHub issues and discussions.
 
 ### Learning Resources
 
@@ -471,6 +492,6 @@ engine.start()?;
 
 ---
 
-**Ready to create your masterpiece?** Start small, test often, and most importantly, have fun creating worlds that others will love to explore. Your adventure could be the next great SagaCraft story!
+**Ready to create your masterpiece?** Start small, test often, and most importantly, have fun creating worlds that others will love to explore. Your adventure could be the next great Saga Foundry story!
 
 For technical details, see the [Technical Reference](Technical_Reference.md). For API documentation, check the [API Reference](API_Reference.md).

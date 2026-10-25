@@ -1,12 +1,9 @@
-use crate::game_state::{AdventureGame, GameEvent, MonsterStatus, name_matches};
+use crate::game_state::{AdventureGame, GameEvent, MonsterStatus, award_experience, name_matches};
 use crate::systems::System;
 use rand::Rng;
 
 #[derive(Debug, Default)]
 pub struct CombatSystem;
-
-/// XP needed to level up: level * 100 (level 1→2 needs 100 XP, level 2→3 needs 200, etc.)
-const XP_PER_LEVEL: i32 = 100;
 
 impl System for CombatSystem {
     fn on_command(
@@ -47,18 +44,29 @@ impl CombatSystem {
         if let Some(m) = game.monsters.get(&monster_id)
             && m.friendliness != MonsterStatus::Hostile
         {
+            let disposition = match m.friendliness {
+                MonsterStatus::Friendly => "friendly",
+                MonsterStatus::Neutral => "peaceful",
+                MonsterStatus::Hostile => "hostile",
+            };
             return Some(format!(
-                "You can't bring yourself to attack the friendly {}.",
-                m.name
+                "You can't bring yourself to attack the {} {}.",
+                disposition, m.name
             ));
         }
 
-        // Determine player damage using equipped weapon, or unarmed fallback
+        // Weapon dice plus a small skill bonus from `weapon_ability`.
         let player_damage = if let Some(weapon_id) = game.player.equipped_weapon {
             if let Some(weapon) = game.items.get(&weapon_id) {
-                weapon.get_damage()
+                let skill = game
+                    .player
+                    .weapon_ability
+                    .get(&weapon.weapon_type)
+                    .copied()
+                    .unwrap_or(5);
+                weapon.get_damage() + skill / 5
             } else {
-                rand::thread_rng().gen_range(1..=4)
+                rand::rng().random_range(1..=4)
             }
         } else {
             let best = game
@@ -68,10 +76,11 @@ impl CombatSystem {
                 .copied()
                 .max()
                 .unwrap_or(4);
-            rand::thread_rng().gen_range(1..=best.max(4))
+            rand::rng().random_range(1..=best.max(4)) + best / 5
         };
 
         let mut output = String::new();
+        let mut kill_info: Option<(String, i32, i32, i32)> = None;
 
         // Apply player's attack to monster; monster armor reduces damage
         if let Some(monster) = game.monsters.get_mut(&monster_id) {
@@ -93,30 +102,12 @@ impl CombatSystem {
 
             if monster.current_health <= 0 {
                 monster.is_dead = true;
-                let name = monster.name.clone();
-                let room_id = monster.room_id;
-                let gold = monster.gold;
-                let xp_gained = monster.hardiness * 5;
-                game.player.gold += gold;
-                game.player.experience_points += xp_gained;
-                game.turn_count += 1;
-
-                let mut msg = format!("You defeat the {}!", name);
-                if gold > 0 {
-                    msg.push_str(&format!(" (+{} gold)", gold));
-                }
-                msg.push_str(&format!(" (+{} XP)", xp_gained));
-                // Check for level-up
-                let level_up_msg = Self::check_level_up(game);
-                if let Some(lu) = level_up_msg {
-                    msg.push('\n');
-                    msg.push_str(&lu);
-                }
-                game.events.push(GameEvent::MonsterKilled {
-                    monster_name: name,
-                    room_id,
-                });
-                return Some(msg);
+                kill_info = Some((
+                    monster.name.clone(),
+                    monster.room_id,
+                    monster.gold,
+                    monster.hardiness * 5,
+                ));
             } else {
                 output.push_str(&format!(
                     " It has {} health remaining.",
@@ -125,6 +116,37 @@ impl CombatSystem {
             }
         } else {
             return Some(format!("There's no {} here to attack.", target_name));
+        }
+
+        if let Some((name, room_id, gold, xp_gained)) = kill_info {
+            game.player.gold += gold;
+            game.turn_count += 1;
+
+            let mut msg = format!("You defeat the {}!", name);
+            if gold > 0 {
+                msg.push_str(&format!(" (+{} gold)", gold));
+            }
+            if xp_gained > 0 {
+                msg.push_str(&format!(" (+{} XP)", xp_gained));
+            }
+            for level_message in award_experience(game, xp_gained) {
+                msg.push('\n');
+                msg.push_str(&level_message);
+            }
+            if let Some(loot_message) = Self::drop_loot(game, monster_id) {
+                msg.push('\n');
+                msg.push_str(&loot_message);
+            }
+            game.events.push(GameEvent::MonsterKilled {
+                monster_name: name,
+                monster_id,
+                room_id,
+            });
+            if let Some(ending) = game.check_ending() {
+                msg.push('\n');
+                msg.push_str(&ending);
+            }
+            return Some(msg);
         }
 
         // Monster counter-attack (if still alive)
@@ -145,23 +167,23 @@ impl CombatSystem {
                     weapon.get_damage()
                 } else {
                     let max_dmg = (m.agility / 3 + 1).max(2);
-                    rand::thread_rng().gen_range(1..=max_dmg)
+                    rand::rng().random_range(1..=max_dmg)
                 }
             } else {
                 let max_dmg = (m.agility / 3 + 1).max(2);
-                rand::thread_rng().gen_range(1..=max_dmg)
+                rand::rng().random_range(1..=max_dmg)
             };
             (dmg, m.name.clone())
         } else {
             return String::new();
         };
 
-        // Reduce by player armor
+        // Reduce by equipped armor plus a small armor-expertise bonus.
         let armor_reduction = if let Some(armor_id) = game.player.equipped_armor {
             game.items.get(&armor_id).map_or(0, |a| a.armor_value)
         } else {
             0
-        };
+        } + game.player.armor_expertise / 5;
         let net_damage = (monster_dmg - armor_reduction).max(1);
 
         game.player.current_health -= net_damage;
@@ -169,6 +191,14 @@ impl CombatSystem {
 
         if current_hp <= 0 {
             game.game_over = true;
+            if let Some(text) = game
+                .document
+                .ending
+                .as_ref()
+                .and_then(|ending| ending.defeat_text.clone())
+            {
+                game.ending_text = text;
+            }
             format!(
                 "The {} strikes back for {} damage. You have been slain!",
                 monster_name, net_damage
@@ -191,24 +221,64 @@ impl CombatSystem {
             return "You aren't in combat — there's nothing to flee from.".to_string();
         }
 
-        // Flee success chance based on player agility (10% – 90%)
-        let flee_chance = (game.player.agility as f32 / 20.0).clamp(0.10, 0.90);
+        // Flee success chance based on player agility (10% – 90%) and the
+        // courage of the most determined pursuer.
+        let max_courage = game
+            .get_monsters_in_room(game.player.current_room)
+            .into_iter()
+            .filter(|monster| monster.friendliness == MonsterStatus::Hostile)
+            .map(|monster| monster.courage)
+            .max()
+            .unwrap_or(0);
+        let flee_chance =
+            (game.player.agility as f32 / 20.0 - max_courage as f32 / 1000.0).clamp(0.10, 0.90);
+
         if rand::random::<f32>() < flee_chance {
-            // Choose the first available exit
-            let exit = game.get_current_room().and_then(|r| {
-                r.exits
-                    .iter()
-                    .next()
-                    .map(|(dir, &dest)| (dir.clone(), dest))
-            });
-            if let Some((dir, dest_id)) = exit
-                && game.rooms.contains_key(&dest_id)
+            let mut exits: Vec<(String, i32)> = game
+                .get_current_room()
+                .map(|room| {
+                    room.exits
+                        .iter()
+                        .map(|(direction, destination)| (direction.clone(), *destination))
+                        .collect()
+                })
+                .unwrap_or_default();
+            exits.sort_by(|left, right| left.0.cmp(&right.0));
+
+            let exit = exits
+                .iter()
+                .find(|(_, destination)| {
+                    !Self::room_has_hostiles(game, *destination) && *destination != game.last_room
+                })
+                .or_else(|| {
+                    exits
+                        .iter()
+                        .find(|(_, destination)| !Self::room_has_hostiles(game, *destination))
+                })
+                .or_else(|| {
+                    exits
+                        .iter()
+                        .find(|(_, destination)| *destination != game.last_room)
+                })
+                .or_else(|| exits.first())
+                .cloned();
+
+            if let Some((direction, destination)) = exit
+                && game.rooms.contains_key(&destination)
             {
-                game.player.current_room = dest_id;
+                game.last_room = game.player.current_room;
+                game.player.current_room = destination;
                 game.turn_count += 1;
-                game.events
-                    .push(GameEvent::RoomEntered { room_id: dest_id });
-                return format!("You flee {}!\n{}", dir, game.look());
+                game.visited_rooms.insert(destination);
+                game.events.push(GameEvent::RoomEntered {
+                    room_id: destination,
+                });
+                let mut message = format!("You flee {}!\n{}", direction, game.look());
+                if let Some(ending) = game.check_ending() {
+                    message.push('\n');
+                    message.push_str(&ending);
+                }
+                return message;
             }
             "You try to flee but have nowhere to go!".to_string()
         } else {
@@ -228,22 +298,38 @@ impl CombatSystem {
         }
     }
 
-    /// Check whether the player should level up and apply it.
-    fn check_level_up(game: &mut AdventureGame) -> Option<String> {
-        let threshold = game.player.level * XP_PER_LEVEL;
-        if game.player.experience_points >= threshold {
-            game.player.level += 1;
-            // Increase stats on level-up
-            game.player.hardiness += 2;
-            game.player.agility += 1;
-            // Restore health to new max
-            game.player.current_health = game.player.hardiness;
-            Some(format!(
-                "*** Level Up! You are now level {}. Hardiness +2, Agility +1. Health restored to {}. ***",
-                game.player.level, game.player.hardiness
-            ))
-        } else {
+    fn room_has_hostiles(game: &AdventureGame, room_id: i32) -> bool {
+        game.monsters.values().any(|monster| {
+            monster.room_id == room_id
+                && !monster.is_dead
+                && monster.friendliness == MonsterStatus::Hostile
+        })
+    }
+
+    /// Move a defeated monster's loot and weapon into its room.
+    fn drop_loot(game: &mut AdventureGame, monster_id: i32) -> Option<String> {
+        let (room_id, loot, weapon_id) = {
+            let monster = game.monsters.get(&monster_id)?;
+            (monster.room_id, monster.loot.clone(), monster.weapon_id)
+        };
+
+        let mut seen = std::collections::HashSet::new();
+        let mut dropped = Vec::new();
+        for item_id in loot.into_iter().chain(weapon_id) {
+            if !seen.insert(item_id) {
+                continue;
+            }
+            if let Some(item) = game.items.get_mut(&item_id) {
+                item.location = room_id;
+                item.is_takeable = true;
+                dropped.push(item.name.clone());
+            }
+        }
+
+        if dropped.is_empty() {
             None
+        } else {
+            Some(format!("It drops: {}.", dropped.join(", ")))
         }
     }
 
@@ -261,9 +347,13 @@ impl CombatSystem {
             .map(|a| a.name.as_str())
             .unwrap_or("none");
         let (carry_cur, carry_max) = game.carry_weight();
-        let next_level_xp = game.player.level * 100;
-        format!(
-            "Player: {}\nHealth: {}/{}\nLevel: {}  XP: {}/{}\nGold: {}\nWeapon: {}\nArmor: {}\nCarrying: {}/{} weight\nLocation: Room {}",
+        let next_level_xp = game.player.level.saturating_mul(100);
+        let location = game
+            .get_current_room()
+            .map(|room| format!("{} (room {})", room.name, room.id))
+            .unwrap_or_else(|| format!("Room {}", game.player.current_room));
+        let mut status = format!(
+            "Player: {}\nHealth: {}/{}\nLevel: {}  XP: {}/{}\nGold: {}\nWeapon: {}\nArmor: {}\nCarrying: {}/{} weight\nLocation: {}",
             game.player.name,
             game.player.current_health,
             game.player.hardiness,
@@ -275,7 +365,18 @@ impl CombatSystem {
             armor_name,
             carry_cur,
             carry_max,
-            game.player.current_room,
-        )
+            location,
+        );
+        if !game.player.reputation.is_empty() {
+            let mut factions: Vec<_> = game.player.reputation.iter().collect();
+            factions.sort_by(|left, right| left.0.cmp(right.0));
+            let text = factions
+                .into_iter()
+                .map(|(faction, value)| format!("{} {:+}", faction, value))
+                .collect::<Vec<_>>()
+                .join(", ");
+            status.push_str(&format!("\nReputation: {}", text));
+        }
+        status
     }
 }

@@ -1,5 +1,5 @@
 #!/usr/bin/env bash
-# SagaCraft IDE Launcher (Rust TUI)
+# Saga Foundry Workbench — terminal adventure editor
 # Usage: ./Saga.sh
 
 set -e
@@ -8,5 +8,5 @@ set -e
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 cd "$SCRIPT_DIR"
 
-# Run the Rust TUI IDE
+# Run the terminal editor
 cargo run --bin sagacraft_ide_tui

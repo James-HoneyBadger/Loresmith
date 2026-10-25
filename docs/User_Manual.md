@@ -1,8 +1,8 @@
-# SagaCraft User Manual
+# Saga Foundry User Manual
 
-**Version 4.0 · SagaCraft**
+**Version 4.1 · Saga Foundry**
 
-SagaCraft is a text-based adventure game engine. You explore worlds, collect items, fight monsters, and complete quests by typing commands. This manual covers everything you need to play.
+Saga Foundry is a text-based adventure game suite. You explore worlds, collect items, fight monsters, and complete quests by typing commands. This manual covers everything you need to play.
 
 ---
 
@@ -27,38 +27,48 @@ SagaCraft is a text-based adventure game engine. You explore worlds, collect ite
 ### Using the provided scripts
 
 ```bash
-# Play the default demo adventure
+# Standalone graphical Player (choose from the adventure library)
 ./Play.sh
+./Play.sh path/to/adventure.json
 
-# Open the Terminal UI editor/launcher
+# Terminal player
+./Console.sh path/to/adventure.json
+
+# Graphical editor (Studio)
+./Studio.sh
+
+# Terminal editor (Workbench)
 ./Saga.sh
 ```
 
 ### Using Cargo directly
 
 ```bash
-# Play a specific adventure file
+# Standalone graphical player
+cargo run --bin sagacraft_play -- path/to/adventure.json
+
+# Terminal player
 cargo run --bin sagacraft_player -- path/to/adventure.json
 
-# Open the Terminal UI IDE
-cargo run --bin sagacraft_ide_tui
-
-# Open the Graphical IDE
+# Graphical editor (Studio)
 cargo run --bin sagacraft_ide_gui
+
+# Terminal editor (Workbench)
+cargo run --bin sagacraft_ide_tui
 ```
 
 ### Included adventures
 
 | File | Description |
 |------|-------------|
-| examples/adventures/demo_adventure.json | Two-room introduction to SagaCraft |
+| examples/adventures/demo_adventure.json | Two-room introduction to Saga Foundry |
 | examples/adventures/shattered_realms_demo.json | 15-room epic fantasy adventure with combat and quests |
 
 ---
 
 ## How to Play
 
-SagaCraft is played entirely by typing commands and reading the responses. Everything happens at the keyboard.
+Saga Foundry is played entirely by typing commands and reading the responses. Everything happens at the keyboard.
 
 When you start a new game you will see the title banner, optional introduction text, and then the first room description:
 
@@ -120,13 +130,7 @@ Type a command and press **Enter**. The engine responds, and you continue.
 | Command | Aliases | Effect |
 |---------|---------|--------|
 | `attack <target>` | `fight <target>`, `kill <target>` | Attack a hostile monster in the room |
-| `flee` | `run`, `escape` | Attempt to flee the current room (50% base chance + agility bonus) |
-
-### Social
-
-| Command | Aliases | Effect |
-|---------|---------|--------|
-| `say <text>` | `shout <text>`, `yell <text>` | Speak aloud; friendly NPCs nearby will react |
+| `flee` | `run`, `escape` | Attempt to flee; chance is `agility/20` adjusted by the pursuer's courage (10–90%) |
 
 ### Quests
 
@@ -134,9 +138,43 @@ Type a command and press **Enter**. The engine responds, and you continue.
 |---------|--------|
 | `quests` | Show active and available quests with objectives |
 | `accept <quest_id>` | Accept an available quest |
-| `complete <quest_id>` | Report a finished quest and collect rewards |
+| `complete <quest_id>` | Turn in a quest whose objectives are all complete |
+| `abandon <quest_id>` | Abandon an active quest |
 
 > Aliases: `finish` works the same as `complete`.
+
+### Social and exploration
+
+| Command | Aliases | Effect |
+|---------|---------|--------|
+| `talk <npc>` | `speak`, `greet`, `hello` | Speak to a nearby NPC (uses their greeting) |
+| `ask <npc> about <topic>` | — | Ask about a topic; matches NPC dialogue topics |
+| `say <text>` | `shout`, `yell` | Speak aloud; nearby non-hostile NPCs react |
+| `unlock <direction>` | — | Unlock an exit with a carried key |
+| `restart` | — | Start the adventure over |
+
+### Shops
+
+| Command | Aliases | Effect |
+|---------|---------|--------|
+| `shop [name]` | `trade`, `store` | List shops, stock, buy prices, and your sell offers in the current room |
+| `buy <item>` | `purchase` | Buy one item if you can afford it and carry it |
+| `sell <item>` | — | Sell a carried item if the shop can afford it |
+
+Buy prices use the item value, the shop's `buy_multiplier` (default `1.0`), and your
+charisma. Sell prices use `sell_multiplier` (default `0.5`) and charisma. Shops have finite
+gold and stock, and buying an item counts as collecting it for quest objectives. A shop
+never pays more than it charges for the same item. If several shops share a room, `buy`
+picks the cheapest in-stock offer and `sell` picks the highest offer a shop can afford.
+
+### Saves
+
+| Command | Effect |
+|---------|--------|
+| `save [file]` | Save to `savegame.json` or the given path (atomic write) |
+| `load [file]` | Load a v1 or v2 snapshot |
+| `saves` | List JSON files in the current directory |
+| `autosave on [file]` / `off` / `status` | Manage autosave |
 
 ### Game Control
 
@@ -170,7 +208,7 @@ Some rooms are flagged `is_dark`. In a dark room you see:
 It is pitch black. You can't see a thing.
 ```
 
-You need a light-source item (defined in the adventure) to see in darkness.
+Carry an item with `is_light_source: true` (for example a lantern) and the room description is revealed. Without one, items and NPCs stay hidden.
 
 ---
 
@@ -312,14 +350,17 @@ You can't bring yourself to attack the friendly Merchant.
 
 **Monster counter-attack:**
 - The monster rolls `1` to `(agility ÷ 3) + 1` damage (minimum 2).
-- Your equipped armor's `armor_value` is subtracted from that, with a minimum of 1 damage.
+- Your equipped armor's `armor_value` plus `armor_expertise / 5` is subtracted, with a minimum of 1 damage.
 
 **Example:** A monster with agility 9 deals up to `(9÷3)+1 = 4` raw damage per counter-attack. With Leather Armor (armor_value 2) you absorb 2 points, reducing the hit to at most 2. A monster with agility 3 would deal `(3÷3)+1 = 2` raw damage.
 
 ### Victory and death
 
-- A monster that reaches 0 health is killed. You automatically collect any gold it carried.
-- If your health reaches 0 the game ends immediately.
+- A monster that reaches 0 health is killed. You automatically collect any gold it carried,
+  and its loot and weapon fall into the room for you to take.
+- If your health reaches 0 the game ends. Use `restart` to try again.
+- Adventures may define victory conditions (rooms visited, quests completed, items carried).
+  When they are all met, the ending text is shown and the adventure ends; `restart` starts over.
 
 ### After a fight
 
@@ -344,12 +385,13 @@ Use `status` to check your health. Heal with Edible or Drinkable items if availa
 ```
 > quests
 Active Quests:
-- Slay the Goblin King: Defeat the leader of the warband
-  Current Stage: Main Quest
-    - Kill Goblin King (0/1)
+- [1] Slay the Goblin King (Moderate)
+  Defeat the leader of the warband
+  Stage 1/1: Main Objectives
+    [ ] Kill Goblin King (0/1)
 
 Available Quests:
-- Collect the Herb: Gather healing herbs from the forest
+- [2] Collect the Herb: Gather healing herbs from the forest
 ```
 
 ### Accepting a quest
@@ -361,23 +403,28 @@ Accepted quest: Collect the Herb
 
 ### Completing a quest
 
-When all required objectives show `(1/1)` or greater, report completion:
+The journal shows quest IDs, stages, and objective progress. When every objective shows `[x]`, report completion:
 
 ```
-> complete 3
-Completed quest: 3 (+50 gold) (+100 XP)
+> complete 1
+Completed quest: Slay the Goblin King (1)
++50 gold
++100 XP
 ```
 
 Gold and XP are added to your totals immediately.
+
+> `complete` refuses to pay rewards while any objective is unfinished. The journal prints a
+> "Ready to turn in" line as soon as the final objective is met.
 
 ### How objectives track automatically
 
 | Objective type | When it advances |
 |---------------|-----------------|
-| Kill | Every time you `attack` and kill a monster whose name matches the quest target |
-| Collect | Every time you `take` an item whose name matches the quest target |
-| Explore / Reach | Every time you enter the target room |
-| Talk | When you `say` to a matching NPC |
+| Kill | Every time you kill a monster whose ID or name matches the quest target |
+| Collect | Every time you `take` an item whose ID or name matches the quest target |
+| Explore / Reach | Every time you enter the target room (ID or name) |
+| Talk | When you `talk` to or `ask` a matching NPC (optionally requiring a topic) |
 
 Quest progress notifications appear automatically after the triggering action:
 

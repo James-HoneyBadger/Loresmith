@@ -1,4 +1,4 @@
-use crate::game_state::{AdventureGame, Monster, MonsterStatus, name_matches};
+use crate::game_state::{AdventureGame, GameEvent, Monster, MonsterStatus, name_matches};
 use crate::systems::System;
 
 #[derive(Debug, Default)]
@@ -39,21 +39,28 @@ impl BasicWorldSystem {
         };
 
         let npc_name = npc.name.clone();
+        let npc_id = npc.id;
         let npc_description = npc.description.clone();
         let friendliness = npc.friendliness.clone();
+        let greeting = npc
+            .dialogue
+            .as_ref()
+            .map(|dialogue| dialogue.greeting.clone())
+            .filter(|greeting| !greeting.trim().is_empty());
 
         game.turn_count += 1;
+        game.events.push(GameEvent::TalkedTo {
+            npc_name: npc_name.clone(),
+            npc_id,
+            topic: None,
+        });
+
         match friendliness {
-            MonsterStatus::Friendly => format!(
-                "{} says: \"{}\"",
-                npc_name,
-                Self::short_description(&npc_description)
-            ),
-            MonsterStatus::Neutral => format!(
-                "{} eyes you cautiously and says: \"{}\"",
-                npc_name,
-                Self::short_description(&npc_description)
-            ),
+            MonsterStatus::Friendly | MonsterStatus::Neutral => {
+                let line = greeting
+                    .unwrap_or_else(|| Self::short_description(&npc_description).to_string());
+                format!("{} says: \"{}\"", npc_name, line)
+            }
             MonsterStatus::Hostile => {
                 format!("{} snarls and refuses to speak peacefully.", npc_name)
             }
@@ -66,23 +73,42 @@ impl BasicWorldSystem {
         };
 
         let npc_name = npc.name.clone();
+        let npc_id = npc.id;
         let npc_description = npc.description.clone();
         let friendliness = npc.friendliness.clone();
+        let dialogue = npc.dialogue.clone();
 
         game.turn_count += 1;
+        game.events.push(GameEvent::TalkedTo {
+            npc_name: npc_name.clone(),
+            npc_id,
+            topic: Some(topic.to_string()),
+        });
+
         match friendliness {
-            MonsterStatus::Friendly => format!(
-                "{} says: \"About {}? {}.\"",
-                npc_name,
-                topic,
-                Self::short_description(&npc_description)
-            ),
-            MonsterStatus::Neutral => format!(
-                "{} says: \"About {}? {}.\"",
-                npc_name,
-                topic,
-                Self::short_description(&npc_description)
-            ),
+            MonsterStatus::Friendly | MonsterStatus::Neutral => {
+                let query = topic.to_lowercase();
+                let answer = dialogue.as_ref().and_then(|dialogue| {
+                    dialogue
+                        .topics
+                        .iter()
+                        .find(|(key, _)| {
+                            let key = key.to_lowercase();
+                            key.contains(&query) || query.contains(&key)
+                        })
+                        .map(|(_, value)| value.clone())
+                });
+                let fallback = dialogue
+                    .as_ref()
+                    .and_then(|dialogue| dialogue.unknown.clone())
+                    .unwrap_or_else(|| Self::short_description(&npc_description).to_string());
+                format!(
+                    "{} says: \"About {}? {}\"",
+                    npc_name,
+                    topic,
+                    answer.unwrap_or(fallback)
+                )
+            }
             MonsterStatus::Hostile => format!(
                 "{} growls: \"Ask me about {} again and you'll regret it.\"",
                 npc_name, topic
@@ -149,9 +175,25 @@ impl System for BasicWorldSystem {
                     Err(err) => Some(format!("Failed to load game: {}", err)),
                 }
             }
+            "restart" => match game.restart() {
+                Ok(_) => Some(format!("The adventure begins anew.\n{}", game.look())),
+                Err(err) => Some(format!("Failed to restart: {}", err)),
+            },
+            "saves" => Some(Self::list_saves()),
+            "unlock" => {
+                if let Some(direction) = args.first() {
+                    match game.unlock_exit(&direction.to_lowercase()) {
+                        Ok(message) => Some(message),
+                        Err(message) => Some(message),
+                    }
+                } else {
+                    Some("Unlock which direction?".to_string())
+                }
+            }
             "go" | "move" => {
                 if let Some(dir) = args.first() {
-                    let full = Self::expand_direction(dir);
+                    let lowered = dir.to_lowercase();
+                    let full = Self::expand_direction(&lowered);
                     match game.move_player(full) {
                         Some(desc) => Some(desc),
                         None => Some(format!("You can't go {}.", full)),
@@ -230,34 +272,33 @@ impl System for BasicWorldSystem {
 }
 
 impl BasicWorldSystem {
+    fn list_saves() -> String {
+        let mut files: Vec<(String, u64)> = std::fs::read_dir(".")
+            .into_iter()
+            .flatten()
+            .flatten()
+            .filter_map(|entry| {
+                let path = entry.path();
+                if path.extension().and_then(|ext| ext.to_str()) == Some("json") {
+                    let size = entry.metadata().ok().map(|meta| meta.len()).unwrap_or(0);
+                    Some((path.display().to_string(), size))
+                } else {
+                    None
+                }
+            })
+            .collect();
+        files.sort_by(|left, right| left.0.cmp(&right.0));
+        if files.is_empty() {
+            return "No JSON files found in the current directory.".to_string();
+        }
+        let mut out = String::from("JSON files in this directory:");
+        for (path, size) in files {
+            out.push_str(&format!("\n  {} ({} bytes)", path, size));
+        }
+        out
+    }
+
     fn help_text() -> String {
-        [
-            "Commands:",
-            "  look / l                    Look around",
-            "  inventory / i / inv         Show inventory",
-            "  n/s/e/w/u/d                 Move in a direction",
-            "  take <item>                 Pick up an item",
-            "  drop <item>                 Drop an item",
-            "  equip/wield/wear <item>     Equip a weapon or armor",
-            "  unequip/remove <slot>       Unequip weapon or armor",
-            "  use <item>                  Use/consume an item",
-            "  examine / x <item>          Examine an item",
-            "  attack / fight <monster>    Attack a monster",
-            "  flee / run                  Attempt to flee combat",
-            "  talk <npc>                  Speak directly to someone nearby",
-            "  ask <npc> about <topic>     Ask an NPC about a subject",
-            "  say / shout / yell <text>   Speak aloud",
-            "  status / stats              Show player status & XP",
-            "  quests / journal            Show quest journal",
-            "  accept <quest_id>           Accept a quest",
-            "  complete <quest_id>         Complete a quest",
-            "  save [file]                 Save current progress",
-            "  load [file]                 Load saved progress",
-            "  autosave on [file]          Enable automatic saving",
-            "  autosave off                Disable automatic saving",
-            "  autosave status             Show autosave status",
-            "  help / ?                    Show this help",
-        ]
-        .join("\n")
+        crate::commands::help_text()
     }
 }

@@ -1,9 +1,11 @@
-use crate::adventure::Adventure as AuthoringAdventure;
+use crate::document::{AdventureDocument, EndingConditions, InventoryRef, ItemDef, ShopDef};
 use crate::systems::System;
 use serde::{Deserialize, Serialize};
 use std::collections::HashMap;
 use std::fs;
 use std::path::Path;
+
+pub use crate::document::DialogueDef as Dialogue;
 
 /// Case-insensitive substring match for item/monster names.
 pub(crate) fn name_matches(name: &str, query: &str) -> bool {
@@ -47,7 +49,14 @@ pub struct Item {
     pub armor_value: i32,
     pub is_takeable: bool,
     pub is_wearable: bool,
-    pub location: i32, // 0=inventory, -1=worn, room_id or monster_id
+    /// Carrying this item reveals dark rooms.
+    #[serde(default)]
+    pub is_light_source: bool,
+    /// Reserved capacity for container items.
+    #[serde(default)]
+    pub container_capacity: i32,
+    /// 0 = carried (when in `Player::inventory`), -1 = worn, room ID, or monster ID.
+    pub location: i32,
 }
 
 impl Item {
@@ -74,6 +83,8 @@ impl Item {
             armor_value: 0,
             is_takeable: true,
             is_wearable: false,
+            is_light_source: false,
+            container_capacity: 0,
             location: 0,
         }
     }
@@ -83,9 +94,9 @@ impl Item {
             return 0;
         }
         use rand::Rng;
-        let mut rng = rand::thread_rng();
+        let mut rng = rand::rng();
         (0..self.weapon_dice)
-            .map(|_| rng.gen_range(1..=self.weapon_sides))
+            .map(|_| rng.random_range(1..=self.weapon_sides))
             .sum()
     }
 }
@@ -105,6 +116,10 @@ pub struct Monster {
     pub gold: i32,
     pub is_dead: bool,
     pub current_health: i32,
+    #[serde(default)]
+    pub dialogue: Option<Dialogue>,
+    #[serde(default)]
+    pub loot: Vec<i32>,
 }
 
 impl Monster {
@@ -133,8 +148,20 @@ impl Monster {
             gold: 0,
             is_dead: false,
             current_health: hardiness,
+            dialogue: None,
+            loot: Vec::new(),
         }
     }
+}
+
+/// Runtime lock state for an exit.
+#[derive(Debug, Clone, PartialEq, Eq, Serialize, Deserialize)]
+pub struct LockedExit {
+    pub to: i32,
+    pub key: Option<String>,
+    pub consume_key: bool,
+    pub message: String,
+    pub unlocked: bool,
 }
 
 #[derive(Debug, Clone, PartialEq, Eq, Serialize, Deserialize)]
@@ -144,6 +171,7 @@ pub struct Room {
     pub description: String,
     pub exits: HashMap<String, i32>, // direction -> room_id
     pub is_dark: bool,
+    pub locked_exits: HashMap<String, LockedExit>,
 }
 
 impl Room {
@@ -154,6 +182,7 @@ impl Room {
             description,
             exits: HashMap::new(),
             is_dark: false,
+            locked_exits: HashMap::new(),
         }
     }
 
@@ -178,6 +207,8 @@ pub struct Player {
     pub equipped_armor: Option<i32>,
     pub experience_points: i32,
     pub level: i32,
+    #[serde(default)]
+    pub reputation: HashMap<String, i32>,
 }
 
 impl Player {
@@ -201,6 +232,7 @@ impl Player {
             equipped_armor: None,
             experience_points: 0,
             level: 1,
+            reputation: HashMap::new(),
         }
     }
 }
@@ -214,10 +246,62 @@ impl Default for Player {
 /// Events emitted by systems so other systems can react (quest tracking, etc.).
 #[derive(Debug, Clone)]
 pub enum GameEvent {
-    MonsterKilled { monster_name: String, room_id: i32 },
-    ItemCollected { item_name: String, item_id: i32 },
-    RoomEntered { room_id: i32 },
-    ItemUsed { item_name: String },
+    MonsterKilled {
+        monster_name: String,
+        monster_id: i32,
+        room_id: i32,
+    },
+    ItemCollected {
+        item_name: String,
+        item_id: i32,
+    },
+    RoomEntered {
+        room_id: i32,
+    },
+    ItemUsed {
+        item_name: String,
+    },
+    TalkedTo {
+        npc_name: String,
+        npc_id: i32,
+        topic: Option<String>,
+    },
+    ItemPurchased {
+        item_name: String,
+        item_id: i32,
+    },
+    ItemSold {
+        item_name: String,
+        item_id: i32,
+    },
+    ExitUnlocked {
+        room_id: i32,
+        direction: String,
+    },
+    QuestCompleted {
+        quest_id: String,
+        title: String,
+    },
+    GameWon {
+        text: String,
+    },
+}
+
+#[derive(Debug, Clone, Serialize, Deserialize)]
+pub struct ShopStock {
+    pub item_id: i32,
+    pub quantity: i32,
+}
+
+#[derive(Debug, Clone, Serialize, Deserialize)]
+pub struct Shop {
+    pub id: i32,
+    pub name: String,
+    pub room_id: i32,
+    pub gold: i32,
+    pub stock: Vec<ShopStock>,
+    pub buy_multiplier: f32,
+    pub sell_multiplier: f32,
 }
 
 #[derive(Debug, Clone, Serialize, Deserialize)]
@@ -232,6 +316,23 @@ struct GameSnapshot {
     autosave_enabled: bool,
     autosave_path: String,
     system_states: HashMap<String, serde_json::Value>,
+    /// Snapshot v2+: the full document makes saves portable.
+    #[serde(default)]
+    document: Option<AdventureDocument>,
+    #[serde(default)]
+    shops: HashMap<i32, Shop>,
+    #[serde(default)]
+    game_won: bool,
+    #[serde(default)]
+    ending_text: String,
+    #[serde(default)]
+    unlocked_exits: Vec<(i32, String)>,
+    #[serde(default)]
+    last_room: i32,
+    #[serde(default)]
+    visited_rooms: Vec<i32>,
+    #[serde(default)]
+    completed_quests: Vec<String>,
 }
 
 pub struct AdventureGame {
@@ -247,8 +348,85 @@ pub struct AdventureGame {
     pub autosave_enabled: bool,
     pub autosave_path: String,
     pub systems: Vec<Box<dyn System>>,
-    pub quests: Vec<serde_json::Value>, // Quest definitions
+    pub quests: Vec<serde_json::Value>, // Quest definitions (derived from `document`)
     pub events: Vec<GameEvent>,         // Inter-system event bus
+    pub document: AdventureDocument,
+    pub shops: HashMap<i32, Shop>,
+    pub game_won: bool,
+    pub ending_text: String,
+    pub ending_conditions: Option<EndingConditions>,
+    pub last_room: i32,
+    pub visited_rooms: std::collections::HashSet<i32>,
+    pub completed_quests: std::collections::HashSet<String>,
+}
+
+fn item_from_def(def: &ItemDef) -> Item {
+    Item {
+        id: def.id,
+        name: def.name.clone(),
+        description: def.description.clone(),
+        item_type: def.item_type.clone(),
+        weight: def.weight,
+        value: def.value,
+        is_weapon: def.is_weapon,
+        weapon_type: def.weapon_type,
+        weapon_dice: def.weapon_dice,
+        weapon_sides: def.weapon_sides,
+        is_armor: def.is_armor,
+        armor_value: def.armor_value,
+        is_takeable: def.is_takeable,
+        is_wearable: def.is_wearable,
+        is_light_source: def.is_light_source,
+        container_capacity: def.container_capacity,
+        location: def.location,
+    }
+}
+
+fn shop_from_def(def: &ShopDef) -> Shop {
+    Shop {
+        id: def.id,
+        name: def.name.clone(),
+        room_id: def.room_id,
+        gold: def.gold,
+        stock: def
+            .stock
+            .iter()
+            .map(|stock| ShopStock {
+                item_id: stock.item_id,
+                quantity: stock.quantity,
+            })
+            .collect(),
+        buy_multiplier: def.buy_multiplier,
+        sell_multiplier: def.sell_multiplier,
+    }
+}
+
+/// Award XP and apply every level-up the total qualifies for.
+pub fn award_experience(game: &mut AdventureGame, amount: i32) -> Vec<String> {
+    if amount <= 0 {
+        return Vec::new();
+    }
+    game.player.experience_points = game.player.experience_points.saturating_add(amount);
+    let mut messages = Vec::new();
+    loop {
+        let threshold = game.player.level.saturating_mul(100);
+        if game.player.experience_points < threshold {
+            break;
+        }
+        game.player.level += 1;
+        game.player.hardiness += 2;
+        game.player.agility += 1;
+        game.player.current_health = game.player.hardiness;
+        messages.push(format!(
+            "*** Level Up! You are now level {}. Hardiness +2, Agility +1. Health restored to {}. ***",
+            game.player.level, game.player.hardiness
+        ));
+        // Defensive bound for malformed saves with absurd XP.
+        if game.player.level >= 10_000 {
+            break;
+        }
+    }
+    messages
 }
 
 impl AdventureGame {
@@ -268,6 +446,14 @@ impl AdventureGame {
             systems: Vec::new(),
             quests: Vec::new(),
             events: Vec::new(),
+            document: AdventureDocument::default(),
+            shops: HashMap::new(),
+            game_won: false,
+            ending_text: String::new(),
+            ending_conditions: None,
+            last_room: 0,
+            visited_rooms: std::collections::HashSet::new(),
+            completed_quests: std::collections::HashSet::new(),
         }
     }
 
@@ -275,10 +461,17 @@ impl AdventureGame {
         self.rooms.clear();
         self.items.clear();
         self.monsters.clear();
+        self.shops.clear();
         self.quests.clear();
         self.events.clear();
         self.turn_count = 0;
         self.game_over = false;
+        self.game_won = false;
+        self.ending_text.clear();
+        self.ending_conditions = None;
+        self.last_room = 0;
+        self.visited_rooms.clear();
+        self.completed_quests.clear();
         self.player = Player::new();
     }
 
@@ -292,368 +485,160 @@ impl AdventureGame {
         header
     }
 
-    fn load_string_id_adventure(
+    pub fn load_adventure(&mut self) -> Result<String, Box<dyn std::error::Error>> {
+        let document = AdventureDocument::load_json_file(&self.adventure_file)?;
+        self.load_document(document)
+    }
+
+    /// Load an adventure from a JSON string (used by editors and tests).
+    pub fn load_from_str(&mut self, json: &str) -> Result<String, Box<dyn std::error::Error>> {
+        let document = AdventureDocument::from_json_str(json)?;
+        self.load_document(document)
+    }
+
+    /// Load an adventure from an already-parsed JSON value.
+    pub fn load_from_value(
         &mut self,
-        data: &serde_json::Value,
+        value: serde_json::Value,
     ) -> Result<String, Box<dyn std::error::Error>> {
-        let adventure: AuthoringAdventure = serde_json::from_value(data.clone())?;
-        adventure.validate()?;
+        let document = AdventureDocument::from_value(value)?;
+        self.load_document(document)
+    }
+
+    /// Build runtime state from a canonical document.
+    pub fn load_document(
+        &mut self,
+        document: AdventureDocument,
+    ) -> Result<String, Box<dyn std::error::Error>> {
+        let document = document.normalized();
+        document.validate()?;
 
         self.reset_runtime_state();
-        self.adventure_title = adventure.title.clone();
-        self.adventure_intro = data
-            .get("intro")
-            .and_then(|v| v.as_str())
-            .unwrap_or("")
-            .to_string();
-
-        let room_id_map: HashMap<String, i32> = adventure
-            .rooms
+        self.document = document.clone();
+        self.adventure_title = document.title.clone();
+        self.adventure_intro = document.intro.clone();
+        self.quests = document
+            .quests
             .iter()
-            .enumerate()
-            .map(|(index, room)| (room.id.clone(), index as i32 + 1))
+            .filter_map(|quest| serde_json::to_value(quest).ok())
             .collect();
 
-        let mut next_item_id = 1;
-        for room in &adventure.rooms {
-            let numeric_room_id = *room_id_map.get(&room.id).ok_or_else(|| {
-                std::io::Error::new(
-                    std::io::ErrorKind::InvalidData,
-                    format!("room id mapping missing for '{}'", room.id),
-                )
-            })?;
-
-            let exits = room
-                .exits
-                .iter()
-                .map(|(dir, dest)| {
-                    room_id_map
-                        .get(dest)
-                        .copied()
-                        .map(|dest_id| (dir.clone(), dest_id))
-                })
-                .collect::<Option<HashMap<_, _>>>()
-                .ok_or_else(|| {
-                    std::io::Error::new(
-                        std::io::ErrorKind::InvalidData,
-                        format!("room '{}' has an exit to an unknown room", room.id),
-                    )
-                })?;
-
+        for room_def in &document.rooms {
+            let mut exits = HashMap::new();
+            let mut locked_exits = HashMap::new();
+            for (direction, exit) in &room_def.exits {
+                exits.insert(direction.clone(), exit.destination());
+                if let Some(lock) = exit.lock() {
+                    locked_exits.insert(
+                        direction.clone(),
+                        LockedExit {
+                            to: lock.to,
+                            key: lock.key.clone(),
+                            consume_key: lock.consume_key,
+                            message: lock
+                                .message
+                                .clone()
+                                .unwrap_or_else(|| "It is locked.".to_string()),
+                            unlocked: !lock.locked,
+                        },
+                    );
+                }
+            }
             self.rooms.insert(
-                numeric_room_id,
+                room_def.id,
                 Room {
-                    id: numeric_room_id,
-                    name: if room.title.trim().is_empty() {
-                        room.id.clone()
+                    id: room_def.id,
+                    name: if room_def.name.trim().is_empty() {
+                        format!("Room {}", room_def.id)
                     } else {
-                        room.title.clone()
+                        room_def.name.clone()
                     },
-                    description: room.description.clone(),
+                    description: room_def.description.clone(),
                     exits,
-                    is_dark: false,
+                    is_dark: room_def.is_dark,
+                    locked_exits,
                 },
             );
+        }
 
-            for item in &room.items {
-                let mut world_item = Item::new(
-                    next_item_id,
-                    item.name.clone(),
-                    item.description.clone(),
-                    ItemType::Normal,
-                    1,
-                    0,
-                );
-                world_item.location = numeric_room_id;
-                self.items.insert(next_item_id, world_item);
-                next_item_id += 1;
+        for item_def in &document.items {
+            self.items.insert(item_def.id, item_from_def(item_def));
+        }
+
+        // Room `items` lists define placement, matching historical behavior.
+        for room in &document.rooms {
+            for item_id in &room.items {
+                if let Some(item) = self.items.get_mut(item_id) {
+                    item.location = room.id;
+                }
             }
         }
 
-        for item in &adventure.player_start_inventory {
-            let mut world_item = Item::new(
-                next_item_id,
-                item.name.clone(),
-                item.description.clone(),
-                ItemType::Normal,
-                1,
-                0,
-            );
-            world_item.location = 0;
-            self.player.inventory.push(next_item_id);
-            self.items.insert(next_item_id, world_item);
-            next_item_id += 1;
+        for entry in &document.player_start_inventory {
+            match entry {
+                InventoryRef::Id(id) => {
+                    if let Some(item) = self.items.get_mut(id) {
+                        item.location = 0;
+                    }
+                    if !self.player.inventory.contains(id) {
+                        self.player.inventory.push(*id);
+                    }
+                }
+                InventoryRef::Item(item_def) => {
+                    let item = item_from_def(item_def);
+                    if !self.player.inventory.contains(&item.id) {
+                        self.player.inventory.push(item.id);
+                    }
+                    self.items.insert(item.id, item);
+                }
+            }
         }
 
-        self.player.current_room = *room_id_map.get(&adventure.start_room).ok_or_else(|| {
-            std::io::Error::new(
-                std::io::ErrorKind::InvalidData,
-                format!("start_room does not exist: {}", adventure.start_room),
-            )
-        })?;
+        for monster_def in &document.monsters {
+            let mut monster = Monster::new(
+                monster_def.id,
+                monster_def.name.clone(),
+                monster_def.description.clone(),
+                monster_def.room_id,
+                monster_def.hardiness,
+                monster_def.agility,
+                monster_def.friendliness.clone(),
+                monster_def.courage,
+            );
+            monster.weapon_id = monster_def.weapon_id;
+            monster.armor_worn = monster_def.armor_worn;
+            monster.gold = monster_def.gold;
+            monster.dialogue = monster_def.dialogue.clone();
+            monster.loot = monster_def.loot.clone();
+            self.monsters.insert(monster.id, monster);
+        }
+
+        for shop_def in &document.shops {
+            self.shops.insert(shop_def.id, shop_from_def(shop_def));
+        }
+
+        if let Some(ending) = &document.ending {
+            self.ending_conditions = Some(ending.conditions.clone());
+            self.ending_text = ending.victory_text.clone();
+        }
+
+        self.player.current_room = document.start_room;
+        self.last_room = document.start_room;
+        self.visited_rooms.insert(document.start_room);
+
         self.validate_loaded_state()
             .map_err(|msg| std::io::Error::new(std::io::ErrorKind::InvalidData, msg))?;
+        self.notify_adventure_loaded();
 
         Ok(self.build_header())
     }
 
-    pub fn load_adventure(&mut self) -> Result<String, Box<dyn std::error::Error>> {
-        let data: serde_json::Value =
-            serde_json::from_str(&std::fs::read_to_string(&self.adventure_file)?)?;
-
-        let uses_string_ids = data.get("start_room").is_some_and(|v| v.is_string())
-            || data
-                .get("rooms")
-                .and_then(|v| v.as_array())
-                .and_then(|rooms| rooms.first())
-                .and_then(|room| room.get("id"))
-                .is_some_and(|id| id.is_string());
-
-        if uses_string_ids {
-            return self.load_string_id_adventure(&data);
+    fn notify_adventure_loaded(&mut self) {
+        let mut systems = std::mem::take(&mut self.systems);
+        for system in &mut systems {
+            system.on_adventure_loaded(self);
         }
-
-        self.reset_runtime_state();
-
-        self.adventure_title = data
-            .get("title")
-            .and_then(|v| v.as_str())
-            .unwrap_or("Untitled Adventure")
-            .to_string();
-        self.adventure_intro = data
-            .get("intro")
-            .and_then(|v| v.as_str())
-            .unwrap_or("")
-            .to_string();
-
-        let mut room_item_locations: Vec<(i32, Vec<i32>)> = Vec::new();
-
-        // Load rooms
-        if let Some(rooms) = data.get("rooms").and_then(|v| v.as_array()) {
-            for room_data in rooms {
-                let room_id = room_data.get("id").and_then(|v| v.as_i64()).unwrap_or(0) as i32;
-                let listed_items: Vec<i32> = room_data
-                    .get("items")
-                    .and_then(|v| v.as_array())
-                    .map(|items| {
-                        items
-                            .iter()
-                            .filter_map(|item| item.as_i64().map(|id| id as i32))
-                            .collect()
-                    })
-                    .unwrap_or_default();
-
-                let room = Room {
-                    id: room_id,
-                    name: room_data
-                        .get("name")
-                        .and_then(|v| v.as_str())
-                        .unwrap_or("")
-                        .to_string(),
-                    description: room_data
-                        .get("description")
-                        .and_then(|v| v.as_str())
-                        .unwrap_or("")
-                        .to_string(),
-                    exits: room_data
-                        .get("exits")
-                        .and_then(|v| v.as_object())
-                        .map(|obj| {
-                            obj.iter()
-                                .map(|(k, v)| (k.clone(), v.as_i64().unwrap_or(0) as i32))
-                                .collect()
-                        })
-                        .unwrap_or_default(),
-                    is_dark: room_data
-                        .get("is_dark")
-                        .and_then(|v| v.as_bool())
-                        .unwrap_or(false),
-                };
-                if self.rooms.insert(room.id, room).is_some() {
-                    return Err(std::io::Error::new(
-                        std::io::ErrorKind::InvalidData,
-                        format!(
-                            "duplicate room id found while loading: {}",
-                            room_data.get("id").and_then(|v| v.as_i64()).unwrap_or(0)
-                        ),
-                    )
-                    .into());
-                }
-
-                if !listed_items.is_empty() {
-                    room_item_locations.push((room_id, listed_items));
-                }
-            }
-        }
-
-        // Load items
-        if let Some(items) = data.get("items").and_then(|v| v.as_array()) {
-            for item_data in items {
-                let item = Item {
-                    id: item_data.get("id").and_then(|v| v.as_i64()).unwrap_or(0) as i32,
-                    name: item_data
-                        .get("name")
-                        .and_then(|v| v.as_str())
-                        .unwrap_or("")
-                        .to_string(),
-                    description: item_data
-                        .get("description")
-                        .and_then(|v| v.as_str())
-                        .unwrap_or("")
-                        .to_string(),
-                    item_type: match item_data.get("type").and_then(|v| v.as_str()) {
-                        Some("weapon") => ItemType::Weapon,
-                        Some("armor") => ItemType::Armor,
-                        Some("treasure") => ItemType::Treasure,
-                        Some("readable") => ItemType::Readable,
-                        Some("edible") => ItemType::Edible,
-                        Some("drinkable") => ItemType::Drinkable,
-                        Some("container") => ItemType::Container,
-                        _ => ItemType::Normal,
-                    },
-                    weight: item_data
-                        .get("weight")
-                        .and_then(|v| v.as_i64())
-                        .unwrap_or(1) as i32,
-                    value: item_data.get("value").and_then(|v| v.as_i64()).unwrap_or(0) as i32,
-                    is_weapon: item_data
-                        .get("is_weapon")
-                        .and_then(|v| v.as_bool())
-                        .unwrap_or(false),
-                    weapon_type: item_data
-                        .get("weapon_type")
-                        .and_then(|v| v.as_i64())
-                        .unwrap_or(0) as i32,
-                    weapon_dice: item_data
-                        .get("weapon_dice")
-                        .and_then(|v| v.as_i64())
-                        .unwrap_or(1) as i32,
-                    weapon_sides: item_data
-                        .get("weapon_sides")
-                        .and_then(|v| v.as_i64())
-                        .unwrap_or(6) as i32,
-                    is_armor: item_data
-                        .get("is_armor")
-                        .and_then(|v| v.as_bool())
-                        .unwrap_or(false),
-                    armor_value: item_data
-                        .get("armor_value")
-                        .and_then(|v| v.as_i64())
-                        .unwrap_or(0) as i32,
-                    is_takeable: item_data
-                        .get("is_takeable")
-                        .and_then(|v| v.as_bool())
-                        .unwrap_or(true),
-                    is_wearable: item_data
-                        .get("is_wearable")
-                        .and_then(|v| v.as_bool())
-                        .unwrap_or(false),
-                    location: item_data
-                        .get("location")
-                        .and_then(|v| v.as_i64())
-                        .unwrap_or(0) as i32,
-                };
-                if self.items.insert(item.id, item).is_some() {
-                    return Err(std::io::Error::new(
-                        std::io::ErrorKind::InvalidData,
-                        format!(
-                            "duplicate item id found while loading: {}",
-                            item_data.get("id").and_then(|v| v.as_i64()).unwrap_or(0)
-                        ),
-                    )
-                    .into());
-                }
-            }
-        }
-
-        for (room_id, item_ids) in &room_item_locations {
-            for item_id in item_ids {
-                if let Some(item) = self.items.get_mut(item_id) {
-                    item.location = *room_id;
-                } else {
-                    return Err(std::io::Error::new(
-                        std::io::ErrorKind::InvalidData,
-                        format!("room {} references unknown item {}", room_id, item_id),
-                    )
-                    .into());
-                }
-            }
-        }
-
-        // Load monsters
-        if let Some(monsters) = data.get("monsters").and_then(|v| v.as_array()) {
-            for mon_data in monsters {
-                let friendliness = match mon_data.get("friendliness").and_then(|v| v.as_str()) {
-                    Some("friendly") => MonsterStatus::Friendly,
-                    Some("hostile") => MonsterStatus::Hostile,
-                    _ => MonsterStatus::Neutral,
-                };
-                let monster = Monster::new(
-                    mon_data.get("id").and_then(|v| v.as_i64()).unwrap_or(0) as i32,
-                    mon_data
-                        .get("name")
-                        .and_then(|v| v.as_str())
-                        .unwrap_or("")
-                        .to_string(),
-                    mon_data
-                        .get("description")
-                        .and_then(|v| v.as_str())
-                        .unwrap_or("")
-                        .to_string(),
-                    mon_data
-                        .get("room_id")
-                        .and_then(|v| v.as_i64())
-                        .unwrap_or(1) as i32,
-                    mon_data
-                        .get("hardiness")
-                        .and_then(|v| v.as_i64())
-                        .unwrap_or(10) as i32,
-                    mon_data
-                        .get("agility")
-                        .and_then(|v| v.as_i64())
-                        .unwrap_or(10) as i32,
-                    friendliness,
-                    mon_data
-                        .get("courage")
-                        .and_then(|v| v.as_i64())
-                        .unwrap_or(100) as i32,
-                );
-                // Set additional fields
-                let mut monster = monster;
-                monster.weapon_id = mon_data
-                    .get("weapon_id")
-                    .and_then(|v| v.as_i64())
-                    .map(|v| v as i32);
-                monster.armor_worn = mon_data
-                    .get("armor_worn")
-                    .and_then(|v| v.as_i64())
-                    .unwrap_or(0) as i32;
-                monster.gold = mon_data.get("gold").and_then(|v| v.as_i64()).unwrap_or(0) as i32;
-                if self.monsters.insert(monster.id, monster).is_some() {
-                    return Err(std::io::Error::new(
-                        std::io::ErrorKind::InvalidData,
-                        format!(
-                            "duplicate monster id found while loading: {}",
-                            mon_data.get("id").and_then(|v| v.as_i64()).unwrap_or(0)
-                        ),
-                    )
-                    .into());
-                }
-            }
-        }
-
-        // Load quests
-        if let Some(quests) = data.get("quests").and_then(|v| v.as_array()) {
-            self.quests = quests.clone();
-        }
-
-        // Set player starting position
-        self.player.current_room =
-            data.get("start_room").and_then(|v| v.as_i64()).unwrap_or(1) as i32;
-        self.validate_loaded_state()
-            .map_err(|msg| std::io::Error::new(std::io::ErrorKind::InvalidData, msg))?;
-
-        Ok(self.build_header())
+        self.systems = systems;
     }
 
     fn validate_loaded_state(&self) -> Result<(), String> {
@@ -680,7 +665,8 @@ impl AdventureGame {
         }
 
         for item in self.items.values() {
-            let valid_location = matches!(item.location, -1 | 0)
+            // -2 means "stored in a shop's inventory".
+            let valid_location = matches!(item.location, -2..=0)
                 || self.rooms.contains_key(&item.location)
                 || self.monsters.contains_key(&item.location);
             if !valid_location {
@@ -733,8 +719,19 @@ impl AdventureGame {
     }
 
     pub fn save_game(&self, path: impl AsRef<Path>) -> Result<(), Box<dyn std::error::Error>> {
+        let unlocked_exits = self
+            .rooms
+            .values()
+            .flat_map(|room| {
+                room.locked_exits
+                    .iter()
+                    .filter(|(_, lock)| lock.unlocked)
+                    .map(move |(direction, _)| (room.id, direction.clone()))
+            })
+            .collect();
+
         let snapshot = GameSnapshot {
-            version: 1,
+            version: 2,
             adventure_file: self.adventure_file.clone(),
             player: self.player.clone(),
             items: self.items.clone(),
@@ -744,10 +741,18 @@ impl AdventureGame {
             autosave_enabled: self.autosave_enabled,
             autosave_path: self.autosave_path.clone(),
             system_states: self.collect_system_states(),
+            document: Some(self.document.clone()),
+            shops: self.shops.clone(),
+            game_won: self.game_won,
+            ending_text: self.ending_text.clone(),
+            unlocked_exits,
+            last_room: self.last_room,
+            visited_rooms: self.visited_rooms.iter().copied().collect(),
+            completed_quests: self.completed_quests.iter().cloned().collect(),
         };
 
         let json = serde_json::to_string_pretty(&snapshot)?;
-        fs::write(path, json)?;
+        crate::util::write_atomic(path, json.as_bytes())?;
         Ok(())
     }
 
@@ -756,8 +761,24 @@ impl AdventureGame {
         path: impl AsRef<Path>,
     ) -> Result<String, Box<dyn std::error::Error>> {
         let snapshot: GameSnapshot = serde_json::from_str(&fs::read_to_string(path)?)?;
+        if snapshot.version > 2 {
+            return Err(std::io::Error::new(
+                std::io::ErrorKind::InvalidData,
+                format!(
+                    "save version {} is newer than this build supports (2)",
+                    snapshot.version
+                ),
+            )
+            .into());
+        }
+
         self.adventure_file = snapshot.adventure_file.clone();
-        let intro = self.load_adventure()?;
+        let intro = if let Some(document) = snapshot.document.clone() {
+            self.load_document(document)?
+        } else {
+            // v1 snapshots did not embed the adventure; fall back to the file.
+            self.load_adventure()?
+        };
 
         self.player = snapshot.player;
         self.items = snapshot.items;
@@ -766,7 +787,21 @@ impl AdventureGame {
         self.game_over = snapshot.game_over;
         self.autosave_enabled = snapshot.autosave_enabled;
         self.autosave_path = snapshot.autosave_path;
+        self.shops = snapshot.shops;
+        self.game_won = snapshot.game_won;
+        self.ending_text = snapshot.ending_text;
+        self.last_room = snapshot.last_room;
+        self.visited_rooms = snapshot.visited_rooms.into_iter().collect();
+        self.completed_quests = snapshot.completed_quests.into_iter().collect();
         self.events.clear();
+
+        for (room_id, direction) in snapshot.unlocked_exits {
+            if let Some(room) = self.rooms.get_mut(&room_id)
+                && let Some(lock) = room.locked_exits.get_mut(&direction)
+            {
+                lock.unlocked = true;
+            }
+        }
 
         self.validate_loaded_state()
             .map_err(|msg| std::io::Error::new(std::io::ErrorKind::InvalidData, msg))?;
@@ -803,6 +838,16 @@ impl AdventureGame {
         }
     }
 
+    /// Start the current adventure over from its opening state.
+    pub fn restart(&mut self) -> Result<String, Box<dyn std::error::Error>> {
+        if self.document.rooms.is_empty() {
+            self.load_adventure()
+        } else {
+            let document = self.document.clone();
+            self.load_document(document)
+        }
+    }
+
     pub fn get_current_room(&self) -> Option<&Room> {
         self.rooms.get(&self.player.current_room)
     }
@@ -821,11 +866,42 @@ impl AdventureGame {
             .collect()
     }
 
+    pub fn player_has_light(&self) -> bool {
+        self.player
+            .inventory
+            .iter()
+            .filter_map(|id| self.items.get(id))
+            .any(|item| item.is_light_source)
+    }
+
+    pub fn find_inventory_item(&self, query: &str) -> Option<i32> {
+        let query = query.trim();
+        if query.is_empty() {
+            return None;
+        }
+        self.player.inventory.iter().copied().find(|id| {
+            id.to_string() == query
+                || self
+                    .items
+                    .get(id)
+                    .is_some_and(|item| name_matches(&item.name, query))
+        })
+    }
+
+    fn player_has_item_name(&self, name: &str) -> bool {
+        self.player
+            .inventory
+            .iter()
+            .filter_map(|id| self.items.get(id))
+            .any(|item| name_matches(&item.name, name))
+    }
+
     pub fn look(&self) -> String {
         let mut out = String::new();
 
         if let Some(room) = self.get_current_room() {
-            if room.is_dark {
+            let has_light = self.player_has_light();
+            if room.is_dark && !has_light {
                 return "It is pitch black. You can't see a thing.".to_string();
             }
 
@@ -835,12 +911,29 @@ impl AdventureGame {
             out.push_str(&"-".repeat(room.name.len()));
             out.push('\n');
             out.push_str(&room.description);
+            if room.is_dark && has_light {
+                out.push_str("\nYour light pushes back the darkness.");
+            }
 
             // Show exits
             if !room.exits.is_empty() {
                 let mut exits: Vec<String> = room.exits.keys().cloned().collect();
                 exits.sort();
-                out.push_str(&format!("\n\nObvious exits: {}", exits.join(", ")));
+                let described: Vec<String> = exits
+                    .into_iter()
+                    .map(|direction| {
+                        if room
+                            .locked_exits
+                            .get(&direction)
+                            .is_some_and(|lock| !lock.unlocked)
+                        {
+                            format!("{} (locked)", direction)
+                        } else {
+                            direction
+                        }
+                    })
+                    .collect();
+                out.push_str(&format!("\n\nObvious exits: {}", described.join(", ")));
             } else {
                 out.push_str("\n\nNo obvious exits.");
             }
@@ -875,18 +968,152 @@ impl AdventureGame {
     }
 
     pub fn move_player(&mut self, direction: &str) -> Option<String> {
-        if let Some(room) = self.get_current_room()
-            && let Some(new_room_id) = room.get_exit(direction)
-            && self.rooms.contains_key(&new_room_id)
-        {
-            self.player.current_room = new_room_id;
-            self.turn_count += 1;
-            self.events.push(GameEvent::RoomEntered {
-                room_id: new_room_id,
-            });
-            return Some(self.look());
+        let direction = direction.to_lowercase();
+        let room = self.get_current_room()?.clone();
+        let new_room_id = room.get_exit(&direction)?;
+        if !self.rooms.contains_key(&new_room_id) {
+            return None;
         }
-        None
+
+        let mut prefix = String::new();
+        if let Some(lock) = room.locked_exits.get(&direction)
+            && !lock.unlocked
+        {
+            match self.unlock_exit(&direction) {
+                Ok(message) => prefix = format!("{}\n", message),
+                Err(message) => return Some(message),
+            }
+        }
+
+        self.last_room = self.player.current_room;
+        self.player.current_room = new_room_id;
+        self.turn_count += 1;
+        self.visited_rooms.insert(new_room_id);
+        self.events.push(GameEvent::RoomEntered {
+            room_id: new_room_id,
+        });
+
+        let mut out = prefix;
+        out.push_str(&self.look());
+        if let Some(ending) = self.check_ending() {
+            out.push('\n');
+            out.push_str(&ending);
+        }
+        Some(out)
+    }
+
+    /// Unlock the exit in the current room. Returns a success message or the
+    /// lock's refusal message.
+    pub fn unlock_exit(&mut self, direction: &str) -> Result<String, String> {
+        let direction = direction.to_lowercase();
+        let room_id = self.player.current_room;
+        let lock = self
+            .rooms
+            .get(&room_id)
+            .and_then(|room| room.locked_exits.get(&direction))
+            .cloned()
+            .ok_or_else(|| format!("There is no locked exit to the {}.", direction))?;
+        if lock.unlocked {
+            return Err(format!("The {} exit is already unlocked.", direction));
+        }
+
+        let key_query = match &lock.key {
+            Some(key) if !key.trim().is_empty() => key.clone(),
+            _ => return Err(lock.message.clone()),
+        };
+        let Some(key_id) = self.find_inventory_item(&key_query) else {
+            return Err(lock.message.clone());
+        };
+        let key_name = self
+            .items
+            .get(&key_id)
+            .map(|item| item.name.clone())
+            .unwrap_or(key_query);
+
+        if let Some(room) = self.rooms.get_mut(&room_id)
+            && let Some(lock) = room.locked_exits.get_mut(&direction)
+        {
+            lock.unlocked = true;
+        }
+
+        if lock.consume_key {
+            self.player.inventory.retain(|id| *id != key_id);
+            if self.player.equipped_weapon == Some(key_id) {
+                self.player.equipped_weapon = None;
+            }
+            if self.player.equipped_armor == Some(key_id) {
+                self.player.equipped_armor = None;
+            }
+            self.items.remove(&key_id);
+        }
+
+        self.events.push(GameEvent::ExitUnlocked {
+            room_id,
+            direction: direction.clone(),
+        });
+
+        Ok(if lock.consume_key {
+            format!(
+                "You use the {} to unlock the {} exit; the key crumbles away.",
+                key_name, direction
+            )
+        } else {
+            format!("You unlock the {} exit with the {}.", direction, key_name)
+        })
+    }
+
+    /// Evaluate the adventure's victory conditions and return an ending message
+    /// the first time they are satisfied.
+    pub fn check_ending(&mut self) -> Option<String> {
+        if self.game_won || self.game_over {
+            return None;
+        }
+        let conditions = self.ending_conditions.clone()?;
+        let has_condition = conditions.all_quests
+            || !conditions.quests.is_empty()
+            || !conditions.rooms.is_empty()
+            || !conditions.items.is_empty();
+        if !has_condition {
+            return None;
+        }
+
+        let mut satisfied = true;
+        if conditions.all_quests {
+            satisfied &= !self.document.quests.is_empty()
+                && self.completed_quests.len() >= self.document.quests.len();
+        }
+        if !conditions.quests.is_empty() {
+            satisfied &= conditions
+                .quests
+                .iter()
+                .all(|id| self.completed_quests.contains(&id.to_string()));
+        }
+        if !conditions.rooms.is_empty() {
+            satisfied &= conditions
+                .rooms
+                .iter()
+                .all(|id| self.visited_rooms.contains(id));
+        }
+        if !conditions.items.is_empty() {
+            satisfied &= conditions
+                .items
+                .iter()
+                .all(|name| self.player_has_item_name(name));
+        }
+
+        if !satisfied {
+            return None;
+        }
+
+        self.game_won = true;
+        let text = if self.ending_text.trim().is_empty() {
+            "Victory! Your adventure is complete.".to_string()
+        } else {
+            self.ending_text.clone()
+        };
+        self.ending_text = text.clone();
+        self.events.push(GameEvent::GameWon { text: text.clone() });
+        Some(format!("*** {} ***", text))
     }
 
     pub fn take_item(&mut self, item_name: &str) -> Result<String, String> {
@@ -924,7 +1151,12 @@ impl AdventureGame {
                     item_id: id,
                 });
                 self.turn_count += 1;
-                Ok(format!("Taken: {}.", name))
+                let mut message = format!("Taken: {}.", name);
+                if let Some(ending) = self.check_ending() {
+                    message.push('\n');
+                    message.push_str(&ending);
+                }
+                Ok(message)
             }
         }
     }
@@ -1103,6 +1335,16 @@ impl AdventureGame {
         let cmd_lower = parts.first().unwrap_or(&"").to_lowercase();
         let cmd: &str = &cmd_lower;
         let args: Vec<&str> = parts.iter().skip(1).cloned().collect();
+
+        if (self.game_over || self.game_won)
+            && !matches!(cmd, "restart" | "help" | "?" | "status" | "stats" | "score")
+        {
+            return vec![if self.game_won {
+                "The adventure is complete. Use 'restart' to play again.".to_string()
+            } else {
+                "You have been slain. Use 'restart' to try again.".to_string()
+            }];
+        }
 
         let turn_count_before = self.turn_count;
         let mut systems = std::mem::take(&mut self.systems);
@@ -1383,7 +1625,7 @@ mod tests {
         let accept_output = game.process_command("accept 1").join("\n");
         assert!(accept_output.contains("Accepted quest"));
         game.take_item("Apple").expect("item should be collectible");
-        game.move_player("north").expect("north exit should exist");
+        game.process_command("north");
         game.player.gold = 321;
 
         game.save_game(&save_path).expect("save should succeed");
@@ -1402,7 +1644,7 @@ mod tests {
         assert!(quest_output.contains("Active Quests"));
 
         let complete_output = restored.process_command("complete 1").join("\n");
-        assert!(complete_output.contains("Completed quest: 1"));
+        assert!(complete_output.contains("Completed quest: Scout Ahead (1)"));
 
         let _ = fs::remove_file(adventure_path);
         let _ = fs::remove_file(save_path);

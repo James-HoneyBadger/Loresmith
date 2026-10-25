@@ -1,10 +1,16 @@
 [package]
 name = "sagacraft_ide_tui"
-version = "4.0.3"
-edition = "2024"
+version.workspace = true
+edition.workspace = true
+rust-version.workspace = true
+license.workspace = true
+authors.workspace = true
+repository.workspace = true
+description = "Saga Foundry Workbench — terminal adventure editor"
 
 [dependencies]
 anyhow = "1"
-crossterm = "0.28"
+crossterm = "0.29"
 ratatui = "0.30"
-sagacraft_rs = { path = "../sagacraft_rs" }
+serde_json.workspace = true
+sagacraft_rs = { path = "../sagacraft_rs", version = "4.1.0" }

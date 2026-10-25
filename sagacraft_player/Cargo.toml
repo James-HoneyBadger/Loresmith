@@ -1,7 +1,12 @@
 [package]
 name = "sagacraft_player"
-version = "4.0.3"
-edition = "2024"
+version.workspace = true
+edition.workspace = true
+rust-version.workspace = true
+license.workspace = true
+authors.workspace = true
+repository.workspace = true
+description = "Saga Foundry Console — command-line adventure player"
 
 [dependencies]
-sagacraft_rs = { path = "../sagacraft_rs" }
+sagacraft_rs = { path = "../sagacraft_rs", version = "4.1.0" }

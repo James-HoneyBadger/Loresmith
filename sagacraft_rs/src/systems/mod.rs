@@ -2,11 +2,13 @@ pub mod basic_world;
 pub mod combat;
 pub mod inventory;
 pub mod quests;
+pub mod shops;
 
 pub use basic_world::BasicWorldSystem;
 pub use combat::CombatSystem;
 pub use inventory::InventorySystem;
 pub use quests::QuestSystem;
+pub use shops::ShopSystem;
 
 use crate::game_state::{AdventureGame, GameEvent};
 
@@ -19,6 +21,10 @@ pub trait System {
         args: &[&str],
         game: &mut AdventureGame,
     ) -> Option<String>;
+
+    /// Called after an adventure document has been loaded or restarted.
+    /// Systems use this to clear per-adventure state.
+    fn on_adventure_loaded(&mut self, _game: &mut AdventureGame) {}
 
     /// Called after every command round when there are pending game events
     /// (monster kills, item pickups, room transitions, etc.).

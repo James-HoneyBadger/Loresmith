@@ -1,8 +1,8 @@
-# SagaCraft API Reference
+# Saga Foundry API Reference
 
-**Version 4.0.3 · sagacraft_rs crate**
+**Version 4.1.0 · sagacraft_rs crate**
 
-Complete API documentation for the SagaCraft core library. All types are defined in the `sagacraft_rs` crate and re-exported from `lib.rs`.
+Complete API documentation for the Saga Foundry core library. All types are defined in the `sagacraft_rs` crate and re-exported from `lib.rs`.
 
 ---
 
@@ -38,7 +38,7 @@ pub use systems::{BasicWorldSystem, InventorySystem, CombatSystem, QuestSystem, 
 
 ## Engine
 
-High-level wrapper that creates an `AdventureGame` with all four built-in systems pre-registered. This is the recommended entry point for playing adventures.
+High-level wrapper that creates an `AdventureGame` with all five built-in systems pre-registered. This is the recommended entry point for playing adventures.
 
 ```rust
 pub struct Engine {
@@ -156,7 +156,9 @@ pub struct Item {
     pub armor_value: i32,
     pub is_takeable: bool,    // default: true
     pub is_wearable: bool,
-    pub location: i32,        // room_id, 0=inventory, -1=worn
+    pub is_light_source: bool, // reveals dark rooms when carried
+    pub container_capacity: i32, // reserved
+    pub location: i32,        // room_id, 0=carried, -1=worn, -2=shop stock
 }
 
 pub enum ItemType {
@@ -224,6 +226,7 @@ pub struct Player {
     pub equipped_armor: Option<i32>,
     pub experience_points: i32,
     pub level: i32,                           // default: 1
+    pub reputation: HashMap<String, i32>,     // quest/faction reputation
 }
 ```
 
@@ -301,23 +304,61 @@ Commands: `inventory`/`i`/`inv`, `take`/`get`/`grab`/`pick`, `drop`, `equip`/`wi
 
 Commands: `attack`/`fight`/`kill <target>`, `flee`/`run`/`escape`, `status`/`stats`/`score`.
 
-Combat resolution:
-- Player attack: `weapon_ability[type] + weapon_damage - monster_agility`, floor 1.
-- Monster counter-attack: `monster_hardiness/2 - armor_value`, floor 1.
-- On monster death: gold + XP awarded, level-up check.
-- Flee: 50% base chance + agility bonus.
+Combat resolution (4.1):
+- Player damage: weapon dice roll + `weapon_ability[weapon_type] / 5`; unarmed uses the best ability value. Monster `armor_worn` reduces damage; floor 1.
+- Monster counter-attack: `max(1, agility / 3 + 1 - (equipped armor_value + armor_expertise / 5))`.
+- On monster death: gold and XP awarded, every level-up applied, loot and weapon dropped into the room.
+- Flee chance: `(agility / 20 - highest hostile courage / 1000)`, clamped 10–90%. The destination prefers an exit with no hostiles and not the previous room.
+- XP thresholds use cumulative `level * 100` and loop, so a large award can grant multiple levels.
 
 ### QuestSystem
 
-Commands: `quests`/`journal`, `accept <quest_id>`, `complete`/`finish <quest_id>`.
+Commands: `quests`/`journal`, `accept <quest_id>`, `complete`/`finish <quest_id>`, `abandon <quest_id>`.
 
-Implements `on_events()` to auto-advance quest objectives on `MonsterKilled`, `ItemCollected`, and `RoomEntered` events.
+Implements `on_events()` to auto-advance quest objectives on `MonsterKilled`, `ItemCollected`, `RoomEntered`, and `TalkedTo` events. Stages advance automatically; `complete` verifies every objective before paying gold, XP, item, and reputation rewards.
+
+### ShopSystem
+
+Commands: `shop`/`trade`/`store`, `buy`/`purchase <item>`, `sell <item>`.
+
+Shops live in the current room, have finite gold and stock, and price items from `value` and the player's `charisma`.
 
 ---
 
+## AdventureDocument (Canonical Format)
+
+`AdventureDocument` is the single authoring model. See
+[Adventure_Schema.md](Adventure_Schema.md) for every field and example.
+
+| Method | Signature | Description |
+|--------|-----------|-------------|
+| `from_json_str` | `fn from_json_str(&str) -> Result<Self, AdventureError>` | Parse either legacy format into a normalized document. |
+| `from_value` | `fn from_value(Value) -> Result<Self, AdventureError>` | Same, from a parsed JSON value. |
+| `load_json_file` | `fn load_json_file(path) -> Result<Self, AdventureError>` | Load and validate from disk. |
+| `save_json_file` | `fn save_json_file(&self, path) -> Result<(), AdventureError>` | Validate, normalize, and write atomically. |
+| `to_json_string` | `fn to_json_string(&self) -> Result<String, AdventureError>` | Serialize the normalized canonical form. |
+| `report` | `fn report(&self) -> ValidationReport` | Structured errors and warnings. |
+| `validate` | `fn validate(&self) -> Result<(), AdventureError>` | Fail on the first validation error. |
+
+Runtime helpers:
+
+| Method | Description |
+|--------|-------------|
+| `AdventureGame::load_from_str` | Load an adventure from a JSON string. |
+| `AdventureGame::load_from_value` | Load an adventure from a JSON value. |
+| `AdventureGame::load_document` | Build runtime state from an `AdventureDocument`. |
+| `AdventureGame::restart` | Start the current adventure over. |
+| `Engine::from_document` | Build an engine from a document. |
+| `Engine::load_from_str` | Build an engine from JSON text. |
+| `Engine::restart` | Restart and refresh the intro text. |
+| `Engine::won` / `Engine::ending` | Victory state and ending text. |
+
+`AdventureGame` exposes `document`, `shops`, `game_over`, `game_won`, `ending_text`,
+`visited_rooms`, and `completed_quests` for tooling.
+
 ## Adventure (Secondary Format)
 
-The `Adventure` struct is a **string-ID format** used by the TUI IDE. It is separate from the integer-ID format loaded by `AdventureGame`.
+The `Adventure` struct is the **legacy string-ID format**. It is still readable (and converted to a canonical `AdventureDocument`) but the TUI now edits the canonical numeric format.
 
 ```rust
 pub struct Adventure {
