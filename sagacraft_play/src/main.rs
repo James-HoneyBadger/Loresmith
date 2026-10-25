@@ -2,7 +2,9 @@ use eframe::egui;
 use sagacraft_rs::{AdventureDocument, Engine};
 use sagacraft_ui as theme;
 use std::collections::HashSet;
-use std::path::PathBuf;
+use std::collections::hash_map::DefaultHasher;
+use std::hash::{Hash, Hasher};
+use std::path::{Path, PathBuf};
 
 #[derive(Debug, Clone)]
 struct AdventureEntry {
@@ -15,6 +17,8 @@ struct SagaFoundryPlayer {
     engine: Option<Engine>,
     adventure_path: Option<PathBuf>,
     save_path: Option<PathBuf>,
+    autosave_path: Option<PathBuf>,
+    last_autosave: Option<PathBuf>,
     log: Vec<String>,
     input: String,
     history: Vec<String>,
@@ -38,6 +42,8 @@ impl SagaFoundryPlayer {
             engine: None,
             adventure_path: None,
             save_path: None,
+            autosave_path: None,
+            last_autosave: None,
             log: Vec::new(),
             input: String::new(),
             history: Vec::new(),
@@ -72,6 +78,12 @@ impl SagaFoundryPlayer {
             if let Some(value) = storage.get_string("zoom") {
                 app.zoom = value.parse::<f32>().unwrap_or(1.0).clamp(0.7, 2.0);
             }
+            if let Some(value) = storage.get_string("last_autosave") {
+                let path = PathBuf::from(value);
+                if path.exists() {
+                    app.last_autosave = Some(path);
+                }
+            }
         }
         theme::set_mode(app.theme_mode);
         if let Some(path) = start_path {
@@ -89,10 +101,14 @@ impl SagaFoundryPlayer {
                 }
                 self.log.push(engine.look());
                 self.status = format!("Playing {}", path.display());
+                let autosave = autosave_path_for(&engine, Some(&path));
+                self.autosave_path = Some(autosave.clone());
+                self.last_autosave = Some(autosave);
                 self.engine = Some(engine);
                 self.adventure_path = Some(path.clone());
                 self.save_path = None;
                 self.remember_recent(path);
+                self.autosave();
             }
             Err(error) => {
                 self.status = format!("Failed to load {}: {}", path.display(), error);
@@ -118,6 +134,10 @@ impl SagaFoundryPlayer {
         else {
             return;
         };
+        self.load_save(path);
+    }
+
+    fn load_save(&mut self, path: PathBuf) {
         let mut engine = Engine::new("");
         match engine.load_game(&path) {
             Ok(intro) => {
@@ -127,14 +147,60 @@ impl SagaFoundryPlayer {
                 }
                 self.log.push(engine.look());
                 self.status = format!("Loaded {}", path.display());
-                self.save_path = Some(path);
+                let autosave = autosave_path_for(&engine, Some(&path));
+                self.autosave_path = Some(autosave.clone());
+                self.last_autosave = Some(autosave);
+                self.save_path = if is_autosave(&path) {
+                    None
+                } else {
+                    Some(path.clone())
+                };
                 self.adventure_path = None;
                 self.engine = Some(engine);
+                self.autosave();
             }
             Err(error) => {
                 self.status = format!("Failed to load save {}: {}", path.display(), error);
             }
         }
+    }
+
+    fn autosave(&mut self) {
+        let result = {
+            let Some(engine) = &self.engine else {
+                return;
+            };
+            let Some(path) = &self.autosave_path else {
+                return;
+            };
+            if let Some(parent) = path.parent()
+                && let Err(error) = std::fs::create_dir_all(parent)
+            {
+                Err(error.to_string())
+            } else {
+                engine.save_game(path).map_err(|error| error.to_string())
+            }
+        };
+        if let Err(error) = result {
+            self.status = format!("Autosave failed: {error}");
+        }
+    }
+
+    fn resume_last_session(&mut self) {
+        if let Some(path) = self.last_autosave.clone() {
+            self.load_save(path);
+        }
+    }
+
+    fn discard_autosave(&mut self, path: &Path) {
+        let _ = std::fs::remove_file(path);
+        if self.last_autosave.as_deref() == Some(path) {
+            self.last_autosave = None;
+        }
+        if self.autosave_path.as_deref() == Some(path) {
+            self.autosave_path = None;
+        }
+        self.status = "Recovery save discarded.".to_string();
     }
 
     fn save_game_dialog(&mut self) {
@@ -179,6 +245,7 @@ impl SagaFoundryPlayer {
                 self.log.push(engine.look());
                 self.save_path = None;
                 self.status = "The adventure begins again.".to_string();
+                self.autosave();
             }
             Err(error) => self.status = format!("Restart failed: {}", error),
         }
@@ -204,6 +271,7 @@ impl SagaFoundryPlayer {
         self.engine = None;
         self.adventure_path = None;
         self.save_path = None;
+        self.autosave_path = None;
         self.log.clear();
         self.input.clear();
         self.status = "Choose an adventure from the library or open a file.".to_string();
@@ -241,6 +309,7 @@ impl SagaFoundryPlayer {
                 }
             }
         }
+        self.autosave();
     }
 
     fn remember_recent(&mut self, path: PathBuf) {
@@ -492,6 +561,46 @@ impl SagaFoundryPlayer {
                     });
                 });
 
+                if let Some(path) = self
+                    .last_autosave
+                    .clone()
+                    .filter(|path| path.exists())
+                {
+                    ui.add_space(14.0);
+                    theme::card_frame().show(ui, |ui| {
+                        ui.set_width(ui.available_width());
+                        ui.horizontal(|ui| {
+                            ui.vertical(|ui| {
+                                ui.label(
+                                    egui::RichText::new("Continue your last session")
+                                        .size(18.0)
+                                        .strong()
+                                        .color(theme::accent()),
+                                );
+                                ui.label(
+                                    egui::RichText::new(format!(
+                                        "Autosaved progress found at {}",
+                                        path.display()
+                                    ))
+                                    .size(11.0)
+                                    .color(theme::muted()),
+                                );
+                            });
+                            ui.with_layout(
+                                egui::Layout::right_to_left(egui::Align::Center),
+                                |ui| {
+                                    if ui.add(theme::primary_button("Resume")).clicked() {
+                                        self.resume_last_session();
+                                    }
+                                    if ui.add(theme::ghost_button("Discard")).clicked() {
+                                        self.discard_autosave(&path);
+                                    }
+                                },
+                            );
+                        });
+                    });
+                }
+
                 ui.add_space(14.0);
                 theme::section_heading(
                     ui,
@@ -638,9 +747,19 @@ impl SagaFoundryPlayer {
                 .collect::<Vec<_>>()
                 .join(", ")
         };
+        let mut shop_names: Vec<String> = engine
+            .game
+            .shops
+            .values()
+            .filter(|shop| shop.room_id == engine.game.player.current_room)
+            .map(|shop| shop.name.clone())
+            .collect();
+        shop_names.sort();
+        let has_shop = !shop_names.is_empty();
         let ending = engine.ending().map(|text| text.to_string());
         let won = engine.won();
 
+        let mut browse_shop = false;
         let full_size = ui.available_size();
         let sidebar_width = 320.0;
         let gap = 12.0;
@@ -742,6 +861,23 @@ impl SagaFoundryPlayer {
                             );
                         }
                     });
+                    if has_shop {
+                        ui.add_space(8.0);
+                        theme::card(ui, "Merchant", Some("In this room"), |ui| {
+                            for name in &shop_names {
+                                ui.label(
+                                    egui::RichText::new(name)
+                                        .size(12.5)
+                                        .strong()
+                                        .color(theme::text_color()),
+                                );
+                            }
+                            ui.add_space(4.0);
+                            if ui.add(theme::ghost_button("Browse shop")).clicked() {
+                                browse_shop = true;
+                            }
+                        });
+                    }
                     ui.add_space(8.0);
                     theme::card(ui, "Character", None, |ui| {
                         theme::field_label(ui, "WIELDING");
@@ -791,6 +927,9 @@ impl SagaFoundryPlayer {
                 },
             );
         });
+        if browse_shop {
+            self.run_command("shop");
+        }
     }
 
     fn show_command_bar(&mut self, ui: &mut egui::Ui) {
@@ -815,7 +954,19 @@ impl SagaFoundryPlayer {
                     self.input.clear();
                     self.run_command(&command);
                 }
-                for command in ["look", "status", "inventory", "quests", "help"] {
+                let has_shop = self.engine.as_ref().is_some_and(|engine| {
+                    engine
+                        .game
+                        .shops
+                        .values()
+                        .any(|shop| shop.room_id == engine.game.player.current_room)
+                });
+                let mut quick = vec!["look", "status", "inventory", "quests"];
+                if has_shop {
+                    quick.push("shop");
+                }
+                quick.push("help");
+                for command in quick {
                     if ui.add(theme::ghost_button(command)).clicked() {
                         self.run_command(command);
                     }
@@ -962,6 +1113,9 @@ impl SagaFoundryPlayer {
                             .size(10.5)
                             .color(theme::muted()),
                     );
+                    if self.autosave_path.is_some() {
+                        theme::badge(ui, "AUTOSAVE", theme::success());
+                    }
                 }
                 if !self.library.is_empty() {
                     theme::badge(
@@ -1022,6 +1176,9 @@ impl eframe::App for SagaFoundryPlayer {
                 .join("\n"),
         );
         storage.set_string("zoom", self.zoom.to_string());
+        if let Some(path) = &self.last_autosave {
+            storage.set_string("last_autosave", path.display().to_string());
+        }
     }
 
     fn ui(&mut self, root_ui: &mut egui::Ui, _frame: &mut eframe::Frame) {
@@ -1067,6 +1224,43 @@ impl eframe::App for SagaFoundryPlayer {
         self.handle_history_keys(root_ui);
         self.show_windows(&ctx);
     }
+}
+
+fn autosave_dir() -> PathBuf {
+    if let Ok(dir) = std::env::var("SAGA_FOUNDRY_STATE_DIR") {
+        return PathBuf::from(dir);
+    }
+    #[cfg(target_os = "windows")]
+    if let Ok(appdata) = std::env::var("APPDATA") {
+        return PathBuf::from(appdata).join("SagaFoundry");
+    }
+    #[cfg(target_os = "macos")]
+    if let Ok(home) = std::env::var("HOME") {
+        return PathBuf::from(home).join("Library/Application Support/SagaFoundry");
+    }
+    if let Ok(state) = std::env::var("XDG_STATE_HOME") {
+        return PathBuf::from(state).join("saga-foundry");
+    }
+    if let Ok(home) = std::env::var("HOME") {
+        return PathBuf::from(home).join(".local/state/saga-foundry");
+    }
+    std::env::temp_dir().join("saga-foundry")
+}
+
+fn autosave_path_for(engine: &Engine, source: Option<&Path>) -> PathBuf {
+    let title = safe_file_stem(&engine.document().title);
+    let key = source
+        .map(|path| path.display().to_string())
+        .unwrap_or_else(|| engine.document().id.clone());
+    let mut hasher = DefaultHasher::new();
+    key.hash(&mut hasher);
+    autosave_dir().join(format!("{}-{:016x}.autosave.json", title, hasher.finish()))
+}
+
+fn is_autosave(path: &Path) -> bool {
+    path.file_name()
+        .and_then(|name| name.to_str())
+        .is_some_and(|name| name.ends_with(".autosave.json"))
 }
 
 fn discover_adventures() -> Vec<AdventureEntry> {

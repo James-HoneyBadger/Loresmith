@@ -41,6 +41,8 @@ Saga Foundry is a text-based adventure game suite. You explore worlds, collect i
 ./Saga.sh
 ```
 
+The graphical Player autosaves after each turn. If you close it mid-adventure, the next launch offers **Resume** or **Discard** for that recovery save. The sidebar also shows a **Merchant** card when a shop is in your current room.
+
 ### Using Cargo directly
 
 ```bash

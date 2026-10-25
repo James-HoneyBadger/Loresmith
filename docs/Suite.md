@@ -56,6 +56,8 @@ Direct binaries after `cargo build --release`:
 - Live vitals, gold, XP, location, exits, equipment, inventory, and reputation
 - Journal/status shortcuts
 - Save and load through native file dialogs
+- Automatic recovery saves after every turn, with Resume/Discard on the library screen
+- Merchant detection, a sidebar shop card, and a context-aware shop quick action
 - Restart, victory/defeat presentation, and library return
 - Dark and light themes
 - Keyboard shortcuts: `Ctrl+O`, `Ctrl+S`, `Ctrl+L`, `F5`, `Esc`
