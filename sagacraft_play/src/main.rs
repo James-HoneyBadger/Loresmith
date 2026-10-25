@@ -5,6 +5,7 @@ use std::collections::HashSet;
 use std::collections::hash_map::DefaultHasher;
 use std::hash::{Hash, Hasher};
 use std::path::{Path, PathBuf};
+use std::time::UNIX_EPOCH;
 
 #[derive(Debug, Clone)]
 struct AdventureEntry {
@@ -84,6 +85,11 @@ impl SagaFoundryPlayer {
                     app.last_autosave = Some(path);
                 }
             }
+        }
+        // Prefer the newest recovery file even if the previous process was
+        // interrupted before eframe could persist its storage.
+        if let Some(path) = latest_autosave() {
+            app.last_autosave = Some(path);
         }
         theme::set_mode(app.theme_mode);
         if let Some(path) = start_path {
@@ -577,10 +583,13 @@ impl SagaFoundryPlayer {
                                         .strong()
                                         .color(theme::accent()),
                                 );
+                                let name = path
+                                    .file_name()
+                                    .and_then(|name| name.to_str())
+                                    .unwrap_or("autosave.json");
                                 ui.label(
                                     egui::RichText::new(format!(
-                                        "Autosaved progress found at {}",
-                                        path.display()
+                                        "Recovery save found · {name}"
                                     ))
                                     .size(11.0)
                                     .color(theme::muted()),
@@ -1255,6 +1264,31 @@ fn autosave_path_for(engine: &Engine, source: Option<&Path>) -> PathBuf {
     let mut hasher = DefaultHasher::new();
     key.hash(&mut hasher);
     autosave_dir().join(format!("{}-{:016x}.autosave.json", title, hasher.finish()))
+}
+
+fn latest_autosave() -> Option<PathBuf> {
+    let entries = std::fs::read_dir(autosave_dir()).ok()?;
+    let mut newest: Option<(u64, PathBuf)> = None;
+    for entry in entries.flatten() {
+        let path = entry.path();
+        if !is_autosave(&path) {
+            continue;
+        }
+        let stamp = entry
+            .metadata()
+            .and_then(|metadata| metadata.modified())
+            .ok()
+            .and_then(|modified| modified.duration_since(UNIX_EPOCH).ok())
+            .map(|duration| duration.as_secs())
+            .unwrap_or(0);
+        if newest
+            .as_ref()
+            .is_none_or(|(newest_stamp, _)| stamp > *newest_stamp)
+        {
+            newest = Some((stamp, path));
+        }
+    }
+    newest.map(|(_, path)| path)
 }
 
 fn is_autosave(path: &Path) -> bool {
