@@ -2,7 +2,7 @@
 
 [![Rust](https://img.shields.io/badge/Rust-1.95%2B-orange)](https://www.rust-lang.org/)
 [![License](https://img.shields.io/badge/License-MIT-blue.svg)](LICENSE)
-[![Version](https://img.shields.io/badge/Version-4.1.0-green.svg)]()
+[![Version](https://img.shields.io/badge/Version-4.2.0-green.svg)]()
 
 > A text-based adventure game engine and development suite written in Rust. Create, edit, and play interactive fiction adventures with a JSON-based format.
 

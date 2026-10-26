@@ -7,6 +7,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [4.2.0] - 2026-10-26
+
 ### Added
 - Saga Foundry Player now autosaves after every turn and offers **Resume** / **Discard** for the last recovery save on the library screen
 - Player detects merchants in the current room, shows their names in the sidebar, and adds a context-aware `shop` quick action

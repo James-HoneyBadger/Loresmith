@@ -1,6 +1,6 @@
 # The Saga Foundry Suite
 
-Saga Foundry is the public name of the suite. The original `SagaCraft` name remains on the repository and on 4.1.x binary identifiers for compatibility, but the products are branded **Saga Foundry**.
+Saga Foundry is the public name of the suite. The original `SagaCraft` name remains on the repository and on 4.x binary identifiers for compatibility, but the products are branded **Saga Foundry**.
 
 Saga Foundry is no longer just an editor with a play mode. It is a suite of separate applications that share one engine, one adventure schema, and one visual language.
 
@@ -76,7 +76,7 @@ Why:
 - It reads naturally as a suite: **Saga Foundry Engine**, **Saga Foundry Studio**, **Saga Foundry Player**, **Saga Foundry Console**, **Saga Foundry Workbench**.
 - It removes the ambiguity of "SagaCraft" meaning both the umbrella and one of its applications.
 
-The 4.1.x crate and binary identifiers keep their `sagacraft_*` names for compatibility. A future breaking release can adopt the identifier mapping:
+The 4.x crate and binary identifiers keep their `sagacraft_*` names for compatibility. A future breaking release can adopt the identifier mapping:
 
 | Current identifier | Future identifier |
 |--------------------|-------------------|

@@ -1,6 +1,6 @@
 # Saga Foundry API Reference
 
-**Version 4.1.0 · sagacraft_rs crate**
+**Version 4.2.0 · sagacraft_rs crate**
 
 Complete API documentation for the Saga Foundry core library. All types are defined in the `sagacraft_rs` crate and re-exported from `lib.rs`.
 
@@ -304,7 +304,7 @@ Commands: `inventory`/`i`/`inv`, `take`/`get`/`grab`/`pick`, `drop`, `equip`/`wi
 
 Commands: `attack`/`fight`/`kill <target>`, `flee`/`run`/`escape`, `status`/`stats`/`score`.
 
-Combat resolution (4.1):
+Combat resolution (since 4.1):
 - Player damage: weapon dice roll + `weapon_ability[weapon_type] / 5`; unarmed uses the best ability value. Monster `armor_worn` reduces damage; floor 1.
 - Monster counter-attack: `max(1, agility / 3 + 1 - (equipped armor_value + armor_expertise / 5))`.
 - On monster death: gold and XP awarded, every level-up applied, loot and weapon dropped into the room.

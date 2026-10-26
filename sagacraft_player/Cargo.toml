@@ -9,4 +9,4 @@ repository.workspace = true
 description = "Saga Foundry Console — command-line adventure player"
 
 [dependencies]
-sagacraft_rs = { path = "../sagacraft_rs", version = "4.1.0" }
+sagacraft_rs = { path = "../sagacraft_rs", version = "4.2.0" }

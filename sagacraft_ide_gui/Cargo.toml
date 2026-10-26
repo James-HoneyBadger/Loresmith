@@ -21,8 +21,8 @@ eframe = { version = "0.37", default-features = false, features = [
     "persistence",
 ] }
 egui = "0.37"
-sagacraft_rs = { path = "../sagacraft_rs", version = "4.1.0" }
-sagacraft_ui = { path = "../sagacraft_ui", version = "4.1.0" }
+sagacraft_rs = { path = "../sagacraft_rs", version = "4.2.0" }
+sagacraft_ui = { path = "../sagacraft_ui", version = "4.2.0" }
 rfd = "0.17"
 serde_json.workspace = true
 serde.workspace = true

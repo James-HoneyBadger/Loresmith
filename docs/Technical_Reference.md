@@ -1,6 +1,6 @@
 # Saga Foundry Technical Reference
 
-**Version 4.1 · Audience: Developers & Advanced Modders**
+**Version 4.2 · Audience: Developers & Advanced Modders**
 
 This document describes the Saga Foundry engine internals: architecture, data structures, the adventure JSON schema, the system trait API, and build instructions. All information reflects the actual source at `sagacraft_rs/`.
 

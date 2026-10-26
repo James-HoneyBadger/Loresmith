@@ -1,6 +1,6 @@
 # Saga Foundry User Manual
 
-**Version 4.1 · Saga Foundry**
+**Version 4.2 · Saga Foundry**
 
 Saga Foundry is a text-based adventure game suite. You explore worlds, collect items, fight monsters, and complete quests by typing commands. This manual covers everything you need to play.
 

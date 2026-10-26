@@ -24,7 +24,7 @@ Before installing Saga Foundry, ensure your system meets these requirements:
 
 #### Linux
 ```bash
-# Download the latest Linux release (replace <version> with e.g. 4.1.0)
+# Download the latest Linux release (replace <version> with e.g. 4.2.0)
 curl -L https://github.com/James-HoneyBadger/SagaCraft/releases/download/v<version>/SagaFoundry-v<version>-linux-x86_64.tar.gz -o sagafoundry.tar.gz
 
 # Extract the archive
