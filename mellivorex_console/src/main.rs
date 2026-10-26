@@ -1,6 +1,6 @@
 use std::io::{self, Write};
 
-use sagacraft_rs::Engine;
+use mellivorex_rs::Engine;
 
 const DEFAULT_ADVENTURE: &str = "examples/adventures/shattered_realms_demo.json";
 
@@ -15,7 +15,7 @@ fn main() {
         }
     };
 
-    println!("Saga Foundry Console");
+    println!("Mellivorex Console");
     println!("Type 'help' for commands. Type 'quit' to exit.\n");
 
     // Print intro/banner text from adventure file, then room description
@@ -91,7 +91,7 @@ fn parse_args(mut args: impl Iterator<Item = String>) -> String {
             }
             "--version" | "-V" => {
                 println!(
-                    "Saga Foundry Console {} (sagacraft_player)",
+                    "Mellivorex Console {} (mellivorex_console)",
                     env!("CARGO_PKG_VERSION")
                 );
                 std::process::exit(0);
@@ -105,7 +105,7 @@ fn parse_args(mut args: impl Iterator<Item = String>) -> String {
                 }
             }
             other if !other.starts_with('-') => {
-                // Support positional argument: sagacraft_player my_adventure.json
+                // Support positional argument: mellivorex_console my_adventure.json
                 adventure_path = Some(other.to_string());
             }
             unknown => {
@@ -119,10 +119,10 @@ fn parse_args(mut args: impl Iterator<Item = String>) -> String {
 }
 
 fn print_usage_and_exit() -> ! {
-    println!("Saga Foundry Console");
+    println!("Mellivorex Console");
     println!("Usage:");
-    println!("  sagacraft_player [<adventure.json>]");
-    println!("  sagacraft_player --adventure <path>");
+    println!("  mellivorex_console [<adventure.json>]");
+    println!("  mellivorex_console --adventure <path>");
     println!();
     println!("Options:");
     println!(

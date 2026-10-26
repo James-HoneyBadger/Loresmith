@@ -1,6 +1,6 @@
 use eframe::egui;
-use sagacraft_rs::{AdventureDocument, Engine};
-use sagacraft_ui as theme;
+use mellivorex_rs::{AdventureDocument, Engine};
+use mellivorex_ui as theme;
 use std::collections::HashSet;
 use std::collections::hash_map::DefaultHasher;
 use std::hash::{Hash, Hasher};
@@ -14,7 +14,7 @@ struct AdventureEntry {
     path: PathBuf,
 }
 
-struct SagaFoundryPlayer {
+struct MellivorexPlayer {
     engine: Option<Engine>,
     adventure_path: Option<PathBuf>,
     save_path: Option<PathBuf>,
@@ -38,7 +38,7 @@ struct SagaFoundryPlayer {
     force_quit: bool,
 }
 
-impl SagaFoundryPlayer {
+impl MellivorexPlayer {
     fn new(cc: &eframe::CreationContext<'_>, start_path: Option<PathBuf>) -> Self {
         let mut app = Self {
             engine: None,
@@ -122,7 +122,7 @@ impl SagaFoundryPlayer {
 
     fn open_adventure_dialog(&mut self) {
         if let Some(path) = rfd::FileDialog::new()
-            .add_filter("Saga Foundry adventures", &["json"][..])
+            .add_filter("Mellivorex adventures", &["json"][..])
             .add_filter("All files", &["*"][..])
             .pick_file()
         {
@@ -132,7 +132,7 @@ impl SagaFoundryPlayer {
 
     fn load_game_dialog(&mut self) {
         let Some(path) = rfd::FileDialog::new()
-            .add_filter("Saga Foundry saves", &["json"][..])
+            .add_filter("Mellivorex saves", &["json"][..])
             .add_filter("All files", &["*"][..])
             .pick_file()
         else {
@@ -218,7 +218,7 @@ impl SagaFoundryPlayer {
                 safe_file_stem(engine.document().title.as_str())
             );
             rfd::FileDialog::new()
-                .add_filter("Saga Foundry saves", &["json"][..])
+                .add_filter("Mellivorex saves", &["json"][..])
                 .set_file_name(name)
                 .save_file()
         });
@@ -434,7 +434,7 @@ impl SagaFoundryPlayer {
                         self.show_controls = true;
                         ui.close();
                     }
-                    if ui.button("About Saga Foundry Player").clicked() {
+                    if ui.button("About Mellivorex Player").clicked() {
                         self.show_about = true;
                         ui.close();
                     }
@@ -446,8 +446,8 @@ impl SagaFoundryPlayer {
         let caption = self
             .engine
             .as_ref()
-            .map(|engine| format!("Saga Foundry Player - {}", engine.document().title.as_str()))
-            .unwrap_or_else(|| "Saga Foundry Player - Adventure Library".to_string());
+            .map(|engine| format!("Mellivorex Player - {}", engine.document().title.as_str()))
+            .unwrap_or_else(|| "Mellivorex Player - Adventure Library".to_string());
         let maximized = ctx.input(|input| input.viewport().maximized.unwrap_or(false));
         let Some(action) = theme::caption_bar(ui, &caption, maximized) else {
             return;
@@ -527,7 +527,7 @@ impl SagaFoundryPlayer {
             ui.vertical(|ui| {
                 ui.add_space(7.0);
                 ui.label(
-                    egui::RichText::new("Saga Foundry")
+                    egui::RichText::new("Mellivorex")
                         .size(25.0)
                         .strong()
                         .color(theme::accent()),
@@ -604,7 +604,7 @@ impl SagaFoundryPlayer {
                             ui.add_space(4.0);
                             ui.label(
                                 egui::RichText::new(
-                                    "A focused, standalone player for Saga Foundry adventures. No editor, no clutter — just the story, your character, and the choices ahead.",
+                                    "A focused, standalone player for Mellivorex adventures. No editor, no clutter — just the story, your character, and the choices ahead.",
                                 )
                                 .size(13.0)
                                 .color(theme::muted()),
@@ -705,11 +705,11 @@ impl SagaFoundryPlayer {
                     theme::card(
                         ui,
                         "No adventures found",
-                        Some("Open any Saga Foundry JSON adventure"),
+                        Some("Open any Mellivorex JSON adventure"),
                         |ui| {
                             ui.label(
                                 egui::RichText::new(
-                                    "Use Open Adventure to choose an adventure file. You can also run the player with a path: sagacraft_play my_adventure.json",
+                                    "Use Open Adventure to choose an adventure file. You can also run the player with a path: mellivorex_player my_adventure.json",
                                 )
                                 .size(12.0)
                                 .color(theme::muted()),
@@ -1098,7 +1098,7 @@ impl SagaFoundryPlayer {
                 });
         }
         if self.pending_quit {
-            egui::Window::new("Quit Saga Foundry Player?")
+            egui::Window::new("Quit Mellivorex Player?")
                 .collapsible(false)
                 .resizable(false)
                 .anchor(egui::Align2::CENTER_CENTER, [0.0, 0.0])
@@ -1118,13 +1118,13 @@ impl SagaFoundryPlayer {
         }
         if self.show_about {
             let mut open = self.show_about;
-            egui::Window::new("About Saga Foundry Player")
+            egui::Window::new("About Mellivorex Player")
                 .open(&mut open)
                 .collapsible(false)
                 .resizable(false)
                 .show(ctx, |ui| {
                     ui.label(
-                        egui::RichText::new("Saga Foundry Player")
+                        egui::RichText::new("Mellivorex Player")
                             .size(if theme::is_windows_2000() {
                                 12.0
                             } else {
@@ -1136,11 +1136,11 @@ impl SagaFoundryPlayer {
                     ui.label(format!("Version {}", env!("CARGO_PKG_VERSION")));
                     ui.add_space(8.0);
                     ui.label(
-                        "A standalone game player for Saga Foundry adventures, built with egui and the Saga Foundry engine.",
+                        "A standalone game player for Mellivorex adventures, built with egui and the Mellivorex engine.",
                     );
                     ui.add_space(6.0);
                     ui.label(
-                        egui::RichText::new("Part of the Saga Foundry suite: Engine · Studio · Player · Console · Workbench")
+                        egui::RichText::new("Part of the Mellivorex suite: Engine · Studio · Player · Console · Workbench")
                             .size(11.0)
                             .color(theme::muted()),
                     );
@@ -1184,7 +1184,7 @@ impl SagaFoundryPlayer {
                         .auto_shrink([false, false])
                         .max_height(420.0)
                         .show(ui, |ui| {
-                            let mut help = sagacraft_rs::commands::help_text();
+                            let mut help = mellivorex_rs::commands::help_text();
                             ui.add(
                                 egui::TextEdit::multiline(&mut help)
                                     .font(egui::TextStyle::Monospace)
@@ -1260,7 +1260,7 @@ impl SagaFoundryPlayer {
     }
 }
 
-impl eframe::App for SagaFoundryPlayer {
+impl eframe::App for MellivorexPlayer {
     fn save(&mut self, storage: &mut dyn eframe::Storage) {
         storage.set_string("theme", self.theme_mode.key().to_string());
         storage.set_string(
@@ -1342,24 +1342,24 @@ impl eframe::App for SagaFoundryPlayer {
 }
 
 fn autosave_dir() -> PathBuf {
-    if let Ok(dir) = std::env::var("SAGA_FOUNDRY_STATE_DIR") {
+    if let Ok(dir) = std::env::var("MELLIVOREX_STATE_DIR") {
         return PathBuf::from(dir);
     }
     #[cfg(target_os = "windows")]
     if let Ok(appdata) = std::env::var("APPDATA") {
-        return PathBuf::from(appdata).join("SagaFoundry");
+        return PathBuf::from(appdata).join("Mellivorex");
     }
     #[cfg(target_os = "macos")]
     if let Ok(home) = std::env::var("HOME") {
-        return PathBuf::from(home).join("Library/Application Support/SagaFoundry");
+        return PathBuf::from(home).join("Library/Application Support/Mellivorex");
     }
     if let Ok(state) = std::env::var("XDG_STATE_HOME") {
-        return PathBuf::from(state).join("saga-foundry");
+        return PathBuf::from(state).join("mellivorex");
     }
     if let Ok(home) = std::env::var("HOME") {
-        return PathBuf::from(home).join(".local/state/saga-foundry");
+        return PathBuf::from(home).join(".local/state/mellivorex");
     }
-    std::env::temp_dir().join("saga-foundry")
+    std::env::temp_dir().join("mellivorex")
 }
 
 fn autosave_path_for(engine: &Engine, source: Option<&Path>) -> PathBuf {
@@ -1414,7 +1414,7 @@ fn discover_adventures() -> Vec<AdventureEntry> {
         for ancestor in directory.ancestors().take(5) {
             roots.push(ancestor.join("examples/adventures"));
             roots.push(ancestor.join("adventures"));
-            roots.push(ancestor.join("share/sagacraft/adventures"));
+            roots.push(ancestor.join("share/mellivorex/adventures"));
         }
     }
 
@@ -1505,8 +1505,8 @@ fn parse_args() -> Option<PathBuf> {
     while let Some(arg) = args.next() {
         match arg.as_str() {
             "-h" | "--help" => {
-                println!("Saga Foundry Player");
-                println!("Usage: sagacraft_play [adventure.json]");
+                println!("Mellivorex Player");
+                println!("Usage: mellivorex_player [adventure.json]");
                 println!();
                 println!("  -a, --adventure <path>  Adventure to open");
                 println!("  -h, --help              Show this help");
@@ -1515,7 +1515,7 @@ fn parse_args() -> Option<PathBuf> {
             }
             "-V" | "--version" => {
                 println!(
-                    "Saga Foundry Player {} (sagacraft_play)",
+                    "Mellivorex Player {} (mellivorex_player)",
                     env!("CARGO_PKG_VERSION")
                 );
                 std::process::exit(0);
@@ -1546,8 +1546,8 @@ fn main() -> eframe::Result<()> {
         ..Default::default()
     };
     eframe::run_native(
-        "Saga Foundry Player",
+        "Mellivorex Player",
         options,
-        Box::new(move |cc| Ok(Box::new(SagaFoundryPlayer::new(cc, start_path.clone())))),
+        Box::new(move |cc| Ok(Box::new(MellivorexPlayer::new(cc, start_path.clone())))),
     )
 }

@@ -2194,6 +2194,65 @@ dependencies = [
 ]
 
 [[package]]
+name = "mellivorex_console"
+version = "5.0.0"
+dependencies = [
+ "mellivorex_rs",
+]
+
+[[package]]
+name = "mellivorex_player"
+version = "5.0.0"
+dependencies = [
+ "eframe",
+ "egui",
+ "mellivorex_rs",
+ "mellivorex_ui",
+ "rfd",
+]
+
+[[package]]
+name = "mellivorex_rs"
+version = "5.0.0"
+dependencies = [
+ "chrono",
+ "rand 0.9.4",
+ "serde",
+ "serde_json",
+]
+
+[[package]]
+name = "mellivorex_studio"
+version = "5.0.0"
+dependencies = [
+ "eframe",
+ "egui",
+ "mellivorex_rs",
+ "mellivorex_ui",
+ "rfd",
+ "serde",
+ "serde_json",
+]
+
+[[package]]
+name = "mellivorex_ui"
+version = "5.0.0"
+dependencies = [
+ "egui",
+]
+
+[[package]]
+name = "mellivorex_workbench"
+version = "5.0.0"
+dependencies = [
+ "anyhow",
+ "crossterm",
+ "mellivorex_rs",
+ "ratatui",
+ "serde_json",
+]
+
+[[package]]
 name = "memchr"
 version = "2.8.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -3490,65 +3549,6 @@ name = "ryu"
 version = "1.0.23"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "9774ba4a74de5f7b1c1451ed6cd5285a32eddb5cccb8cc655a4e50009e06477f"
-
-[[package]]
-name = "sagacraft_ide_gui"
-version = "4.2.0"
-dependencies = [
- "eframe",
- "egui",
- "rfd",
- "sagacraft_rs",
- "sagacraft_ui",
- "serde",
- "serde_json",
-]
-
-[[package]]
-name = "sagacraft_ide_tui"
-version = "4.2.0"
-dependencies = [
- "anyhow",
- "crossterm",
- "ratatui",
- "sagacraft_rs",
- "serde_json",
-]
-
-[[package]]
-name = "sagacraft_play"
-version = "4.2.0"
-dependencies = [
- "eframe",
- "egui",
- "rfd",
- "sagacraft_rs",
- "sagacraft_ui",
-]
-
-[[package]]
-name = "sagacraft_player"
-version = "4.2.0"
-dependencies = [
- "sagacraft_rs",
-]
-
-[[package]]
-name = "sagacraft_rs"
-version = "4.2.0"
-dependencies = [
- "chrono",
- "rand 0.9.4",
- "serde",
- "serde_json",
-]
-
-[[package]]
-name = "sagacraft_ui"
-version = "4.2.0"
-dependencies = [
- "egui",
-]
 
 [[package]]
 name = "same-file"

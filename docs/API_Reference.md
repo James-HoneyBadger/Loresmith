@@ -1,8 +1,8 @@
-# Saga Foundry API Reference
+# Mellivorex API Reference
 
-**Version 4.2.0 · sagacraft_rs crate**
+**Version 5.0.0 · mellivorex_rs crate**
 
-Complete API documentation for the Saga Foundry core library. All types are defined in the `sagacraft_rs` crate and re-exported from `lib.rs`.
+Complete API documentation for the Mellivorex core library. All types are defined in the `mellivorex_rs` crate and re-exported from `lib.rs`.
 
 ---
 
@@ -27,7 +27,7 @@ Complete API documentation for the Saga Foundry core library. All types are defi
 ## Public Re-exports
 
 ```rust
-// sagacraft_rs/src/lib.rs
+// mellivorex_rs/src/lib.rs
 pub use adventure::{Adventure, AdventureError, AdventureItem, AdventureRoom};
 pub use engine::Engine;
 pub use game_state::{AdventureGame, GameEvent, Item, Monster, Player, Room, ItemType, MonsterStatus};
@@ -62,7 +62,7 @@ pub struct Engine {
 ### Example
 
 ```rust
-use sagacraft_rs::Engine;
+use mellivorex_rs::Engine;
 
 let mut engine = Engine::load("my_adventure.json")?;
 println!("{}", engine.intro());
@@ -397,7 +397,7 @@ pub enum AdventureError {
 ### Minimal CLI player
 
 ```rust
-use sagacraft_rs::Engine;
+use mellivorex_rs::Engine;
 use std::io::{self, Write};
 
 fn main() -> Result<(), Box<dyn std::error::Error>> {
@@ -428,7 +428,7 @@ fn main() -> Result<(), Box<dyn std::error::Error>> {
 ### Custom System
 
 ```rust
-use sagacraft_rs::{System, AdventureGame, GameEvent};
+use mellivorex_rs::{System, AdventureGame, GameEvent};
 
 pub struct GreeterSystem;
 

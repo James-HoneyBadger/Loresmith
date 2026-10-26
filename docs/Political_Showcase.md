@@ -26,4 +26,4 @@ The Iron Assembly is a showcase centered on:
 
 ## Quick start
 
-cargo run --bin sagacraft_player -- examples/adventures/iron_assembly_showcase.json
+cargo run --bin mellivorex_console -- examples/adventures/iron_assembly_showcase.json

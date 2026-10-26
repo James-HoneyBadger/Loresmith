@@ -46,13 +46,13 @@ jobs:
         run: |
           version="${GITHUB_REF_NAME#v}"
           mkdir -p dist
-          cp target/release/sagacraft_play dist/
-          cp target/release/sagacraft_player dist/
-          cp target/release/sagacraft_ide_tui dist/
-          cp target/release/sagacraft_ide_gui dist/
+          cp target/release/mellivorex_player dist/
+          cp target/release/mellivorex_console dist/
+          cp target/release/mellivorex_workbench dist/
+          cp target/release/mellivorex_studio dist/
           cp README.md LICENSE CHANGELOG.md dist/
           cp -r examples dist/
-          tar -czf "SagaFoundry-v${version}-${{ matrix.target }}.tar.gz" -C dist .
+          tar -czf "Mellivorex-v${version}-${{ matrix.target }}.tar.gz" -C dist .
 
       - name: Package (Windows)
         if: matrix.archive == 'zip'
@@ -60,18 +60,18 @@ jobs:
         run: |
           $version = $env:GITHUB_REF_NAME -replace '^v', ''
           New-Item -ItemType Directory -Force -Path dist | Out-Null
-          Copy-Item target/release/sagacraft_play.exe dist/
-          Copy-Item target/release/sagacraft_player.exe dist/
-          Copy-Item target/release/sagacraft_ide_tui.exe dist/
-          Copy-Item target/release/sagacraft_ide_gui.exe dist/
+          Copy-Item target/release/mellivorex_player.exe dist/
+          Copy-Item target/release/mellivorex_console.exe dist/
+          Copy-Item target/release/mellivorex_workbench.exe dist/
+          Copy-Item target/release/mellivorex_studio.exe dist/
           Copy-Item README.md, LICENSE, CHANGELOG.md dist/
           Copy-Item -Recurse examples dist/
-          Compress-Archive -Path dist/* -DestinationPath "SagaFoundry-v$version-${{ matrix.target }}.zip"
+          Compress-Archive -Path dist/* -DestinationPath "Mellivorex-v$version-${{ matrix.target }}.zip"
 
       - name: Upload release asset
         uses: softprops/action-gh-release@v2
         with:
           files: |
-            SagaFoundry-v*-${{ matrix.target }}.${{ matrix.archive }}
+            Mellivorex-v*-${{ matrix.target }}.${{ matrix.archive }}
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}

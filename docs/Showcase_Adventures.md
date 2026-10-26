@@ -1,6 +1,6 @@
-# Saga Foundry Showcase Adventures
+# Mellivorex Showcase Adventures
 
-This workspace includes three large example adventures designed to demonstrate the Saga Foundry engine and editing tools at a higher level than the basic demos.
+This workspace includes three large example adventures designed to demonstrate the Mellivorex engine and editing tools at a higher level than the basic demos.
 
 ## Included showcase files
 
@@ -42,9 +42,9 @@ Highlights:
 
 Build and run either adventure with the CLI player:
 
-cargo run --bin sagacraft_player -- examples/adventures/clockwork_citadel_showcase.json
-cargo run --bin sagacraft_player -- examples/adventures/starfall_harbor_showcase.json
-cargo run --bin sagacraft_player -- examples/adventures/iron_assembly_showcase.json
+cargo run --bin mellivorex_console -- examples/adventures/clockwork_citadel_showcase.json
+cargo run --bin mellivorex_console -- examples/adventures/starfall_harbor_showcase.json
+cargo run --bin mellivorex_console -- examples/adventures/iron_assembly_showcase.json
 
 You can also open the same files in the GUI or TUI editors to inspect the structure and modify content.
 

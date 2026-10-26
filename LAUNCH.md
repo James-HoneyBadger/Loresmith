@@ -1,6 +1,6 @@
-# Saga Foundry — Quick Launch
+# Mellivorex — Quick Launch
 
-Saga Foundry is a suite of separate applications. Use the suite launcher or run an app directly.
+Mellivorex is a suite of separate applications. Use the suite launcher or run an app directly.
 
 ## Suite launcher
 
@@ -41,7 +41,7 @@ Full room, item, monster, quest, shop, ending, starting-inventory, lock, light, 
 ```bash
 ./Workbench.sh
 # or
-./Saga.sh
+./Workbench.sh
 ```
 
 ## Console — terminal player
@@ -54,10 +54,10 @@ Full room, item, monster, quest, shop, ending, starting-inventory, lock, light, 
 ## Direct binaries
 
 ```bash
-cargo run --bin sagacraft_play -- examples/adventures/starfall_harbor_showcase.json
-cargo run --bin sagacraft_ide_gui
-cargo run --bin sagacraft_player -- examples/adventures/shattered_realms_demo.json
-cargo run --bin sagacraft_ide_tui
+cargo run --bin mellivorex_player -- examples/adventures/starfall_harbor_showcase.json
+cargo run --bin mellivorex_studio
+cargo run --bin mellivorex_console -- examples/adventures/shattered_realms_demo.json
+cargo run --bin mellivorex_workbench
 ```
 
 ## Documentation

@@ -1,11 +1,11 @@
 use eframe::egui;
-use sagacraft_rs::{
+use mellivorex_rs::{
     AdventureDocument, AdventureGame, BasicWorldSystem, CombatSystem, DialogueDef, EndingDef,
     ExitDef, InventoryRef, InventorySystem, ItemDef, ItemType, MonsterDef, MonsterStatus,
     ObjectiveDef, ObjectiveKind, QuestDef, QuestRewardsDef, QuestSystem, RewardItem, RoomDef,
     ShopDef, ShopStockDef, ShopSystem, StageDef, StructuredObjective,
 };
-use sagacraft_ui as theme;
+use mellivorex_ui as theme;
 use std::path::PathBuf;
 
 /// The GUI edits the canonical document directly so every field round-trips.
@@ -17,13 +17,13 @@ fn main() -> eframe::Result<()> {
         ..Default::default()
     };
     eframe::run_native(
-        "Saga Foundry Studio",
+        "Mellivorex Studio",
         options,
-        Box::new(|cc| Ok(Box::new(SagaFoundryStudio::new(cc)))),
+        Box::new(|cc| Ok(Box::new(MellivorexStudio::new(cc)))),
     )
 }
 
-struct SagaFoundryStudio {
+struct MellivorexStudio {
     adventure: AdventureData,
     current_file: Option<PathBuf>,
     modified: bool,
@@ -61,7 +61,7 @@ struct SagaFoundryStudio {
     classic_chrome: bool,
 }
 
-impl Default for SagaFoundryStudio {
+impl Default for MellivorexStudio {
     fn default() -> Self {
         let adventure = starter_document();
         let last_saved_json = adventure.to_json_string().ok();
@@ -99,7 +99,7 @@ impl Default for SagaFoundryStudio {
     }
 }
 
-impl SagaFoundryStudio {
+impl MellivorexStudio {
     fn new(cc: &eframe::CreationContext<'_>) -> Self {
         let mut app = Self::default();
         if let Some(storage) = cc.storage
@@ -129,7 +129,7 @@ fn starter_document() -> AdventureDocument {
     let mut document = AdventureDocument {
         id: "new_adventure".to_string(),
         title: "New Adventure".to_string(),
-        description: "A new Saga Foundry adventure.".to_string(),
+        description: "A new Mellivorex adventure.".to_string(),
         intro: "Welcome to your new adventure!".to_string(),
         start_room: 1,
         ..AdventureDocument::default()
@@ -187,7 +187,7 @@ fn ensure_structured_objective(
     if let ObjectiveDef::Text(text) = objective {
         let text = text.clone();
         *objective =
-            ObjectiveDef::Structured(sagacraft_rs::document::parse_text_objective(index, &text));
+            ObjectiveDef::Structured(mellivorex_rs::document::parse_text_objective(index, &text));
     }
     match objective {
         ObjectiveDef::Structured(objective) => objective,
@@ -225,7 +225,7 @@ struct GameSummary {
     over_text: Option<String>,
 }
 
-impl eframe::App for SagaFoundryStudio {
+impl eframe::App for MellivorexStudio {
     fn save(&mut self, storage: &mut dyn eframe::Storage) {
         storage.set_string("theme", self.theme_mode.key().to_string());
     }
@@ -377,7 +377,7 @@ impl eframe::App for SagaFoundryStudio {
     }
 }
 
-impl SagaFoundryStudio {
+impl MellivorexStudio {
     fn show_caption_bar(&mut self, ctx: &egui::Context, ui: &mut egui::Ui) {
         let file_name = self
             .current_file
@@ -386,7 +386,7 @@ impl SagaFoundryStudio {
             .map(|name| name.to_string_lossy().to_string())
             .unwrap_or_else(|| "Untitled adventure".to_string());
         let caption = format!(
-            "Saga Foundry Studio - {}{}",
+            "Mellivorex Studio - {}{}",
             file_name,
             if self.modified { " *" } else { "" }
         );
@@ -449,7 +449,7 @@ impl SagaFoundryStudio {
             ui.vertical(|ui| {
                 ui.add_space(8.0);
                 ui.label(
-                    egui::RichText::new("Saga Foundry")
+                    egui::RichText::new("Mellivorex")
                         .size(25.0)
                         .strong()
                         .color(theme::accent()),
@@ -617,7 +617,7 @@ impl SagaFoundryStudio {
             ui.horizontal(|ui| {
                 ui.add_space(14.0);
                 ui.label(
-                    egui::RichText::new("Saga Foundry 4.1.0")
+                    egui::RichText::new("Mellivorex 4.1.0")
                         .size(10.0)
                         .color(theme::muted()),
                 );
@@ -709,7 +709,7 @@ impl SagaFoundryStudio {
                 });
 
                 ui.menu_button("Help", |ui| {
-                    if ui.button("About Saga Foundry Studio").clicked() {
+                    if ui.button("About Mellivorex Studio").clicked() {
                         self.show_about();
                         ui.close();
                     }
@@ -2208,28 +2208,28 @@ impl SagaFoundryStudio {
                                     changed |= ui
                                         .selectable_value(
                                             &mut quest.difficulty,
-                                            sagacraft_rs::QuestDifficultyDef::Easy,
+                                            mellivorex_rs::QuestDifficultyDef::Easy,
                                             "Easy",
                                         )
                                         .changed();
                                     changed |= ui
                                         .selectable_value(
                                             &mut quest.difficulty,
-                                            sagacraft_rs::QuestDifficultyDef::Moderate,
+                                            mellivorex_rs::QuestDifficultyDef::Moderate,
                                             "Moderate",
                                         )
                                         .changed();
                                     changed |= ui
                                         .selectable_value(
                                             &mut quest.difficulty,
-                                            sagacraft_rs::QuestDifficultyDef::Challenging,
+                                            mellivorex_rs::QuestDifficultyDef::Challenging,
                                             "Challenging",
                                         )
                                         .changed();
                                     changed |= ui
                                         .selectable_value(
                                             &mut quest.difficulty,
-                                            sagacraft_rs::QuestDifficultyDef::Hard,
+                                            mellivorex_rs::QuestDifficultyDef::Hard,
                                             "Hard",
                                         )
                                         .changed();
@@ -2934,7 +2934,7 @@ impl SagaFoundryStudio {
     }
 
     fn show_about(&mut self) {
-        self.status = "Saga Foundry Studio — complete adventure editor".to_string();
+        self.status = "Mellivorex Studio — complete adventure editor".to_string();
     }
 
     fn mark_modified(&mut self) {

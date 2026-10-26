@@ -1,15 +1,15 @@
 [package]
-name = "sagacraft_play"
+name = "mellivorex_player"
 version.workspace = true
 edition.workspace = true
 rust-version.workspace = true
 license.workspace = true
 authors.workspace = true
 repository.workspace = true
-description = "Saga Foundry Player — standalone graphical game player"
+description = "Mellivorex Player — standalone graphical game player"
 
 [[bin]]
-name = "sagacraft_play"
+name = "mellivorex_player"
 path = "src/main.rs"
 
 [dependencies]
@@ -25,6 +25,6 @@ eframe = { version = "0.37", default-features = false, features = [
     "persistence",
 ] }
 egui = "0.37"
-sagacraft_rs = { path = "../sagacraft_rs", version = "4.2.0" }
-sagacraft_ui = { path = "../sagacraft_ui", version = "4.2.0" }
+mellivorex_rs = { path = "../mellivorex_rs", version = "5.0.0" }
+mellivorex_ui = { path = "../mellivorex_ui", version = "5.0.0" }
 rfd = "0.17"

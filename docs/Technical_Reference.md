@@ -1,8 +1,8 @@
-# Saga Foundry Technical Reference
+# Mellivorex Technical Reference
 
-**Version 4.2 · Audience: Developers & Advanced Modders**
+**Version 5.0 · Audience: Developers & Advanced Modders**
 
-This document describes the Saga Foundry engine internals: architecture, data structures, the adventure JSON schema, the system trait API, and build instructions. All information reflects the actual source at `sagacraft_rs/`.
+This document describes the Mellivorex engine internals: architecture, data structures, the adventure JSON schema, the system trait API, and build instructions. All information reflects the actual source at `mellivorex_rs/`.
 
 ---
 
@@ -25,9 +25,9 @@ This document describes the Saga Foundry engine internals: architecture, data st
 ## Project Structure
 
 ```
-SagaCraft/
+Mellivorex/
 ├── Cargo.toml                  # Workspace manifest
-├── sagacraft_rs/               # Core engine library
+├── mellivorex_rs/               # Core engine library
 │   └── src/
 │       ├── lib.rs              # Public re-exports
 │       ├── engine.rs           # High-level Engine wrapper
@@ -42,18 +42,18 @@ SagaCraft/
 │           ├── combat.rs       # Combat, XP, loot, endings
 │           ├── quests.rs       # Quest tracker, stages, rewards
 │           └── shops.rs        # Shops and trading
-├── sagacraft_play/             # Standalone egui game player
-├── sagacraft_ide_gui/          # Studio — egui graphical editor
-├── sagacraft_player/           # Console — CLI player
-├── sagacraft_ide_tui/          # Workbench — ratatui terminal editor
-└── sagacraft_ui/               # Shared egui theme and widgets
+├── mellivorex_player/             # Standalone egui game player
+├── mellivorex_studio/          # Studio — egui graphical editor
+├── mellivorex_console/           # Console — CLI player
+├── mellivorex_workbench/          # Workbench — ratatui terminal editor
+└── mellivorex_ui/               # Shared egui theme and widgets
 ```
 
 ---
 
 ## Crate Overview
 
-Every front-end depends on `sagacraft_rs` for loading, validation, runtime state, systems, and saves. The graphical applications (Player and Studio) also share `sagacraft_ui` for the theme and common widgets. Each application owns its layout and workflow; only the engine and UI foundation are shared.
+Every front-end depends on `mellivorex_rs` for loading, validation, runtime state, systems, and saves. The graphical applications (Player and Studio) also share `mellivorex_ui` for the theme and common widgets. Each application owns its layout and workflow; only the engine and UI foundation are shared.
 
 ### Public re-exports (`lib.rs`)
 
@@ -539,22 +539,22 @@ cargo build
 cargo build --release
 
 # Run standalone graphical player
-cargo run --bin sagacraft_play -- examples/adventures/demo_adventure.json
+cargo run --bin mellivorex_player -- examples/adventures/demo_adventure.json
 
 # Run CLI player
-cargo run --bin sagacraft_player -- examples/adventures/demo_adventure.json
+cargo run --bin mellivorex_console -- examples/adventures/demo_adventure.json
 
 # Run terminal editor
-cargo run --bin sagacraft_ide_tui
+cargo run --bin mellivorex_workbench
 
 # Run graphical editor
-cargo run --bin sagacraft_ide_gui
+cargo run --bin mellivorex_studio
 
 # Run tests
 cargo test
 
 # Run tests for the core library only
-cargo test -p sagacraft_rs
+cargo test -p mellivorex_rs
 
 # Generate API documentation
 cargo doc --open
@@ -568,14 +568,14 @@ cargo doc --open
 
 ## Contributing
 
-1. Fork the repository: https://github.com/James-HoneyBadger/SagaCraft
+1. Fork the repository: https://github.com/James-HoneyBadger/Mellivorex
 2. Create a feature branch: `git checkout -b feature/my-feature`
 3. Implement and test your changes
 4. Run `cargo fmt && cargo clippy` before committing
 5. Open a pull request against `main`
 
 **Adding a new system:**
-1. Create `sagacraft_rs/src/systems/my_system.rs`
+1. Create `mellivorex_rs/src/systems/my_system.rs`
 2. Implement `System` trait
 3. Register in `engine.rs` inside `Engine::new`
 4. Add `pub mod my_system;` to `systems/mod.rs`

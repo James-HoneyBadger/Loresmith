@@ -1,8 +1,8 @@
-# Saga Foundry User Manual
+# Mellivorex User Manual
 
-**Version 4.2 · Saga Foundry**
+**Version 5.0 · Mellivorex**
 
-Saga Foundry is a text-based adventure game suite. You explore worlds, collect items, fight monsters, and complete quests by typing commands. This manual covers everything you need to play.
+Mellivorex is a text-based adventure game suite. You explore worlds, collect items, fight monsters, and complete quests by typing commands. This manual covers everything you need to play.
 
 ---
 
@@ -38,7 +38,7 @@ Saga Foundry is a text-based adventure game suite. You explore worlds, collect i
 ./Studio.sh
 
 # Terminal editor (Workbench)
-./Saga.sh
+./Workbench.sh
 ```
 
 The graphical Player autosaves after each turn. If you close it mid-adventure, the next launch offers **Resume** or **Discard** for that recovery save. The sidebar also shows a **Merchant** card when a shop is in your current room.
@@ -47,30 +47,30 @@ The graphical Player autosaves after each turn. If you close it mid-adventure, t
 
 ```bash
 # Standalone graphical player
-cargo run --bin sagacraft_play -- path/to/adventure.json
+cargo run --bin mellivorex_player -- path/to/adventure.json
 
 # Terminal player
-cargo run --bin sagacraft_player -- path/to/adventure.json
+cargo run --bin mellivorex_console -- path/to/adventure.json
 
 # Graphical editor (Studio)
-cargo run --bin sagacraft_ide_gui
+cargo run --bin mellivorex_studio
 
 # Terminal editor (Workbench)
-cargo run --bin sagacraft_ide_tui
+cargo run --bin mellivorex_workbench
 ```
 
 ### Included adventures
 
 | File | Description |
 |------|-------------|
-| examples/adventures/demo_adventure.json | Two-room introduction to Saga Foundry |
+| examples/adventures/demo_adventure.json | Two-room introduction to Mellivorex |
 | examples/adventures/shattered_realms_demo.json | 15-room epic fantasy adventure with combat and quests |
 
 ---
 
 ## How to Play
 
-Saga Foundry is played entirely by typing commands and reading the responses. Everything happens at the keyboard.
+Mellivorex is played entirely by typing commands and reading the responses. Everything happens at the keyboard.
 
 When you start a new game you will see the title banner, optional introduction text, and then the first room description:
 
@@ -501,4 +501,4 @@ Location: Room 3
 | Adventure won't load | Verify the path is correct and the JSON is valid |
 | Dark room with no light | Look for a torch or lantern item in earlier rooms |
 
-**Bug reports:** https://github.com/James-HoneyBadger/SagaCraft/issues
+**Bug reports:** https://github.com/James-HoneyBadger/Mellivorex/issues

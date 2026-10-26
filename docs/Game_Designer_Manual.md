@@ -1,8 +1,8 @@
-# Saga Foundry Game Designer Manual
+# Mellivorex Game Designer Manual
 
-## Creating Adventures with Saga Foundry
+## Creating Adventures with Mellivorex
 
-This comprehensive guide will teach you how to design, create, and publish your own text-based adventures using the Saga Foundry engine. Whether you're a first-time designer or an experienced developer, this manual covers everything you need to know.
+This comprehensive guide will teach you how to design, create, and publish your own text-based adventures using the Mellivorex engine. Whether you're a first-time designer or an experienced developer, this manual covers everything you need to know.
 
 ## Table of Contents
 
@@ -20,9 +20,9 @@ This comprehensive guide will teach you how to design, create, and publish your 
 
 ## Introduction
 
-### What is Saga Foundry?
+### What is Mellivorex?
 
-Saga Foundry is a text-based adventure game suite that focuses on:
+Mellivorex is a text-based adventure game suite that focuses on:
 - **Simplicity**: Easy to learn, powerful to use
 - **Flexibility**: Support for various game genres
 - **Performance**: Fast loading and execution
@@ -30,7 +30,7 @@ Saga Foundry is a text-based adventure game suite that focuses on:
 
 ### Design Philosophy
 
-Saga Foundry adventures emphasize:
+Mellivorex adventures emphasize:
 - **Storytelling**: Rich narratives and character development
 - **Exploration**: Discovery and player choice
 - **Immersion**: Detailed descriptions and atmosphere
@@ -40,7 +40,7 @@ Saga Foundry adventures emphasize:
 
 ### JSON Format Overview
 
-All Saga Foundry adventures are stored in JSON format:
+All Mellivorex adventures are stored in JSON format:
 
 ```json
 {
@@ -121,17 +121,17 @@ Start with a simple two-room adventure:
 
 ### Step 3: Test Your Adventure
 
-Use Saga Foundry Studio or Workbench to test:
+Use Mellivorex Studio or Workbench to test:
 
 ```bash
 # Terminal UI Editor
-cargo run --bin sagacraft_ide_tui
+cargo run --bin mellivorex_workbench
 
 # GUI Editor (if available)
-cargo run --bin sagacraft_ide_gui
+cargo run --bin mellivorex_studio
 
 # Play your adventure
-cargo run --bin sagacraft_player -- path/to/your/adventure.json
+cargo run --bin mellivorex_console -- path/to/your/adventure.json
 ```
 
 ## Advanced Design Techniques
@@ -155,7 +155,7 @@ Create multiple paths through your story:
 
 ### Conditional Content
 
-Saga Foundry does not currently support conditional room descriptions. Instead, use quest objectives and item placement to gate narrative progression. Players discover story through exploration and item examination.
+Mellivorex does not currently support conditional room descriptions. Instead, use quest objectives and item placement to gate narrative progression. Players discover story through exploration and item examination.
 
 ### Puzzles and Challenges
 
@@ -170,7 +170,7 @@ Design engaging puzzles:
 
 ### Item Types
 
-Saga Foundry supports various item types:
+Mellivorex supports various item types:
 
 ```json
 {
@@ -352,7 +352,7 @@ Play-test directly with the CLI player:
 
 ```bash
 # Play your adventure
-cargo run --bin sagacraft_player -- path/to/adventure.json
+cargo run --bin mellivorex_console -- path/to/adventure.json
 
 # Run engine unit tests
 cargo test
@@ -396,7 +396,7 @@ See [Adventure_Schema.md](Adventure_Schema.md) for every supported field.
 - **GitHub**: Host adventure files and source code
 - **Itch.io**: Game distribution platform
 - **Personal Website**: Direct download links
-- **Community Forums**: Share with other Saga Foundry users
+- **Community Forums**: Share with other Mellivorex users
 
 ## Best Practices
 
@@ -440,11 +440,11 @@ See [Adventure_Schema.md](Adventure_Schema.md) for every supported field.
 
 ### Custom Systems
 
-Extend Saga Foundry with custom mechanics by implementing the `System` trait in Rust:
+Extend Mellivorex with custom mechanics by implementing the `System` trait in Rust:
 
 ```rust
 // Example: Weather system
-use sagacraft_rs::{System, AdventureGame, GameEvent};
+use mellivorex_rs::{System, AdventureGame, GameEvent};
 
 pub struct WeatherSystem {
     current_weather: String,
@@ -480,7 +480,7 @@ engine.start()?;
 
 ### Community
 
-There are no official Saga Foundry forums, asset libraries, or hosted showcases. Share
+There are no official Mellivorex forums, asset libraries, or hosted showcases. Share
 adventures through your own repository or the project's GitHub issues and discussions.
 
 ### Learning Resources
@@ -492,6 +492,6 @@ adventures through your own repository or the project's GitHub issues and discus
 
 ---
 
-**Ready to create your masterpiece?** Start small, test often, and most importantly, have fun creating worlds that others will love to explore. Your adventure could be the next great Saga Foundry story!
+**Ready to create your masterpiece?** Start small, test often, and most importantly, have fun creating worlds that others will love to explore. Your adventure could be the next great Mellivorex story!
 
 For technical details, see the [Technical Reference](Technical_Reference.md). For API documentation, check the [API Reference](API_Reference.md).

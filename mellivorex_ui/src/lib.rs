@@ -1,4 +1,4 @@
-//! Shared egui theme and widgets for Saga Foundry applications.
+//! Shared egui theme and widgets for Mellivorex applications.
 //!
 //! The palette is deliberately centralized so the editor, standalone player,
 //! and future tools share one visual language while each app keeps its own

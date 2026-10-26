@@ -1,4 +1,4 @@
-use sagacraft_rs::{AdventureDocument, Engine, award_experience};
+use mellivorex_rs::{AdventureDocument, Engine, award_experience};
 
 fn engine(json: &str) -> Engine {
     let document = AdventureDocument::from_json_str(json).expect("document should parse");
@@ -325,9 +325,9 @@ fn save_v2_is_portable_and_v1_migrates() {
         .expect("clock")
         .as_nanos();
     let dir = std::env::temp_dir();
-    let adventure_path: PathBuf = dir.join(format!("sagacraft_adventure_{unique}.json"));
-    let save_path: PathBuf = dir.join(format!("sagacraft_save_{unique}.json"));
-    let v1_path: PathBuf = dir.join(format!("sagacraft_v1_{unique}.json"));
+    let adventure_path: PathBuf = dir.join(format!("mellivorex_adventure_{unique}.json"));
+    let save_path: PathBuf = dir.join(format!("mellivorex_save_{unique}.json"));
+    let v1_path: PathBuf = dir.join(format!("mellivorex_v1_{unique}.json"));
 
     let document = AdventureDocument::from_json_str(
         r#"{

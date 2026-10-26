@@ -1,8 +1,8 @@
-# Saga Foundry Installation Guide
+# Mellivorex Installation Guide
 
 ## System Requirements
 
-Before installing Saga Foundry, ensure your system meets these requirements:
+Before installing Mellivorex, ensure your system meets these requirements:
 
 ### Minimum Requirements
 - **Operating System**: Linux, macOS, or Windows 10+
@@ -24,47 +24,47 @@ Before installing Saga Foundry, ensure your system meets these requirements:
 
 #### Linux
 ```bash
-# Download the latest Linux release (replace <version> with e.g. 4.2.0)
-curl -L https://github.com/James-HoneyBadger/SagaCraft/releases/download/v<version>/SagaFoundry-v<version>-linux-x86_64.tar.gz -o sagafoundry.tar.gz
+# Download the latest Linux release (replace <version> with e.g. 5.0.0)
+curl -L https://github.com/James-HoneyBadger/Mellivorex/releases/download/v<version>/Mellivorex-v<version>-linux-x86_64.tar.gz -o mellivorex.tar.gz
 
 # Extract the archive
-tar -xzf sagafoundry.tar.gz
+tar -xzf mellivorex.tar.gz
 
 # Move to a directory in your PATH (optional)
-sudo mv sagacraft-* /usr/local/bin/
+sudo mv mellivorex-* /usr/local/bin/
 
 # Verify installation
-./sagacraft_play examples/adventures/demo_adventure.json
+./mellivorex_player examples/adventures/demo_adventure.json
 ```
 
 #### macOS
 ```bash
 # Download the latest macOS release (replace <version> and <arch>)
-curl -L https://github.com/James-HoneyBadger/SagaCraft/releases/download/v<version>/SagaFoundry-v<version>-macos-<arch>.tar.gz -o sagafoundry.tar.gz
+curl -L https://github.com/James-HoneyBadger/Mellivorex/releases/download/v<version>/Mellivorex-v<version>-macos-<arch>.tar.gz -o mellivorex.tar.gz
 
 # Extract the archive
-tar -xzf sagafoundry.tar.gz
+tar -xzf mellivorex.tar.gz
 
 # Move to a directory in your PATH (optional)
-sudo mv sagacraft-* /usr/local/bin/
+sudo mv mellivorex-* /usr/local/bin/
 
 # Verify installation
-./sagacraft_play examples/adventures/demo_adventure.json
+./mellivorex_player examples/adventures/demo_adventure.json
 ```
 
 #### Windows
 ```powershell
 # Download the latest release
-Invoke-WebRequest -Uri "https://github.com/James-HoneyBadger/SagaCraft/releases/download/v<version>/SagaFoundry-v<version>-windows-x86_64.zip" -OutFile "sagafoundry.zip"
+Invoke-WebRequest -Uri "https://github.com/James-HoneyBadger/Mellivorex/releases/download/v<version>/Mellivorex-v<version>-windows-x86_64.zip" -OutFile "mellivorex.zip"
 
 # Extract the archive
-Expand-Archive -Path "sagafoundry.zip" -DestinationPath "C:\Program Files\SagaFoundry"
+Expand-Archive -Path "mellivorex.zip" -DestinationPath "C:\Program Files\Mellivorex"
 
 # Add to PATH (optional)
-# Go to System Properties > Environment Variables > Path > Edit > Add "C:\Program Files\SagaFoundry"
+# Go to System Properties > Environment Variables > Path > Edit > Add "C:\Program Files\Mellivorex"
 
 # Verify installation
-.\sagacraft_play.exe examples/adventures/demo_adventure.json
+.\mellivorex_player.exe examples/adventures/demo_adventure.json
 ```
 
 ### Method 2: Building from Source
@@ -117,18 +117,18 @@ xcode-select --install
 choco install visualstudio2019buildtools
 ```
 
-#### Building Saga Foundry
+#### Building Mellivorex
 
 ```bash
 # Clone the repository
-git clone https://github.com/James-HoneyBadger/SagaCraft.git
-cd SagaCraft
+git clone https://github.com/James-HoneyBadger/Mellivorex.git
+cd Mellivorex
 
 # Build all components in release mode
 cargo build --release
 
 # Verify the build
-./target/release/sagacraft_play examples/adventures/demo_adventure.json
+./target/release/mellivorex_player examples/adventures/demo_adventure.json
 
 # Optional: Run tests
 cargo test
@@ -138,11 +138,11 @@ cargo test
 
 ```bash
 # Copy binaries to system location (Linux/macOS)
-sudo cp target/release/sagacraft_* /usr/local/bin/
+sudo cp target/release/mellivorex_* /usr/local/bin/
 
 # Or create a local bin directory
 mkdir -p ~/bin
-cp target/release/sagacraft_* ~/bin/
+cp target/release/mellivorex_* ~/bin/
 export PATH="$HOME/bin:$PATH"
 ```
 
@@ -150,11 +150,11 @@ export PATH="$HOME/bin:$PATH"
 
 #### Cargo (Rust Package Manager)
 ```bash
-# Saga Foundry is not published on crates.io. Install the binaries from git:
-cargo install --git https://github.com/James-HoneyBadger/SagaCraft.git --bin sagacraft_play
-cargo install --git https://github.com/James-HoneyBadger/SagaCraft.git --bin sagacraft_player
-cargo install --git https://github.com/James-HoneyBadger/SagaCraft.git --bin sagacraft_ide_tui
-cargo install --git https://github.com/James-HoneyBadger/SagaCraft.git --bin sagacraft_ide_gui
+# Mellivorex is not published on crates.io. Install the binaries from git:
+cargo install --git https://github.com/James-HoneyBadger/Mellivorex.git --bin mellivorex_player
+cargo install --git https://github.com/James-HoneyBadger/Mellivorex.git --bin mellivorex_console
+cargo install --git https://github.com/James-HoneyBadger/Mellivorex.git --bin mellivorex_workbench
+cargo install --git https://github.com/James-HoneyBadger/Mellivorex.git --bin mellivorex_studio
 ```
 
 #### Snap and Homebrew
@@ -164,56 +164,56 @@ build from source.
 
 ## Post-Installation Setup
 
-Saga Foundry does not require a configuration directory or config file. All settings are contained within the adventure JSON files themselves.
+Mellivorex does not require a configuration directory or config file. All settings are contained within the adventure JSON files themselves.
 
 ### Adventure Files
 
 Place your adventure JSON files anywhere and pass the path to either player:
 
 ```bash
-cargo run --bin sagacraft_play -- path/to/my_adventure.json
-cargo run --bin sagacraft_player -- path/to/my_adventure.json
+cargo run --bin mellivorex_player -- path/to/my_adventure.json
+cargo run --bin mellivorex_console -- path/to/my_adventure.json
 ```
 
 Bundled demo adventures are included under examples/adventures, including demo_adventure.json and shattered_realms_demo.json.
 
-## Running Saga Foundry
+## Running Mellivorex
 
 ### Graphical Player
 
 ```bash
 # Choose from the adventure library
-sagacraft_play
+mellivorex_player
 
 # Open a specific adventure
-sagacraft_play path/to/adventure.json
+mellivorex_player path/to/adventure.json
 ```
 
 ### Command Line Player
 
 ```bash
 # Play the demo adventure
-sagacraft_player examples/adventures/demo_adventure.json
+mellivorex_console examples/adventures/demo_adventure.json
 
 # Load specific adventure
-sagacraft_player path/to/adventure.json
+mellivorex_console path/to/adventure.json
 ```
 
 ### Terminal UI Editor
 
 ```bash
 # Start the editor
-sagacraft_ide_tui
+mellivorex_workbench
 
 # Open specific adventure
-sagacraft_ide_tui path/to/adventure.json
+mellivorex_workbench path/to/adventure.json
 ```
 
 ### Graphical Editor (Studio)
 
 ```bash
 # Start the graphical editor
-sagacraft_ide_gui
+mellivorex_studio
 ```
 
 ## Troubleshooting Installation
@@ -222,12 +222,12 @@ sagacraft_ide_gui
 
 #### "Command not found" Error
 
-**Problem:** Saga Foundry commands are not recognized.
+**Problem:** Mellivorex commands are not recognized.
 
 **Solutions:**
 1. Check if binaries are in your PATH:
    ```bash
-   which sagacraft_player
+   which mellivorex_console
    ```
 2. Add to PATH manually:
    ```bash
@@ -235,7 +235,7 @@ sagacraft_ide_gui
    ```
 3. Use full paths:
    ```bash
-   /usr/local/bin/sagacraft_player
+   /usr/local/bin/mellivorex_console
    ```
 
 #### Permission Denied
@@ -245,12 +245,12 @@ sagacraft_ide_gui
 **Solutions:**
 ```bash
 # Make binaries executable
-chmod +x sagacraft_player
-chmod +x sagacraft_ide_tui
-chmod +x sagacraft_ide_gui
+chmod +x mellivorex_console
+chmod +x mellivorex_workbench
+chmod +x mellivorex_studio
 
 # Or for all binaries
-chmod +x sagacraft_*
+chmod +x mellivorex_*
 ```
 
 #### Build Failures
@@ -283,7 +283,7 @@ chmod +x sagacraft_*
 
 #### GUI Editor Won't Start
 
-**Problem:** `sagacraft_ide_gui` fails to launch.
+**Problem:** `mellivorex_studio` fails to launch.
 
 **Solutions:**
 1. Check display server (Linux):
@@ -296,7 +296,7 @@ chmod +x sagacraft_*
    ```
 3. Use terminal editor instead:
    ```bash
-   sagacraft_ide_tui
+   mellivorex_workbench
    ```
 
 ### Dependency Issues
@@ -347,7 +347,7 @@ brew install fontconfig
 2. Use smaller adventures
 3. Monitor with system tools:
    ```bash
-   top -p $(pgrep sagacraft)
+   top -p $(pgrep mellivorex)
    ```
 
 ## Advanced Configuration
@@ -380,7 +380,7 @@ For contributors and developers:
 
 ```bash
 # Clone with submodules (if any)
-git clone --recursive https://github.com/James-HoneyBadger/SagaCraft.git
+git clone --recursive https://github.com/James-HoneyBadger/Mellivorex.git
 
 # Install development tools
 cargo install cargo-watch cargo-expand cargo-flamegraph
@@ -390,16 +390,16 @@ cp pre-commit.sh .git/hooks/pre-commit
 chmod +x .git/hooks/pre-commit
 
 # Run development server
-cargo watch -x 'run --bin sagacraft_player'
+cargo watch -x 'run --bin mellivorex_console'
 ```
 
-## Updating Saga Foundry
+## Updating Mellivorex
 
 ### Automatic Updates
 
 ```bash
 # Using pre-built binaries
-curl -L https://github.com/James-HoneyBadger/SagaCraft/releases/latest/download/sagacraft-update.sh | bash
+curl -L https://github.com/James-HoneyBadger/Mellivorex/releases/latest/download/mellivorex-update.sh | bash
 ```
 
 ### Manual Updates
@@ -412,46 +412,46 @@ git pull origin main
 cargo build --release
 
 # Install new binaries
-sudo cp target/release/sagacraft_* /usr/local/bin/
+sudo cp target/release/mellivorex_* /usr/local/bin/
 ```
 
 ### Checking for Updates
 
 ```bash
 # Check current version
-sagacraft_player --version
+mellivorex_console --version
 
 # Check latest release on GitHub
-curl -s https://api.github.com/repos/James-HoneyBadger/SagaCraft/releases/latest | grep '"tag_name"'
+curl -s https://api.github.com/repos/James-HoneyBadger/Mellivorex/releases/latest | grep '"tag_name"'
 ```
 
-## Uninstalling Saga Foundry
+## Uninstalling Mellivorex
 
 ### Remove Binaries
 
 ```bash
 # Remove from system locations
-sudo rm /usr/local/bin/sagacraft_*
+sudo rm /usr/local/bin/mellivorex_*
 
 # Remove from local bin
-rm ~/bin/sagacraft_*
+rm ~/bin/mellivorex_*
 ```
 
 ### Remove Configuration and Data
 
 ```bash
 # Remove config directory
-rm -rf ~/.config/sagacraft
+rm -rf ~/.config/mellivorex
 
 # Remove save files (optional)
-rm -rf ~/Documents/SagaCraft
+rm -rf ~/Documents/Mellivorex
 ```
 
 ### Clean Build Artifacts
 
 ```bash
 # Remove source and build files
-rm -rf SagaCraft/
+rm -rf Mellivorex/
 
 # Clean cargo cache (optional)
 cargo cache --autoclean
@@ -466,8 +466,8 @@ cargo cache --autoclean
 - [Development Guide](Development_Guide.md) - Contributing
 
 ### Community Support
-- **GitHub Issues**: [Report bugs](https://github.com/James-HoneyBadger/SagaCraft/issues)
-- **Discussions**: [Community forum](https://github.com/James-HoneyBadger/SagaCraft/discussions)
+- **GitHub Issues**: [Report bugs](https://github.com/James-HoneyBadger/Mellivorex/issues)
+- **Discussions**: [Community forum](https://github.com/James-HoneyBadger/Mellivorex/discussions)
 - **Discord**: Join our community server (when available)
 
 ### System Information for Bug Reports
@@ -480,13 +480,13 @@ uname -a
 rustc --version
 cargo --version
 
-# Saga Foundry version (no --version flag; just run with a demo file)
-sagacraft_player examples/adventures/demo_adventure.json
+# Mellivorex version (no --version flag; just run with a demo file)
+mellivorex_console examples/adventures/demo_adventure.json
 
 # Error logs
-RUST_LOG=debug sagacraft_player 2>&1 | head -50
+RUST_LOG=debug mellivorex_console 2>&1 | head -50
 ```
 
 ---
 
-**Installation complete!** You're now ready to explore the world of Saga Foundry. Start with the [User Manual](User_Manual.md) to learn how to play, or dive into the [Game Designer Manual](Game_Designer_Manual.md) to create your own adventures.
+**Installation complete!** You're now ready to explore the world of Mellivorex. Start with the [User Manual](User_Manual.md) to learn how to play, or dive into the [Game Designer Manual](Game_Designer_Manual.md) to create your own adventures.

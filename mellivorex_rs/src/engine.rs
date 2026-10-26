@@ -9,7 +9,7 @@ use std::path::Path;
 ///
 /// # Example
 /// ```no_run
-/// use sagacraft_rs::Engine;
+/// use mellivorex_rs::Engine;
 ///
 /// let mut engine = Engine::load("my_adventure.json").expect("failed to load");
 /// println!("{}", engine.look());

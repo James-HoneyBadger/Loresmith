@@ -7,6 +7,20 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [5.0.0] - 2026-10-26
+
+### Changed
+- Renamed the project from SagaCraft / Saga Foundry to **Mellivorex**; crates, binaries, launch scripts, release archives, window titles, banners, and docs use the new name
+- Crate and binary identifiers: `sagacraft_rs` → `mellivorex_rs`, `sagacraft_ui` → `mellivorex_ui`, `sagacraft_ide_gui` → `mellivorex_studio`, `sagacraft_ide_tui` → `mellivorex_workbench`, `sagacraft_play` → `mellivorex_player`, `sagacraft_player` → `mellivorex_console`
+- Player state lives in `MELLIVOREX_STATE_DIR`, `~/.local/state/mellivorex`, `%APPDATA%\Mellivorex`, or `~/Library/Application Support/Mellivorex`
+- Release archives are named `Mellivorex-v<version>-<target>`
+- `Saga.sh` was replaced by `Workbench.sh`
+
+### Removed
+- Compatibility aliases for the old `saga-foundry` and `sagacraft` identifiers, state directories, and binary names
+
+Adventure files and portable save files are unchanged; only the application identifiers moved.
+
 ## [4.2.0] - 2026-10-26
 
 ### Added

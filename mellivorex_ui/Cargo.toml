@@ -1,12 +1,12 @@
 [package]
-name = "sagacraft_player"
+name = "mellivorex_ui"
 version.workspace = true
 edition.workspace = true
 rust-version.workspace = true
 license.workspace = true
 authors.workspace = true
 repository.workspace = true
-description = "Saga Foundry Console — command-line adventure player"
+description = "Mellivorex shared egui theme and widgets"
 
 [dependencies]
-sagacraft_rs = { path = "../sagacraft_rs", version = "4.2.0" }
+egui = "0.37"

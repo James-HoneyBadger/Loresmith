@@ -1,15 +1,16 @@
 [package]
-name = "sagacraft_rs"
+name = "mellivorex_workbench"
 version.workspace = true
 edition.workspace = true
 rust-version.workspace = true
 license.workspace = true
 authors.workspace = true
 repository.workspace = true
-description = "Saga Foundry engine — text adventure runtime and canonical document format"
+description = "Mellivorex Workbench — terminal adventure editor"
 
 [dependencies]
-serde.workspace = true
+anyhow = "1"
+crossterm = "0.29"
+ratatui = "0.30"
 serde_json.workspace = true
-rand = "0.9"
-chrono = { version = "0.4", features = ["serde"] }
+mellivorex_rs = { path = "../mellivorex_rs", version = "5.0.0" }

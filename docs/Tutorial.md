@@ -1,15 +1,15 @@
-# Saga Foundry Tutorial: Your First Adventure
+# Mellivorex Tutorial: Your First Adventure
 
-This tutorial walks you through playing your first Saga Foundry adventure from start to finish. You will learn every core mechanic in about 20 minutes.
+This tutorial walks you through playing your first Mellivorex adventure from start to finish. You will learn every core mechanic in about 20 minutes.
 
 ---
 
 ## Before You Start
 
-Make sure Saga Foundry is compiled:
+Make sure Mellivorex is compiled:
 
 ```bash
-cd ~/SagaCraft
+cd ~/Mellivorex
 cargo build
 ```
 
@@ -26,7 +26,7 @@ The standalone graphical Player opens directly into the demo. If you prefer the 
 ```bash
 ./Console.sh examples/adventures/demo_adventure.json
 # or
-cargo run --bin sagacraft_player -- examples/adventures/demo_adventure.json
+cargo run --bin mellivorex_console -- examples/adventures/demo_adventure.json
 ```
 
 You will see:
@@ -164,7 +164,7 @@ quit
 Now launch the Shattered Realms adventure, which has combat, items, quests, and 15 rooms:
 
 ```
-cargo run --bin sagacraft_player -- examples/adventures/shattered_realms_demo.json
+cargo run --bin mellivorex_console -- examples/adventures/shattered_realms_demo.json
 ```
 
 ---
@@ -300,7 +300,7 @@ complete 1
 The terminal Workbench lets you edit adventures while viewing their structure. Quit the player first, then:
 
 ```
-./Saga.sh
+./Workbench.sh
 ```
 
 **TUI key bindings:**
@@ -319,7 +319,7 @@ The terminal Workbench lets you edit adventures while viewing their structure. Q
 ```bash
 ./Studio.sh
 # or
-cargo run --bin sagacraft_ide_gui
+cargo run --bin mellivorex_studio
 ```
 
 Studio provides a full visual editor with tabs for Rooms, Items, Monsters, Quests, Shops, endings, dialogue, and a live Play tab. You can open any `.json` adventure file, edit it, and save it without touching the JSON directly.

@@ -1,6 +1,6 @@
 # Examples
 
-Saga Foundry keeps its bundled playable content in the adventures folder. All files load through the canonical document model and are covered by integration tests.
+Mellivorex keeps its bundled playable content in the adventures folder. All files load through the canonical document model and are covered by integration tests.
 
 ## Included content
 
@@ -12,8 +12,8 @@ Saga Foundry keeps its bundled playable content in the adventures folder. All fi
 
 Run any of them with the standalone player:
 
-cargo run --bin sagacraft_play -- examples/adventures/<file>.json
+cargo run --bin mellivorex_player -- examples/adventures/<file>.json
 
 Or in the terminal:
 
-cargo run --bin sagacraft_player -- examples/adventures/<file>.json
+cargo run --bin mellivorex_console -- examples/adventures/<file>.json

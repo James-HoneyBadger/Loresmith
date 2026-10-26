@@ -13,7 +13,7 @@ use ratatui::style::{Modifier, Style};
 use ratatui::text::{Line, Span, Text};
 use ratatui::widgets::{Block, Borders, List, ListItem, Paragraph, Wrap};
 
-use sagacraft_rs::{
+use mellivorex_rs::{
     AdventureDocument, ItemType, MonsterStatus, ObjectiveDef, ObjectiveKind, QuestDef,
     QuestRewardsDef, RoomDef, StageDef, StructuredObjective,
 };
@@ -79,10 +79,10 @@ fn starter_document() -> AdventureDocument {
 }
 
 fn print_help() {
-    println!("Saga Foundry Workbench");
+    println!("Mellivorex Workbench");
     println!("Usage:");
-    println!("  sagacraft_ide_tui --file <path>");
-    println!("  sagacraft_ide_tui --new <path> [--force]");
+    println!("  mellivorex_workbench --file <path>");
+    println!("  mellivorex_workbench --new <path> [--force]");
     println!();
     println!("Keys:");
     println!("  Up/Down   select room");
@@ -492,7 +492,7 @@ impl App {
                 };
                 room.exits.insert(
                     direction.to_lowercase(),
-                    sagacraft_rs::ExitDef::Plain(destination),
+                    mellivorex_rs::ExitDef::Plain(destination),
                 );
                 self.dirty = true;
                 self.status = format!("Set exit '{direction}' -> {destination}");
@@ -556,12 +556,12 @@ impl App {
                 }
                 let description = words.iter().skip(4).cloned().collect::<Vec<_>>().join(" ");
                 let room_id = self.selected_room().map(|room| room.id).unwrap_or(0);
-                self.adventure.items.push(sagacraft_rs::ItemDef {
+                self.adventure.items.push(mellivorex_rs::ItemDef {
                     id,
                     name: name.clone(),
                     description,
                     location: room_id,
-                    ..sagacraft_rs::ItemDef::default()
+                    ..mellivorex_rs::ItemDef::default()
                 });
                 if let Some(room) = self.selected_room_mut()
                     && !room.items.contains(&id)
@@ -693,11 +693,11 @@ impl App {
                     self.status = format!("monster id already exists: {id}");
                     return;
                 }
-                self.adventure.monsters.push(sagacraft_rs::MonsterDef {
+                self.adventure.monsters.push(mellivorex_rs::MonsterDef {
                     id,
                     name: name.clone(),
                     room_id,
-                    ..sagacraft_rs::MonsterDef::default()
+                    ..mellivorex_rs::MonsterDef::default()
                 });
                 self.dirty = true;
                 self.status = format!("Added monster '{name}'");
@@ -870,12 +870,12 @@ impl App {
                     self.status = "usage: shop add <id> <room_id> <name>".to_string();
                     return;
                 };
-                self.adventure.shops.push(sagacraft_rs::ShopDef {
+                self.adventure.shops.push(mellivorex_rs::ShopDef {
                     id,
                     name: name.clone(),
                     room_id,
                     gold: 200,
-                    ..sagacraft_rs::ShopDef::default()
+                    ..mellivorex_rs::ShopDef::default()
                 });
                 self.dirty = true;
                 self.status = format!("Added shop '{name}'");
@@ -908,10 +908,10 @@ impl App {
                 if let Some(stock) = shop.stock.iter_mut().find(|stock| stock.item_id == item_id) {
                     stock.quantity += quantity;
                 } else {
-                    shop.stock.push(sagacraft_rs::ShopStockDef {
+                    shop.stock.push(mellivorex_rs::ShopStockDef {
                         item_id,
                         quantity,
-                        ..sagacraft_rs::ShopStockDef::default()
+                        ..mellivorex_rs::ShopStockDef::default()
                     });
                 }
                 self.dirty = true;

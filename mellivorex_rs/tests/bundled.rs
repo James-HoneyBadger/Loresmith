@@ -16,7 +16,7 @@ fn adventure_files() -> Vec<PathBuf> {
 #[test]
 fn all_bundled_adventures_load_and_validate() {
     for path in adventure_files() {
-        let document = sagacraft_rs::AdventureDocument::load_json_file(&path)
+        let document = mellivorex_rs::AdventureDocument::load_json_file(&path)
             .unwrap_or_else(|err| panic!("{} failed to load: {}", path.display(), err));
         let report = document.report();
         assert!(
@@ -26,7 +26,7 @@ fn all_bundled_adventures_load_and_validate() {
             report.errors
         );
         assert!(
-            document.schema_version == sagacraft_rs::document::SCHEMA_VERSION,
+            document.schema_version == mellivorex_rs::document::SCHEMA_VERSION,
             "{} was not normalised",
             path.display()
         );
@@ -38,7 +38,7 @@ fn all_bundled_adventures_load_and_validate() {
 
         // Editors must round-trip without losing data.
         let json = document.to_json_string().expect("serialise");
-        let reparsed = sagacraft_rs::AdventureDocument::from_json_str(&json)
+        let reparsed = mellivorex_rs::AdventureDocument::from_json_str(&json)
             .unwrap_or_else(|err| panic!("{} failed to reparse: {}", path.display(), err));
         assert_eq!(
             document,
@@ -52,7 +52,7 @@ fn all_bundled_adventures_load_and_validate() {
 #[test]
 fn all_bundled_adventures_start_in_engine() {
     for path in adventure_files() {
-        let mut engine = sagacraft_rs::Engine::load(path.to_string_lossy().to_string())
+        let mut engine = mellivorex_rs::Engine::load(path.to_string_lossy().to_string())
             .unwrap_or_else(|err| panic!("{} failed to start: {}", path.display(), err));
         let look = engine.look();
         assert!(
@@ -69,7 +69,7 @@ fn all_bundled_adventures_start_in_engine() {
 #[test]
 fn every_room_is_reachable() {
     for path in adventure_files() {
-        let document = sagacraft_rs::AdventureDocument::load_json_file(&path).unwrap();
+        let document = mellivorex_rs::AdventureDocument::load_json_file(&path).unwrap();
         assert!(
             !document
                 .report()

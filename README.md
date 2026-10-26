@@ -1,16 +1,16 @@
-# Saga Foundry
+# Mellivorex
 
 [![Rust](https://img.shields.io/badge/Rust-1.95%2B-orange)](https://www.rust-lang.org/)
 [![License](https://img.shields.io/badge/License-MIT-blue.svg)](LICENSE)
-[![Version](https://img.shields.io/badge/Version-4.2.0-green.svg)]()
+[![Version](https://img.shields.io/badge/Version-5.0.0-green.svg)]()
 
 > A text-based adventure game engine and development suite written in Rust. Create, edit, and play interactive fiction adventures with a JSON-based format.
 
-**Saga Foundry** is the suite name for this project (the GitHub repository remains `SagaCraft`). It is made of separate applications built on one engine: **Studio** for authoring, **Player** for playing, **Console** for terminal play, and **Workbench** for terminal authoring. See [The Saga Foundry Suite](docs/Suite.md) for the architecture and compatibility naming map.
+**Mellivorex** is the suite name for this project. It is made of separate applications built on one engine: **Studio** for authoring, **Player** for playing, **Console** for terminal play, and **Workbench** for terminal authoring. See [The Mellivorex Suite](docs/Suite.md) for the architecture and naming.
 
 ## Features
 
-### Game Engine (`sagacraft_rs`)
+### Game Engine (`mellivorex_rs`)
 - **Room navigation** with compass directions and named exits
 - **Item system** — pick up, drop, equip weapons & armor, consume food/potions, examine
 - **Turn-based combat** — attack, flee, XP & level-up, equipment bonuses
@@ -28,10 +28,10 @@
 ### Applications
 | Binary | Product | Description |
 |--------|---------|-------------|
-| `sagacraft_play` | **Saga Foundry Player** | Standalone graphical game player — no editor UI |
-| `sagacraft_ide_gui` | **Saga Foundry Studio** | Graphical adventure editor with a Play test tab |
-| `sagacraft_player` | **Saga Foundry Console** | CLI game player (REPL) |
-| `sagacraft_ide_tui` | **Saga Foundry Workbench** | Terminal UI adventure editor (ratatui) |
+| `mellivorex_player` | **Mellivorex Player** | Standalone graphical game player — no editor UI |
+| `mellivorex_studio` | **Mellivorex Studio** | Graphical adventure editor with a Play test tab |
+| `mellivorex_console` | **Mellivorex Console** | CLI game player (REPL) |
+| `mellivorex_workbench` | **Mellivorex Workbench** | Terminal UI adventure editor (ratatui) |
 
 Studio and Player share three themes from **View → Theme**: Dark, Light, and **Windows 2000**. The Windows 2000 theme switches to classic desktop chrome — a gradient caption bar, menu highlights, recessed toolbar, beveled panels, and a sunken status bar — and persists between sessions.
 
@@ -42,16 +42,16 @@ Studio and Player share three themes from **View → Theme**: Dark, Light, and *
 cargo build --release
 
 # Standalone graphical player
-./target/release/sagacraft_play examples/adventures/shattered_realms_demo.json
+./target/release/mellivorex_player examples/adventures/shattered_realms_demo.json
 # or: ./Play.sh examples/adventures/shattered_realms_demo.json
 
 # Graphical editor
-./target/release/sagacraft_ide_gui
+./target/release/mellivorex_studio
 # or: ./Studio.sh
 
 # Terminal player and editor
-./target/release/sagacraft_player examples/adventures/shattered_realms_demo.json
-./target/release/sagacraft_ide_tui
+./target/release/mellivorex_console examples/adventures/shattered_realms_demo.json
+./target/release/mellivorex_workbench
 
 # Suite launcher
 ./Suite.sh player      # also: studio, workbench, console
@@ -98,8 +98,8 @@ quit / q / exit             Quit (CLI player only)
 ## Project Structure
 
 ```
-SagaCraft/
-├── sagacraft_rs/           # Core game engine (Rust library)
+Mellivorex/
+├── mellivorex_rs/           # Core game engine (Rust library)
 │   └── src/
 │       ├── lib.rs          # Public API re-exports
 │       ├── engine.rs       # High-level Engine wrapper
@@ -113,11 +113,11 @@ SagaCraft/
 │           ├── combat.rs       # Attack, flee, XP, loot, endings
 │           ├── quests.rs       # Quest tracking, stages, rewards
 │           └── shops.rs        # Shops, buying, selling
-├── sagacraft_play/         # Standalone graphical player (egui/eframe)
-├── sagacraft_ide_gui/      # Studio — graphical editor (egui/eframe)
-├── sagacraft_player/       # Console — CLI game player
-├── sagacraft_ide_tui/      # Workbench — terminal UI editor
-├── sagacraft_ui/           # Shared egui theme and widgets
+├── mellivorex_player/         # Standalone graphical player (egui/eframe)
+├── mellivorex_studio/      # Studio — graphical editor (egui/eframe)
+├── mellivorex_console/       # Console — CLI game player
+├── mellivorex_workbench/      # Workbench — terminal UI editor
+├── mellivorex_ui/           # Shared egui theme and widgets
 ├── docs/                   # Documentation
 └── examples/
     └── adventures/         # Bundled demos and showcase adventures
@@ -160,7 +160,7 @@ The workspace also includes larger adventure showcases for demonstrations and te
 
 | Document | Description |
 |----------|-------------|
-| [Suite Overview](docs/Suite.md) | Applications, architecture, and Saga Foundry naming |
+| [Suite Overview](docs/Suite.md) | Applications, architecture, and Mellivorex naming |
 | [User Manual](docs/User_Manual.md) | Gameplay guide |
 | [Game Designer Manual](docs/Game_Designer_Manual.md) | Creating adventures |
 | [Technical Reference](docs/Technical_Reference.md) | Architecture & systems |

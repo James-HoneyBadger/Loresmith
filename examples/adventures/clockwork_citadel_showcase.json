@@ -1,7 +1,7 @@
 {
   "title": "Clockwork Citadel: Siege of the Sable Core",
   "description": "A grand steampunk-fantasy assault on a living fortress of brass, steam, and unstable arcane machinery.",
-  "intro": "Smoke billows above the skyline as the Clockwork Citadel groans awake.\n\nThe Sable Core beneath the fortress has begun to corrupt every gear, gate, and guardian in the city. Friendly engineers still hold a few districts, but the central foundries are overrun. Explore the citadel, recover lost sigils, speak with survivors, and decide whether the great engine will be repaired, shattered, or reborn.\n\nThis showcase adventure is built to demonstrate SagaCraft features: combat, equipment, consumables, readable clues, friendly and hostile NPCs, named exits, multi-step quests, and broad interconnected exploration.",
+  "intro": "Smoke billows above the skyline as the Clockwork Citadel groans awake.\n\nThe Sable Core beneath the fortress has begun to corrupt every gear, gate, and guardian in the city. Friendly engineers still hold a few districts, but the central foundries are overrun. Explore the citadel, recover lost sigils, speak with survivors, and decide whether the great engine will be repaired, shattered, or reborn.\n\nThis showcase adventure is built to demonstrate Mellivorex features: combat, equipment, consumables, readable clues, friendly and hostile NPCs, named exits, multi-step quests, and broad interconnected exploration.",
   "start_room": 1,
   "rooms": [
     {
