@@ -59,7 +59,9 @@ Direct binaries after `cargo build --release`:
 - Automatic recovery saves after every turn, with Resume/Discard on the library screen
 - Merchant detection, a sidebar shop card, and a context-aware shop quick action
 - Restart, victory/defeat presentation, and library return
-- Dark and light themes
+- Dark, light, and Windows 2000 themes
+- Windows 2000 mode adds classic desktop chrome: gradient caption bar with window controls, menu bar, recessed toolbar, beveled panels, and a status bar
+- Edit → Copy Story Log and Copy Last Command use the system clipboard
 - Keyboard shortcuts: `Ctrl+O`, `Ctrl+S`, `Ctrl+L`, `F5`, `Esc`
 
 The Player deliberately has no room editor, item editor, validation panel, or JSON tools. Those belong to Studio and Workbench.

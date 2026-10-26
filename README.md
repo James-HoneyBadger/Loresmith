@@ -33,6 +33,8 @@
 | `sagacraft_player` | **Saga Foundry Console** | CLI game player (REPL) |
 | `sagacraft_ide_tui` | **Saga Foundry Workbench** | Terminal UI adventure editor (ratatui) |
 
+Studio and Player share three themes from **View → Theme**: Dark, Light, and **Windows 2000**. The Windows 2000 theme switches to classic desktop chrome — a gradient caption bar, menu highlights, recessed toolbar, beveled panels, and a sunken status bar — and persists between sessions.
+
 ## Quick Start
 
 ```bash

@@ -29,6 +29,7 @@ struct SagaFoundryPlayer {
     recent: Vec<PathBuf>,
     theme_mode: theme::ThemeMode,
     theme_applied: bool,
+    classic_chrome: bool,
     zoom: f32,
     show_about: bool,
     show_controls: bool,
@@ -54,6 +55,7 @@ impl SagaFoundryPlayer {
             recent: Vec::new(),
             theme_mode: theme::ThemeMode::Dark,
             theme_applied: false,
+            classic_chrome: false,
             zoom: 1.0,
             show_about: false,
             show_controls: false,
@@ -63,11 +65,7 @@ impl SagaFoundryPlayer {
         };
         if let Some(storage) = cc.storage {
             if let Some(value) = storage.get_string("theme") {
-                app.theme_mode = if value.eq_ignore_ascii_case("light") {
-                    theme::ThemeMode::Light
-                } else {
-                    theme::ThemeMode::Dark
-                };
+                app.theme_mode = theme::ThemeMode::from_key(&value);
             }
             if let Some(value) = storage.get_string("recent") {
                 app.recent = value
@@ -346,80 +344,158 @@ impl SagaFoundryPlayer {
     }
 
     fn show_menu_bar(&mut self, ctx: &egui::Context, ui: &mut egui::Ui) {
-        egui::MenuBar::new().ui(ui, |ui| {
-            ui.menu_button("Game", |ui| {
-                if ui.button("Open Adventure…").clicked() {
-                    self.open_adventure_dialog();
-                    ui.close();
-                }
-                if ui.button("Load Saved Game…").clicked() {
-                    self.load_game_dialog();
-                    ui.close();
-                }
-                ui.separator();
-                if ui.button("Save Game…").clicked() {
-                    self.save_game_dialog();
-                    ui.close();
-                }
-                if ui.button("Restart Adventure").clicked() {
-                    self.restart_game();
-                    ui.close();
-                }
-                if ui.button("Back to Library").clicked() {
-                    self.request_library();
-                    ui.close();
-                }
-                ui.separator();
-                if ui.button("Quit").clicked() {
-                    self.request_quit(ctx);
-                    ui.close();
-                }
-            });
-            ui.menu_button("View", |ui| {
-                ui.label("Theme");
-                let previous = self.theme_mode;
-                ui.selectable_value(
-                    &mut self.theme_mode,
-                    theme::ThemeMode::Dark,
-                    theme::ThemeMode::Dark.label(),
-                );
-                ui.selectable_value(
-                    &mut self.theme_mode,
-                    theme::ThemeMode::Light,
-                    theme::ThemeMode::Light.label(),
-                );
-                if self.theme_mode != previous {
-                    theme::apply(ctx, self.theme_mode);
-                    self.theme_applied = true;
-                    self.status = format!("{} theme applied.", self.theme_mode.label());
-                }
-                ui.separator();
-                ui.horizontal(|ui| {
-                    if ui.button("Smaller Text").clicked() {
-                        self.zoom = (self.zoom - 0.1).clamp(0.7, 2.0);
+        theme::menu_background(ui);
+        egui::MenuBar::new()
+            .style(theme::menu_style)
+            .config(egui::containers::menu::MenuConfig::new().style(theme::menu_style))
+            .ui(ui, |ui| {
+                ui.menu_button("Game", |ui| {
+                    if ui.button("Open Adventure…").clicked() {
+                        self.open_adventure_dialog();
+                        ui.close();
                     }
-                    if ui.button("Larger Text").clicked() {
-                        self.zoom = (self.zoom + 0.1).clamp(0.7, 2.0);
+                    if ui.button("Load Saved Game…").clicked() {
+                        self.load_game_dialog();
+                        ui.close();
                     }
-                    if ui.button("Reset").clicked() {
-                        self.zoom = 1.0;
+                    ui.separator();
+                    if ui.button("Save Game…").clicked() {
+                        self.save_game_dialog();
+                        ui.close();
+                    }
+                    if ui.button("Restart Adventure").clicked() {
+                        self.restart_game();
+                        ui.close();
+                    }
+                    if ui.button("Back to Library").clicked() {
+                        self.request_library();
+                        ui.close();
+                    }
+                    ui.separator();
+                    if ui.button("Quit").clicked() {
+                        self.request_quit(ctx);
+                        ui.close();
                     }
                 });
-                ui.separator();
-                if ui.button("Toggle Fullscreen").clicked() {
-                    let fullscreen =
-                        ctx.input(|input| input.viewport().fullscreen.unwrap_or(false));
-                    ctx.send_viewport_cmd(egui::ViewportCommand::Fullscreen(!fullscreen));
-                }
+                ui.menu_button("Edit", |ui| {
+                    let has_log = !self.log.is_empty();
+                    if ui
+                        .add_enabled(has_log, egui::Button::new("Copy Story Log"))
+                        .clicked()
+                    {
+                        ui.ctx().copy_text(self.log.join("\n"));
+                        self.status = "Story log copied to the clipboard.".to_string();
+                        ui.close();
+                    }
+                    let has_command = self.history.last().is_some();
+                    if ui
+                        .add_enabled(has_command, egui::Button::new("Copy Last Command"))
+                        .clicked()
+                    {
+                        if let Some(command) = self.history.last() {
+                            ui.ctx().copy_text(command.clone());
+                            self.status = "Last command copied to the clipboard.".to_string();
+                        }
+                        ui.close();
+                    }
+                });
+                ui.menu_button("View", |ui| {
+                    ui.label("Theme");
+                    let previous = self.theme_mode;
+                    for mode in theme::ThemeMode::ALL {
+                        ui.selectable_value(&mut self.theme_mode, mode, mode.label());
+                    }
+                    if self.theme_mode != previous {
+                        theme::apply(ctx, self.theme_mode);
+                        self.theme_applied = true;
+                        self.status = format!("{} theme applied.", self.theme_mode.label());
+                    }
+                    ui.separator();
+                    ui.horizontal(|ui| {
+                        if ui.button("Smaller Text").clicked() {
+                            self.zoom = (self.zoom - 0.1).clamp(0.7, 2.0);
+                        }
+                        if ui.button("Larger Text").clicked() {
+                            self.zoom = (self.zoom + 0.1).clamp(0.7, 2.0);
+                        }
+                        if ui.button("Reset").clicked() {
+                            self.zoom = 1.0;
+                        }
+                    });
+                    ui.separator();
+                    if ui.button("Toggle Fullscreen").clicked() {
+                        let fullscreen =
+                            ctx.input(|input| input.viewport().fullscreen.unwrap_or(false));
+                        ctx.send_viewport_cmd(egui::ViewportCommand::Fullscreen(!fullscreen));
+                    }
+                });
+                ui.menu_button("Help", |ui| {
+                    if ui.button("Controls & Commands").clicked() {
+                        self.show_controls = true;
+                        ui.close();
+                    }
+                    if ui.button("About Saga Foundry Player").clicked() {
+                        self.show_about = true;
+                        ui.close();
+                    }
+                });
             });
-            ui.menu_button("Help", |ui| {
-                if ui.button("Controls & Commands").clicked() {
-                    self.show_controls = true;
-                    ui.close();
+    }
+
+    fn show_caption_bar(&mut self, ctx: &egui::Context, ui: &mut egui::Ui) {
+        let caption = self
+            .engine
+            .as_ref()
+            .map(|engine| format!("Saga Foundry Player - {}", engine.document().title.as_str()))
+            .unwrap_or_else(|| "Saga Foundry Player - Adventure Library".to_string());
+        let maximized = ctx.input(|input| input.viewport().maximized.unwrap_or(false));
+        let Some(action) = theme::caption_bar(ui, &caption, maximized) else {
+            return;
+        };
+        match action {
+            theme::CaptionAction::Minimize => {
+                ctx.send_viewport_cmd(egui::ViewportCommand::Minimized(true));
+            }
+            theme::CaptionAction::Maximize => {
+                ctx.send_viewport_cmd(egui::ViewportCommand::Maximized(!maximized));
+            }
+            theme::CaptionAction::Close => self.request_quit(ctx),
+        }
+    }
+
+    fn show_toolbar(&mut self, ui: &mut egui::Ui) {
+        theme::toolbar(ui, |ui| {
+            if self.engine.is_some() {
+                if ui.add(theme::ghost_button("Open")).clicked() {
+                    self.open_adventure_dialog();
                 }
-                if ui.button("About Saga Foundry Player").clicked() {
+                if ui.add(theme::ghost_button("Save")).clicked() {
+                    self.save_game_dialog();
+                }
+                if ui.add(theme::ghost_button("Load")).clicked() {
+                    self.load_game_dialog();
+                }
+                if ui.add(theme::ghost_button("Restart")).clicked() {
+                    self.restart_game();
+                }
+                ui.separator();
+                if ui.add(theme::ghost_button("Library")).clicked() {
+                    self.request_library();
+                }
+            } else {
+                if ui.add(theme::primary_button("Open Adventure")).clicked() {
+                    self.open_adventure_dialog();
+                }
+                if ui.add(theme::ghost_button("Load Saved Game")).clicked() {
+                    self.load_game_dialog();
+                }
+            }
+            ui.with_layout(egui::Layout::right_to_left(egui::Align::Center), |ui| {
+                if ui.add(theme::ghost_button("About")).clicked() {
                     self.show_about = true;
-                    ui.close();
+                }
+                if ui.add(theme::ghost_button("Controls")).clicked() {
+                    self.show_controls = true;
                 }
             });
         });
@@ -511,13 +587,17 @@ impl SagaFoundryPlayer {
         egui::ScrollArea::vertical()
             .auto_shrink([false, false])
             .show(ui, |ui| {
-                theme::card_frame().show(ui, |ui| {
+                theme::card_panel(ui, |ui| {
                     ui.set_width(ui.available_width());
                     ui.horizontal(|ui| {
                         ui.vertical(|ui| {
                             ui.label(
                                 egui::RichText::new("Your next story starts here")
-                                    .size(30.0)
+                                    .size(if theme::is_windows_2000() {
+                                        14.0
+                                    } else {
+                                        30.0
+                                    })
                                     .strong()
                                     .color(theme::text_color()),
                             );
@@ -573,13 +653,17 @@ impl SagaFoundryPlayer {
                     .filter(|path| path.exists())
                 {
                     ui.add_space(14.0);
-                    theme::card_frame().show(ui, |ui| {
+                    theme::card_panel(ui, |ui| {
                         ui.set_width(ui.available_width());
                         ui.horizontal(|ui| {
                             ui.vertical(|ui| {
                                 ui.label(
                                     egui::RichText::new("Continue your last session")
-                                        .size(18.0)
+                                        .size(if theme::is_windows_2000() {
+                                            12.0
+                                        } else {
+                                            18.0
+                                        })
                                         .strong()
                                         .color(theme::accent()),
                                 );
@@ -635,18 +719,17 @@ impl SagaFoundryPlayer {
                 }
                 for entry in &self.library {
                     let mut play = false;
-                    egui::Frame::new()
-                        .fill(theme::surface())
-                        .stroke(egui::Stroke::new(1.0, theme::border()))
-                        .corner_radius(egui::CornerRadius::same(10))
-                        .inner_margin(egui::Margin::symmetric(14, 11))
-                        .show(ui, |ui| {
+                    theme::raised_panel(ui, |ui| {
                             ui.set_width(ui.available_width());
                             ui.horizontal(|ui| {
                                 ui.vertical(|ui| {
                                     ui.label(
                                         egui::RichText::new(&entry.title)
-                                            .size(16.0)
+                                            .size(if theme::is_windows_2000() {
+                                                12.0
+                                            } else {
+                                                16.0
+                                            })
                                             .strong()
                                             .color(theme::text_color()),
                                     );
@@ -682,7 +765,7 @@ impl SagaFoundryPlayer {
                     ui.add_space(14.0);
                     theme::section_heading(ui, "Recently played", None);
                     ui.add_space(4.0);
-                    theme::card_frame().show(ui, |ui| {
+                    theme::card_panel(ui, |ui| {
                         ui.set_width(ui.available_width());
                         let mut open = None;
                         for path in &self.recent {
@@ -787,13 +870,17 @@ impl SagaFoundryPlayer {
                         egui::Frame::new()
                             .fill(theme::badge_fill(color))
                             .stroke(egui::Stroke::new(1.0, theme::badge_stroke(color)))
-                            .corner_radius(egui::CornerRadius::same(10))
+                            .corner_radius(if theme::is_windows_2000() {
+                                egui::CornerRadius::ZERO
+                            } else {
+                                egui::CornerRadius::same(10)
+                            })
                             .inner_margin(egui::Margin::symmetric(14, 10))
                             .show(ui, |ui| {
                                 ui.set_width(ui.available_width());
                                 ui.label(
                                     egui::RichText::new(if won { "Victory" } else { "Defeat" })
-                                        .size(16.0)
+                                        .size(if theme::is_windows_2000() { 12.0 } else { 16.0 })
                                         .strong()
                                         .color(color),
                                 );
@@ -858,7 +945,7 @@ impl SagaFoundryPlayer {
                     theme::card(ui, "Location", None, |ui| {
                         ui.label(
                             egui::RichText::new(room_name)
-                                .size(16.0)
+                                .size(if theme::is_windows_2000() { 12.0 } else { 16.0 })
                                 .strong()
                                 .color(theme::accent()),
                         );
@@ -942,7 +1029,7 @@ impl SagaFoundryPlayer {
     }
 
     fn show_command_bar(&mut self, ui: &mut egui::Ui) {
-        theme::card_frame().show(ui, |ui| {
+        theme::card_panel(ui, |ui| {
             ui.horizontal(|ui| {
                 ui.label(
                     egui::RichText::new("COMMAND")
@@ -1038,7 +1125,11 @@ impl SagaFoundryPlayer {
                 .show(ctx, |ui| {
                     ui.label(
                         egui::RichText::new("Saga Foundry Player")
-                            .size(22.0)
+                            .size(if theme::is_windows_2000() {
+                                12.0
+                            } else {
+                                22.0
+                            })
                             .strong()
                             .color(theme::accent()),
                     );
@@ -1107,32 +1198,34 @@ impl SagaFoundryPlayer {
     }
 
     fn show_status_bar(&mut self, ui: &mut egui::Ui) {
-        ui.horizontal(|ui| {
-            ui.add_space(8.0);
-            ui.label(
-                egui::RichText::new(&self.status)
-                    .size(11.0)
-                    .color(theme::muted()),
-            );
-            ui.with_layout(egui::Layout::right_to_left(egui::Align::Center), |ui| {
+        theme::status_panel(ui, |ui| {
+            ui.horizontal(|ui| {
                 ui.add_space(8.0);
-                if self.engine.is_some() {
-                    ui.label(
-                        egui::RichText::new("Enter send · ↑↓ history · Ctrl+S save")
-                            .size(10.5)
-                            .color(theme::muted()),
-                    );
-                    if self.autosave_path.is_some() {
-                        theme::badge(ui, "AUTOSAVE", theme::success());
+                ui.label(
+                    egui::RichText::new(&self.status)
+                        .size(11.0)
+                        .color(theme::muted()),
+                );
+                ui.with_layout(egui::Layout::right_to_left(egui::Align::Center), |ui| {
+                    ui.add_space(8.0);
+                    if self.engine.is_some() {
+                        ui.label(
+                            egui::RichText::new("Enter send · ↑↓ history · Ctrl+S save")
+                                .size(10.5)
+                                .color(theme::muted()),
+                        );
+                        if self.autosave_path.is_some() {
+                            theme::badge(ui, "AUTOSAVE", theme::success());
+                        }
                     }
-                }
-                if !self.library.is_empty() {
-                    theme::badge(
-                        ui,
-                        &format!("{} ADVENTURES", self.library.len()),
-                        theme::accent(),
-                    );
-                }
+                    if !self.library.is_empty() {
+                        theme::badge(
+                            ui,
+                            &format!("{} ADVENTURES", self.library.len()),
+                            theme::accent(),
+                        );
+                    }
+                });
             });
         });
     }
@@ -1169,13 +1262,7 @@ impl SagaFoundryPlayer {
 
 impl eframe::App for SagaFoundryPlayer {
     fn save(&mut self, storage: &mut dyn eframe::Storage) {
-        storage.set_string(
-            "theme",
-            match self.theme_mode {
-                theme::ThemeMode::Dark => "dark".to_string(),
-                theme::ThemeMode::Light => "light".to_string(),
-            },
-        );
+        storage.set_string("theme", self.theme_mode.key().to_string());
         storage.set_string(
             "recent",
             self.recent
@@ -1196,6 +1283,11 @@ impl eframe::App for SagaFoundryPlayer {
             theme::apply(&ctx, self.theme_mode);
             self.theme_applied = true;
         }
+        let classic_chrome = theme::is_windows_2000();
+        if classic_chrome != self.classic_chrome {
+            self.classic_chrome = classic_chrome;
+            ctx.send_viewport_cmd(egui::ViewportCommand::Decorations(!classic_chrome));
+        }
         ctx.set_zoom_factor(self.zoom);
         if ctx.input(|input| input.viewport().close_requested())
             && self.engine.is_some()
@@ -1206,12 +1298,25 @@ impl eframe::App for SagaFoundryPlayer {
         }
         self.handle_shortcuts(&ctx);
 
-        egui::Panel::top("player_menu")
-            .exact_size(25.0)
-            .show(root_ui, |ui| self.show_menu_bar(&ctx, ui));
-        egui::Panel::top("player_header")
-            .exact_size(70.0)
-            .show(root_ui, |ui| self.show_header(ui));
+        if theme::is_windows_2000() {
+            egui::Panel::top("player_caption")
+                .exact_size(22.0)
+                .frame(egui::Frame::NONE)
+                .show(root_ui, |ui| self.show_caption_bar(&ctx, ui));
+            egui::Panel::top("player_menu")
+                .exact_size(23.0)
+                .show(root_ui, |ui| self.show_menu_bar(&ctx, ui));
+            egui::Panel::top("player_toolbar")
+                .exact_size(32.0)
+                .show(root_ui, |ui| self.show_toolbar(ui));
+        } else {
+            egui::Panel::top("player_menu")
+                .exact_size(25.0)
+                .show(root_ui, |ui| self.show_menu_bar(&ctx, ui));
+            egui::Panel::top("player_header")
+                .exact_size(70.0)
+                .show(root_ui, |ui| self.show_header(ui));
+        }
         egui::Panel::bottom("player_status")
             .exact_size(26.0)
             .show(root_ui, |ui| self.show_status_bar(ui));
@@ -1231,6 +1336,7 @@ impl eframe::App for SagaFoundryPlayer {
             });
 
         self.handle_history_keys(root_ui);
+        theme::window_resize_handles(root_ui);
         self.show_windows(&ctx);
     }
 }

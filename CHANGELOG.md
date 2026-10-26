@@ -10,6 +10,12 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Added
 - Saga Foundry Player now autosaves after every turn and offers **Resume** / **Discard** for the last recovery save on the library screen
 - Player detects merchants in the current room, shows their names in the sidebar, and adds a context-aware `shop` quick action
+- Windows 2000 theme for Studio and Player: gradient caption bar with minimize/maximize/close, draggable undecorated window chrome, resize grips, classic menu highlights, recessed toolbar, 3-D beveled panels, sunken status bars, and Tahoma when available
+- Player **Edit** menu with **Copy Story Log** and **Copy Last Command**; Studio gained an **Edit** menu with undo/redo and clipboard JSON copy
+- Classic window chrome hides OS decorations only while the Windows 2000 theme is active and restores them for the other themes
+
+### Fixed
+- Studio and Player now enable `eframe` persistence, so the selected theme (and Player's recent files/zoom) survives a restart
 
 ## [4.1.0] - 2026-10-24
 

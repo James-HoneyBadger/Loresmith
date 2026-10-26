@@ -18,6 +18,7 @@ eframe = { version = "0.37", default-features = false, features = [
     "clipboard",
     "links",
     "accesskit",
+    "persistence",
 ] }
 egui = "0.37"
 sagacraft_rs = { path = "../sagacraft_rs", version = "4.1.0" }

@@ -58,6 +58,7 @@ struct SagaFoundryStudio {
     frame_snapshot: Option<AdventureData>,
     theme_mode: theme::ThemeMode,
     theme_applied: bool,
+    classic_chrome: bool,
 }
 
 impl Default for SagaFoundryStudio {
@@ -93,6 +94,7 @@ impl Default for SagaFoundryStudio {
             frame_snapshot: None,
             theme_mode: theme::ThemeMode::Dark,
             theme_applied: false,
+            classic_chrome: false,
         }
     }
 }
@@ -103,11 +105,7 @@ impl SagaFoundryStudio {
         if let Some(storage) = cc.storage
             && let Some(mode) = storage.get_string("theme")
         {
-            app.theme_mode = if mode.eq_ignore_ascii_case("light") {
-                theme::ThemeMode::Light
-            } else {
-                theme::ThemeMode::Dark
-            };
+            app.theme_mode = theme::ThemeMode::from_key(&mode);
         }
         theme::set_mode(app.theme_mode);
         app
@@ -229,13 +227,7 @@ struct GameSummary {
 
 impl eframe::App for SagaFoundryStudio {
     fn save(&mut self, storage: &mut dyn eframe::Storage) {
-        storage.set_string(
-            "theme",
-            match self.theme_mode {
-                theme::ThemeMode::Dark => "dark".to_string(),
-                theme::ThemeMode::Light => "light".to_string(),
-            },
-        );
+        storage.set_string("theme", self.theme_mode.key().to_string());
     }
 
     fn ui(&mut self, root_ui: &mut egui::Ui, _frame: &mut eframe::Frame) {
@@ -281,18 +273,42 @@ impl eframe::App for SagaFoundryStudio {
             theme::apply(ctx, self.theme_mode);
             self.theme_applied = true;
         }
+        let classic_chrome = theme::is_windows_2000();
+        if classic_chrome != self.classic_chrome {
+            self.classic_chrome = classic_chrome;
+            ctx.send_viewport_cmd(egui::ViewportCommand::Decorations(!classic_chrome));
+        }
 
-        egui::Panel::top("menu_bar")
-            .exact_size(25.0)
-            .show(root_ui, |ui| {
-                self.show_menu_bar(ctx, ui);
-            });
+        if theme::is_windows_2000() {
+            egui::Panel::top("app_caption")
+                .exact_size(22.0)
+                .frame(egui::Frame::NONE)
+                .show(root_ui, |ui| {
+                    self.show_caption_bar(ctx, ui);
+                });
+            egui::Panel::top("menu_bar")
+                .exact_size(23.0)
+                .show(root_ui, |ui| {
+                    self.show_menu_bar(ctx, ui);
+                });
+            egui::Panel::top("app_toolbar")
+                .exact_size(32.0)
+                .show(root_ui, |ui| {
+                    self.show_toolbar(ui);
+                });
+        } else {
+            egui::Panel::top("menu_bar")
+                .exact_size(25.0)
+                .show(root_ui, |ui| {
+                    self.show_menu_bar(ctx, ui);
+                });
 
-        egui::Panel::top("app_header")
-            .exact_size(70.0)
-            .show(root_ui, |ui| {
-                self.show_header(ui);
-            });
+            egui::Panel::top("app_header")
+                .exact_size(70.0)
+                .show(root_ui, |ui| {
+                    self.show_header(ui);
+                });
+        }
 
         egui::Panel::bottom("status_bar")
             .exact_size(30.0)
@@ -337,6 +353,8 @@ impl eframe::App for SagaFoundryStudio {
                 });
         }
 
+        theme::window_resize_handles(root_ui);
+
         if let Some(diff) = self.diff_text.clone() {
             let mut open = true;
             egui::Window::new("JSON Diff (saved → current)")
@@ -360,6 +378,71 @@ impl eframe::App for SagaFoundryStudio {
 }
 
 impl SagaFoundryStudio {
+    fn show_caption_bar(&mut self, ctx: &egui::Context, ui: &mut egui::Ui) {
+        let file_name = self
+            .current_file
+            .as_ref()
+            .and_then(|path| path.file_name())
+            .map(|name| name.to_string_lossy().to_string())
+            .unwrap_or_else(|| "Untitled adventure".to_string());
+        let caption = format!(
+            "Saga Foundry Studio - {}{}",
+            file_name,
+            if self.modified { " *" } else { "" }
+        );
+        let maximized = ctx.input(|input| input.viewport().maximized.unwrap_or(false));
+        let Some(action) = theme::caption_bar(ui, &caption, maximized) else {
+            return;
+        };
+        match action {
+            theme::CaptionAction::Minimize => {
+                ctx.send_viewport_cmd(egui::ViewportCommand::Minimized(true));
+            }
+            theme::CaptionAction::Maximize => {
+                ctx.send_viewport_cmd(egui::ViewportCommand::Maximized(!maximized));
+            }
+            theme::CaptionAction::Close => {
+                if self.modified {
+                    self.show_exit_confirm = true;
+                } else {
+                    ctx.send_viewport_cmd(egui::ViewportCommand::Close);
+                }
+            }
+        }
+    }
+
+    fn show_toolbar(&mut self, ui: &mut egui::Ui) {
+        theme::toolbar(ui, |ui| {
+            if ui.add(theme::ghost_button("New")).clicked() {
+                self.new_adventure();
+            }
+            if ui.add(theme::ghost_button("Open")).clicked() {
+                self.open_adventure();
+            }
+            if ui.add(theme::ghost_button("Save")).clicked() {
+                self.save_adventure();
+            }
+            if ui.add(theme::ghost_button("Save As")).clicked() {
+                self.save_adventure_as();
+            }
+            ui.separator();
+            if ui.add(theme::ghost_button("Validate")).clicked() {
+                self.validate_adventure();
+            }
+            if ui.add(theme::primary_button("Play")).clicked() && self.validate_adventure() {
+                self.start_game();
+                self.active_tab = Tab::Play;
+            }
+            ui.separator();
+            if ui.add(theme::ghost_button("Undo")).clicked() {
+                self.undo();
+            }
+            if ui.add(theme::ghost_button("Redo")).clicked() {
+                self.redo();
+            }
+        });
+    }
+
     fn show_header(&mut self, ui: &mut egui::Ui) {
         ui.horizontal(|ui| {
             ui.add_space(10.0);
@@ -431,36 +514,38 @@ impl SagaFoundryStudio {
     }
 
     fn show_status_bar(&mut self, ui: &mut egui::Ui) {
-        ui.horizontal(|ui| {
-            ui.add_space(10.0);
-            let color = if self.status.starts_with("Valid") || self.status.contains("Saved") {
-                theme::success()
-            } else if self.status.starts_with("Error")
-                || self.status.contains("failed")
-                || self.status.contains("Validation errors")
-            {
-                theme::danger()
-            } else {
-                theme::accent()
-            };
-            ui.label(egui::RichText::new("●").color(color).size(11.0));
-            ui.label(
-                egui::RichText::new(&self.status)
-                    .size(11.5)
-                    .color(theme::text_color()),
-            );
-            ui.with_layout(egui::Layout::right_to_left(egui::Align::Center), |ui| {
+        theme::status_panel(ui, |ui| {
+            ui.horizontal(|ui| {
                 ui.add_space(10.0);
-                if self.modified {
-                    theme::badge(ui, "UNSAVED", theme::gold());
+                let color = if self.status.starts_with("Valid") || self.status.contains("Saved") {
+                    theme::success()
+                } else if self.status.starts_with("Error")
+                    || self.status.contains("failed")
+                    || self.status.contains("Validation errors")
+                {
+                    theme::danger()
                 } else {
-                    theme::badge(ui, "SAVED", theme::success());
-                }
+                    theme::accent()
+                };
+                ui.label(egui::RichText::new("●").color(color).size(11.0));
                 ui.label(
-                    egui::RichText::new("Ctrl+S save  ·  F5 play  ·  Ctrl+Z undo")
-                        .size(10.5)
-                        .color(theme::muted()),
+                    egui::RichText::new(&self.status)
+                        .size(11.5)
+                        .color(theme::text_color()),
                 );
+                ui.with_layout(egui::Layout::right_to_left(egui::Align::Center), |ui| {
+                    ui.add_space(10.0);
+                    if self.modified {
+                        theme::badge(ui, "UNSAVED", theme::gold());
+                    } else {
+                        theme::badge(ui, "SAVED", theme::success());
+                    }
+                    ui.label(
+                        egui::RichText::new("Ctrl+S save  ·  F5 play  ·  Ctrl+Z undo")
+                            .size(10.5)
+                            .color(theme::muted()),
+                    );
+                });
             });
         });
     }
@@ -505,32 +590,27 @@ impl SagaFoundryStudio {
             );
         });
         ui.add_space(4.0);
-        egui::Frame::new()
-            .fill(theme::surface())
-            .stroke(egui::Stroke::new(1.0, theme::border()))
-            .corner_radius(egui::CornerRadius::same(10))
-            .inner_margin(egui::Margin::same(12))
-            .show(ui, |ui| {
-                for (label, value) in [
-                    ("Rooms", self.adventure.rooms.len()),
-                    ("Items", self.adventure.items.len()),
-                    ("Monsters", self.adventure.monsters.len()),
-                    ("Quests", self.adventure.quests.len()),
-                    ("Shops", self.adventure.shops.len()),
-                ] {
-                    ui.horizontal(|ui| {
-                        ui.label(egui::RichText::new(label).size(11.0).color(theme::muted()));
-                        ui.with_layout(egui::Layout::right_to_left(egui::Align::Center), |ui| {
-                            ui.label(
-                                egui::RichText::new(value.to_string())
-                                    .size(12.0)
-                                    .strong()
-                                    .color(theme::text_color()),
-                            );
-                        });
+        theme::raised_panel(ui, |ui| {
+            for (label, value) in [
+                ("Rooms", self.adventure.rooms.len()),
+                ("Items", self.adventure.items.len()),
+                ("Monsters", self.adventure.monsters.len()),
+                ("Quests", self.adventure.quests.len()),
+                ("Shops", self.adventure.shops.len()),
+            ] {
+                ui.horizontal(|ui| {
+                    ui.label(egui::RichText::new(label).size(11.0).color(theme::muted()));
+                    ui.with_layout(egui::Layout::right_to_left(egui::Align::Center), |ui| {
+                        ui.label(
+                            egui::RichText::new(value.to_string())
+                                .size(12.0)
+                                .strong()
+                                .color(theme::text_color()),
+                        );
                     });
-                }
-            });
+                });
+            }
+        });
 
         ui.with_layout(egui::Layout::bottom_up(egui::Align::Min), |ui| {
             ui.add_space(8.0);
@@ -546,82 +626,95 @@ impl SagaFoundryStudio {
     }
 
     fn show_menu_bar(&mut self, ctx: &egui::Context, ui: &mut egui::Ui) {
-        egui::MenuBar::new().ui(ui, |ui| {
-            ui.menu_button("File", |ui| {
-                if ui.button("New Adventure").clicked() {
-                    self.new_adventure();
-                    ui.close();
-                }
-                if ui.button("Open Adventure...").clicked() {
-                    self.open_adventure();
-                    ui.close();
-                }
-                if ui.button("Save Adventure").clicked() {
-                    self.save_adventure();
-                    ui.close();
-                }
-                if ui.button("Save Adventure As...").clicked() {
-                    self.save_adventure_as();
-                    ui.close();
-                }
-                ui.separator();
-                if ui.button("Exit").clicked() {
-                    if self.modified {
-                        self.show_exit_confirm = true;
-                    } else {
-                        ui.ctx().send_viewport_cmd(egui::ViewportCommand::Close);
+        theme::menu_background(ui);
+        egui::MenuBar::new()
+            .style(theme::menu_style)
+            .config(egui::containers::menu::MenuConfig::new().style(theme::menu_style))
+            .ui(ui, |ui| {
+                ui.menu_button("File", |ui| {
+                    if ui.button("New Adventure").clicked() {
+                        self.new_adventure();
+                        ui.close();
                     }
-                }
-                ui.separator();
-                if ui.button("Undo").clicked() {
-                    self.undo();
-                    ui.close();
-                }
-                if ui.button("Redo").clicked() {
-                    self.redo();
-                    ui.close();
-                }
-            });
+                    if ui.button("Open Adventure...").clicked() {
+                        self.open_adventure();
+                        ui.close();
+                    }
+                    if ui.button("Save Adventure").clicked() {
+                        self.save_adventure();
+                        ui.close();
+                    }
+                    if ui.button("Save Adventure As...").clicked() {
+                        self.save_adventure_as();
+                        ui.close();
+                    }
+                    ui.separator();
+                    if ui.button("Exit").clicked() {
+                        if self.modified {
+                            self.show_exit_confirm = true;
+                        } else {
+                            ui.ctx().send_viewport_cmd(egui::ViewportCommand::Close);
+                        }
+                    }
+                    ui.separator();
+                    if ui.button("Undo").clicked() {
+                        self.undo();
+                        ui.close();
+                    }
+                    if ui.button("Redo").clicked() {
+                        self.redo();
+                        ui.close();
+                    }
+                });
 
-            ui.menu_button("Tools", |ui| {
-                if ui.button("Validate Adventure").clicked() {
-                    self.validate_adventure();
-                    ui.close();
-                }
-                if ui.button("Export to JSON").clicked() {
-                    self.export_to_json();
-                    ui.close();
-                }
-            });
+                ui.menu_button("Tools", |ui| {
+                    if ui.button("Validate Adventure").clicked() {
+                        self.validate_adventure();
+                        ui.close();
+                    }
+                    if ui.button("Export to JSON").clicked() {
+                        self.export_to_json();
+                        ui.close();
+                    }
+                });
 
-            ui.menu_button("View", |ui| {
-                ui.label("Theme");
-                let previous = self.theme_mode;
-                ui.selectable_value(
-                    &mut self.theme_mode,
-                    theme::ThemeMode::Dark,
-                    theme::ThemeMode::Dark.label(),
-                );
-                ui.selectable_value(
-                    &mut self.theme_mode,
-                    theme::ThemeMode::Light,
-                    theme::ThemeMode::Light.label(),
-                );
-                if self.theme_mode != previous {
-                    theme::apply(ctx, self.theme_mode);
-                    self.theme_applied = true;
-                    self.status = format!("{} theme applied.", self.theme_mode.label());
-                    ui.close();
-                }
-            });
+                ui.menu_button("Edit", |ui| {
+                    if ui.button("Undo").clicked() {
+                        self.undo();
+                        ui.close();
+                    }
+                    if ui.button("Redo").clicked() {
+                        self.redo();
+                        ui.close();
+                    }
+                    ui.separator();
+                    if ui.button("Copy JSON to Clipboard").clicked() {
+                        self.copy_json_to_clipboard(ui.ctx());
+                        ui.close();
+                    }
+                });
 
-            ui.menu_button("Help", |ui| {
-                if ui.button("About Saga Foundry Studio").clicked() {
-                    self.show_about();
-                    ui.close();
-                }
+                ui.menu_button("View", |ui| {
+                    ui.label("Theme");
+                    let previous = self.theme_mode;
+                    for mode in theme::ThemeMode::ALL {
+                        ui.selectable_value(&mut self.theme_mode, mode, mode.label());
+                    }
+                    if self.theme_mode != previous {
+                        theme::apply(ctx, self.theme_mode);
+                        self.theme_applied = true;
+                        self.status = format!("{} theme applied.", self.theme_mode.label());
+                        ui.close();
+                    }
+                });
+
+                ui.menu_button("Help", |ui| {
+                    if ui.button("About Saga Foundry Studio").clicked() {
+                        self.show_about();
+                        ui.close();
+                    }
+                });
             });
-        });
     }
 
     fn show_main_ui(&mut self, ui: &mut egui::Ui) {
@@ -651,7 +744,7 @@ impl SagaFoundryStudio {
             ui.vertical(|ui| {
                 ui.label(
                     egui::RichText::new(title)
-                        .size(24.0)
+                        .size(if theme::is_windows_2000() { 14.0 } else { 24.0 })
                         .strong()
                         .color(theme::text_color()),
                 );
@@ -701,7 +794,7 @@ impl SagaFoundryStudio {
                 |ui| {
                     ui.label(
                         egui::RichText::new(&self.adventure.title)
-                            .size(21.0)
+                            .size(if theme::is_windows_2000() { 13.0 } else { 21.0 })
                             .strong()
                             .color(theme::text_color()),
                     );
@@ -882,46 +975,36 @@ impl SagaFoundryStudio {
         let xp_threshold = (summary.level * 100).max(1);
         let xp_ratio = (summary.xp as f32 / xp_threshold as f32).clamp(0.0, 1.0);
         ui.columns(2, |columns| {
-            egui::Frame::new()
-                .fill(theme::surface())
-                .stroke(egui::Stroke::new(1.0, theme::border()))
-                .corner_radius(egui::CornerRadius::same(10))
-                .inner_margin(egui::Margin::symmetric(14, 10))
-                .show(&mut columns[0], |ui| {
-                    ui.label(
-                        egui::RichText::new("VITALITY")
-                            .size(10.0)
-                            .color(theme::muted()),
-                    );
-                    ui.add(
-                        egui::ProgressBar::new(health_ratio)
-                            .desired_height(12.0)
-                            .text(format!("{}/{}", summary.health, summary.max_health))
-                            .fill(if health_ratio <= 0.33 {
-                                theme::danger()
-                            } else {
-                                theme::success()
-                            }),
-                    );
-                });
-            egui::Frame::new()
-                .fill(theme::surface())
-                .stroke(egui::Stroke::new(1.0, theme::border()))
-                .corner_radius(egui::CornerRadius::same(10))
-                .inner_margin(egui::Margin::symmetric(14, 10))
-                .show(&mut columns[1], |ui| {
-                    ui.label(
-                        egui::RichText::new("EXPERIENCE")
-                            .size(10.0)
-                            .color(theme::muted()),
-                    );
-                    ui.add(
-                        egui::ProgressBar::new(xp_ratio)
-                            .desired_height(12.0)
-                            .text(format!("{} / {} XP", summary.xp, xp_threshold))
-                            .fill(theme::accent()),
-                    );
-                });
+            theme::field_panel(&mut columns[0], |ui| {
+                ui.label(
+                    egui::RichText::new("VITALITY")
+                        .size(10.0)
+                        .color(theme::muted()),
+                );
+                ui.add(
+                    egui::ProgressBar::new(health_ratio)
+                        .desired_height(12.0)
+                        .text(format!("{}/{}", summary.health, summary.max_health))
+                        .fill(if health_ratio <= 0.33 {
+                            theme::danger()
+                        } else {
+                            theme::success()
+                        }),
+                );
+            });
+            theme::field_panel(&mut columns[1], |ui| {
+                ui.label(
+                    egui::RichText::new("EXPERIENCE")
+                        .size(10.0)
+                        .color(theme::muted()),
+                );
+                ui.add(
+                    egui::ProgressBar::new(xp_ratio)
+                        .desired_height(12.0)
+                        .text(format!("{} / {} XP", summary.xp, xp_threshold))
+                        .fill(theme::accent()),
+                );
+            });
         });
 
         if let Some(text) = &summary.over_text {
@@ -934,7 +1017,11 @@ impl SagaFoundryStudio {
             egui::Frame::new()
                 .fill(theme::badge_fill(color))
                 .stroke(egui::Stroke::new(1.0, theme::badge_stroke(color)))
-                .corner_radius(egui::CornerRadius::same(10))
+                .corner_radius(if theme::is_windows_2000() {
+                    egui::CornerRadius::ZERO
+                } else {
+                    egui::CornerRadius::same(10)
+                })
                 .inner_margin(egui::Margin::symmetric(14, 8))
                 .show(ui, |ui| {
                     ui.label(egui::RichText::new(text).size(13.0).strong().color(color));
@@ -1039,7 +1126,7 @@ impl SagaFoundryStudio {
         });
 
         ui.add_space(8.0);
-        theme::card_frame().show(ui, |ui| {
+        theme::card_panel(ui, |ui| {
             ui.horizontal(|ui| {
                 ui.label(
                     egui::RichText::new("COMMAND")
@@ -1365,7 +1452,7 @@ impl SagaFoundryStudio {
         ui.separator();
 
         ui.add_space(10.0);
-        theme::card_frame().show(ui, |ui| {
+        theme::card_panel(ui, |ui| {
             let content_height = 340.0;
             ui.columns(2, |columns| {
                 columns[0].set_min_height(content_height);
@@ -1571,7 +1658,7 @@ impl SagaFoundryStudio {
         ui.separator();
 
         ui.add_space(10.0);
-        theme::card_frame().show(ui, |ui| {
+        theme::card_panel(ui, |ui| {
             let content_height = 340.0;
             ui.columns(2, |columns| {
                 columns[0].set_min_height(content_height);
@@ -1794,7 +1881,7 @@ impl SagaFoundryStudio {
         ui.separator();
 
         ui.add_space(10.0);
-        theme::card_frame().show(ui, |ui| {
+        theme::card_panel(ui, |ui| {
             let content_height = 340.0;
             ui.columns(2, |columns| {
                 columns[0].set_min_height(content_height);
@@ -2054,7 +2141,7 @@ impl SagaFoundryStudio {
         ui.separator();
 
         ui.add_space(10.0);
-        theme::card_frame().show(ui, |ui| {
+        theme::card_panel(ui, |ui| {
             let content_height = 340.0;
             ui.columns(2, |columns| {
                 columns[0].set_min_height(content_height);
@@ -2410,7 +2497,7 @@ impl SagaFoundryStudio {
             .collect();
 
         ui.add_space(10.0);
-        theme::card_frame().show(ui, |ui| {
+        theme::card_panel(ui, |ui| {
             let content_height = 340.0;
             ui.columns(2, |columns| {
                 columns[0].set_min_height(content_height);
@@ -2582,12 +2669,7 @@ impl SagaFoundryStudio {
                 "Canonical JSON",
                 Some("schema_version 2 · normalized on save"),
                 |ui| {
-                    egui::Frame::new()
-                        .fill(theme::extreme_bg())
-                        .stroke(egui::Stroke::new(1.0, theme::border()))
-                        .corner_radius(egui::CornerRadius::same(8))
-                        .inner_margin(egui::Margin::same(10))
-                        .show(ui, |ui| {
+                    theme::field_panel(ui, |ui| {
                             egui::ScrollArea::both()
                                 .auto_shrink([false, false])
                                 .max_height(content_height - 86.0)
