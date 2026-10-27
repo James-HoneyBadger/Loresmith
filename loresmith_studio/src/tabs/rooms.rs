@@ -99,18 +99,21 @@ impl LoresmithStudio {
                                 .changed();
                                 ui.end_row();
 
-                                ui.label("Dark:");
-                                changed |= ui.checkbox(&mut room.is_dark, "").changed();
+                                let dark_label = ui.label("Dark:").id;
+                                changed |= ui
+                                    .checkbox(&mut room.is_dark, "")
+                                    .labelled_by(dark_label)
+                                    .changed();
                                 ui.end_row();
                             });
-                        theme::field_label(&mut columns[1], "Description");
-                        changed |= columns[1]
-                            .add(
+                        changed |= theme::labelled_field(&mut columns[1], "Description", |ui| {
+                            ui.add(
                                 egui::TextEdit::multiline(&mut room.description)
                                     .desired_rows(3)
                                     .desired_width(f32::INFINITY),
                             )
-                            .changed();
+                        })
+                        .changed();
 
                         columns[1].separator();
                         columns[1].label("Exits:");
@@ -143,7 +146,13 @@ impl LoresmithStudio {
                                         );
                                         changed = true;
                                     }
-                                    if is_locked && ui.text_edit_singleline(&mut key_text).changed()
+                                    if is_locked
+                                        && ui
+                                            .add(
+                                                egui::TextEdit::singleline(&mut key_text)
+                                                    .hint_text("key item"),
+                                            )
+                                            .changed()
                                     {
                                         exit.set_locked(true, Some(key_text.clone()));
                                         changed = true;
@@ -159,6 +168,7 @@ impl LoresmithStudio {
                             changed = true;
                         }
                         columns[1].horizontal(|ui| {
+                            let direction_label = ui.label("New exit:").id;
                             egui::ComboBox::from_id_salt("add_exit_dir")
                                 .selected_text(if self.new_exit_direction.is_empty() {
                                     "direction"
@@ -173,7 +183,9 @@ impl LoresmithStudio {
                                             *d,
                                         );
                                     }
-                                });
+                                })
+                                .response
+                                .labelled_by(direction_label);
                             ui.add(egui::DragValue::new(&mut self.new_exit_target).prefix("room "));
                             if ui.button("Add Exit").clicked()
                                 && !self.new_exit_direction.is_empty()
@@ -194,7 +206,13 @@ impl LoresmithStudio {
                             .map(|id| id.to_string())
                             .collect::<Vec<_>>()
                             .join(", ");
-                        if columns[1].text_edit_singleline(&mut items_text).changed() {
+                        if columns[1]
+                            .add(
+                                egui::TextEdit::singleline(&mut items_text)
+                                    .hint_text("item IDs, comma separated"),
+                            )
+                            .changed()
+                        {
                             room.items = items_text
                                 .split(',')
                                 .filter_map(|value| value.trim().parse::<i32>().ok())

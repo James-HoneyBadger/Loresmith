@@ -150,12 +150,18 @@ impl LoresmithStudio {
                                 );
                                 ui.end_row();
 
-                                ui.label("Takeable:");
-                                changed |= ui.checkbox(&mut item.is_takeable, "").changed();
+                                let checkbox_label_0 = ui.label("Takeable:").id;
+                                changed |= ui
+                                    .checkbox(&mut item.is_takeable, "")
+                                    .labelled_by(checkbox_label_0)
+                                    .changed();
                                 ui.end_row();
 
-                                ui.label("Light source:");
-                                changed |= ui.checkbox(&mut item.is_light_source, "").changed();
+                                let checkbox_label_1 = ui.label("Light source:").id;
+                                changed |= ui
+                                    .checkbox(&mut item.is_light_source, "")
+                                    .labelled_by(checkbox_label_1)
+                                    .changed();
                                 ui.end_row();
 
                                 if item.item_type == ItemType::Container {
@@ -166,8 +172,11 @@ impl LoresmithStudio {
                                     ui.end_row();
                                 }
 
-                                ui.label("Is Weapon:");
-                                changed |= ui.checkbox(&mut item.is_weapon, "").changed();
+                                let checkbox_label_2 = ui.label("Is Weapon:").id;
+                                changed |= ui
+                                    .checkbox(&mut item.is_weapon, "")
+                                    .labelled_by(checkbox_label_2)
+                                    .changed();
                                 ui.end_row();
 
                                 if item.is_weapon {
@@ -199,8 +208,11 @@ impl LoresmithStudio {
                                     ui.end_row();
                                 }
 
-                                ui.label("Is Armor:");
-                                changed |= ui.checkbox(&mut item.is_armor, "").changed();
+                                let checkbox_label_3 = ui.label("Is Armor:").id;
+                                changed |= ui
+                                    .checkbox(&mut item.is_armor, "")
+                                    .labelled_by(checkbox_label_3)
+                                    .changed();
                                 ui.end_row();
 
                                 if item.is_armor {
@@ -213,19 +225,22 @@ impl LoresmithStudio {
                                     .changed();
                                     ui.end_row();
 
-                                    ui.label("Wearable:");
-                                    changed |= ui.checkbox(&mut item.is_wearable, "").changed();
+                                    let checkbox_label_4 = ui.label("Wearable:").id;
+                                    changed |= ui
+                                        .checkbox(&mut item.is_wearable, "")
+                                        .labelled_by(checkbox_label_4)
+                                        .changed();
                                     ui.end_row();
                                 }
                             });
-                        theme::field_label(&mut columns[1], "Description");
-                        changed |= columns[1]
-                            .add(
+                        changed |= theme::labelled_field(&mut columns[1], "Description", |ui| {
+                            ui.add(
                                 egui::TextEdit::multiline(&mut item.description)
                                     .desired_rows(3)
                                     .desired_width(f32::INFINITY),
                             )
-                            .changed();
+                        })
+                        .changed();
                         if changed {
                             self.mark_modified();
                         }

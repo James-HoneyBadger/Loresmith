@@ -103,10 +103,10 @@ impl LoresmithStudio {
                                 .changed();
                                 ui.end_row();
 
-                                ui.label("Hardiness:");
-                                changed |= ui
-                                    .add(egui::DragValue::new(&mut monster.hardiness))
-                                    .changed();
+                                changed |= theme::labelled_row(ui, "Hardiness:", |ui| {
+                                    ui.add(egui::DragValue::new(&mut monster.hardiness))
+                                })
+                                .changed();
                                 ui.end_row();
 
                                 changed |= theme::labelled_row(ui, "Agility:", |ui| {
@@ -163,10 +163,10 @@ impl LoresmithStudio {
                                 .changed();
                                 ui.end_row();
 
-                                ui.label("Armor worn:");
-                                changed |= ui
-                                    .add(egui::DragValue::new(&mut monster.armor_worn))
-                                    .changed();
+                                changed |= theme::labelled_row(ui, "Armor worn:", |ui| {
+                                    ui.add(egui::DragValue::new(&mut monster.armor_worn))
+                                })
+                                .changed();
                                 ui.end_row();
 
                                 ui.label("Weapon ID:");
@@ -261,14 +261,14 @@ impl LoresmithStudio {
                                     ui.end_row();
                                 }
                             });
-                        theme::field_label(&mut columns[1], "Description");
-                        changed |= columns[1]
-                            .add(
+                        changed |= theme::labelled_field(&mut columns[1], "Description", |ui| {
+                            ui.add(
                                 egui::TextEdit::multiline(&mut monster.description)
                                     .desired_rows(3)
                                     .desired_width(f32::INFINITY),
                             )
-                            .changed();
+                        })
+                        .changed();
                         if changed {
                             self.mark_modified();
                         }

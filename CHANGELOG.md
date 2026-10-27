@@ -5,6 +5,12 @@ All notable changes to Loresmith will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [6.0.2] - 2026-10-27
+
+### Accessibility
+- Every form field in the Studio tabs is now announced with a name: captions drawn beside or above a widget are associated with it, text-less checkboxes take their caption, and the quest objective rows, exit editor, description fields, and reward lists are covered. The `egui_kittest` harness now runs with the accessibility check enabled across all eight tabs, so a new unnamed field fails the build
+- Fields without a visible caption got one or a hint: `New exit:`, `key item`, and `item IDs, comma separated`
+
 ## [6.0.1] - 2026-10-27
 
 ### Added

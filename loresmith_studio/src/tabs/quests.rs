@@ -134,9 +134,10 @@ impl LoresmithStudio {
                                 .response
                                 .labelled_by(combo_label);
                         });
-                        columns[1].label("Description:");
+                        let description_label = columns[1].label("Description:").id;
                         changed |= columns[1]
                             .text_edit_multiline(&mut quest.description)
+                            .labelled_by(description_label)
                             .changed();
 
                         if quest.stages.is_empty() {
@@ -155,8 +156,12 @@ impl LoresmithStudio {
                         for (stage_idx, stage) in quest.stages.iter_mut().enumerate() {
                             columns[1].group(|ui| {
                                 ui.horizontal(|ui| {
-                                    ui.label(format!("Stage {}", stage.stage_number));
-                                    changed |= ui.text_edit_singleline(&mut stage.title).changed();
+                                    let stage_label =
+                                        ui.label(format!("Stage {}", stage.stage_number)).id;
+                                    changed |= ui
+                                        .text_edit_singleline(&mut stage.title)
+                                        .labelled_by(stage_label)
+                                        .changed();
                                     theme::labelled_row(ui, "Stage XP:", |ui| {
                                         ui.add(egui::DragValue::new(&mut stage.stage_reward_xp))
                                     })
@@ -165,7 +170,7 @@ impl LoresmithStudio {
                                         remove_stage = Some(stage_idx);
                                     }
                                 });
-                                ui.label("Objectives:");
+                                let objectives_label = ui.label("Objectives:").id;
                                 let mut remove_objective: Option<usize> = None;
                                 for (objective_idx, objective) in
                                     stage.objectives.iter_mut().enumerate()
@@ -178,26 +183,25 @@ impl LoresmithStudio {
                                             stage_idx, objective_idx
                                         ))
                                         .selected_text(objective_kind_label(objective.kind))
-                                        .show_ui(
-                                            ui,
-                                            |ui| {
-                                                for kind in [
-                                                    ObjectiveKind::KillMonster,
-                                                    ObjectiveKind::CollectItem,
-                                                    ObjectiveKind::ReachRoom,
-                                                    ObjectiveKind::TalkToNpc,
-                                                    ObjectiveKind::Discover,
-                                                ] {
-                                                    changed |= ui
-                                                        .selectable_value(
-                                                            &mut objective.kind,
-                                                            kind,
-                                                            objective_kind_label(kind),
-                                                        )
-                                                        .changed();
-                                                }
-                                            },
-                                        );
+                                        .show_ui(ui, |ui| {
+                                            for kind in [
+                                                ObjectiveKind::KillMonster,
+                                                ObjectiveKind::CollectItem,
+                                                ObjectiveKind::ReachRoom,
+                                                ObjectiveKind::TalkToNpc,
+                                                ObjectiveKind::Discover,
+                                            ] {
+                                                changed |= ui
+                                                    .selectable_value(
+                                                        &mut objective.kind,
+                                                        kind,
+                                                        objective_kind_label(kind),
+                                                    )
+                                                    .changed();
+                                            }
+                                        })
+                                        .response
+                                        .labelled_by(objectives_label);
                                         let mut target = objective
                                             .target
                                             .clone()
@@ -230,6 +234,7 @@ impl LoresmithStudio {
                                                 egui::DragValue::new(&mut objective.count)
                                                     .range(1..=999),
                                             )
+                                            .labelled_by(objectives_label)
                                             .changed();
                                         if ui.button("Remove").clicked() {
                                             remove_objective = Some(objective_idx);
@@ -298,7 +303,9 @@ impl LoresmithStudio {
                             })
                             .changed();
                         });
-                        columns[1].label("Reward items (IDs or names, comma separated):");
+                        let reward_items_label = columns[1]
+                            .label("Reward items (IDs or names, comma separated):")
+                            .id;
                         let mut reward_items = quest
                             .rewards
                             .items
@@ -309,7 +316,11 @@ impl LoresmithStudio {
                             })
                             .collect::<Vec<_>>()
                             .join(", ");
-                        if columns[1].text_edit_singleline(&mut reward_items).changed() {
+                        if columns[1]
+                            .text_edit_singleline(&mut reward_items)
+                            .labelled_by(reward_items_label)
+                            .changed()
+                        {
                             quest.rewards.items = reward_items
                                 .split(',')
                                 .map(str::trim)
@@ -323,7 +334,9 @@ impl LoresmithStudio {
                                 .collect();
                             changed = true;
                         }
-                        columns[1].label("Reputation rewards (Faction: amount, comma separated):");
+                        let reputation_label = columns[1]
+                            .label("Reputation rewards (Faction: amount, comma separated):")
+                            .id;
                         let mut reputation_text = quest
                             .rewards
                             .reputation
@@ -333,6 +346,7 @@ impl LoresmithStudio {
                             .join(", ");
                         if columns[1]
                             .text_edit_singleline(&mut reputation_text)
+                            .labelled_by(reputation_label)
                             .changed()
                         {
                             quest.rewards.reputation.clear();
