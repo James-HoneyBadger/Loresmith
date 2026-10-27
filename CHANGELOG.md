@@ -13,6 +13,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Validation tests for duplicate IDs, dangling shop/ending/starting-inventory references, unknown `start_room`, and unreachable-room warnings
 - `tests/docs.rs` fails when a relative link in the README or the manuals points at a file that no longer exists
 - Headless UI tests for all three interactive frontends: `egui_kittest` harnesses for the Player (library screen, About menu, Controls dialog) and Studio (every tab renders, room editing marks the document modified), and `ratatui` `TestBackend` tests for the Workbench (drawing, arrow-key selection, command entry, quit confirmation)
+- `theme::labelled_row` and `theme::labelled_field` draw a caption and the widget that follows it and associate the two for assistive technology, alongside `.labelled_by` for combo boxes; `field_label` now returns the label's `egui::Id`. 24 Studio form fields use them, and a ratchet test fails if unnamed form fields grow past the 21 that remain in nested `if`/`horizontal` blocks
 - The frontends build a library as well as a binary: `main_entry()`, `LoresmithPlayer::with_storage()`, `LoresmithStudio::with_storage()`, `LoresmithStudio::select_tab()`/`TAB_TITLES`/`active_tab_title()`/`is_modified()`, and `LoresmithWorkbench`'s `App`/`draw_main`/`handle_key` are public so tests and embedders can drive them without a window
 
 ### Changed
@@ -31,6 +32,7 @@ Adventure files and portable save files are unchanged; only the application iden
 
 ### Security
 - Bumped `wayland-scanner` 0.31.8 → 0.31.11 so `quick-xml` resolves to 0.41.0, clearing `RUSTSEC-2026-0194` and `RUSTSEC-2026-0195`; the matching `deny.toml` ignores are gone
+- Cleared the three remaining fixable advisories: `memmap2` 0.9.12, `lru` 0.18.5 (via `ratatui` 0.30.2), and `rand` 0.8.8. Only the unmaintained `zvariant`/`zbus_names`/`zvariant_derive` warnings remain, with no fixed release available for the accesskit/atspi stack
 
 ## [5.0.0] - 2026-10-26
 

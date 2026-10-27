@@ -91,12 +91,16 @@ impl LoresmithStudio {
                             .num_columns(2)
                             .spacing([10.0, 10.0])
                             .show(&mut columns[1], |ui| {
-                                ui.label("ID:");
-                                changed |= ui.add(egui::DragValue::new(&mut monster.id)).changed();
+                                changed |= theme::labelled_row(ui, "ID:", |ui| {
+                                    ui.add(egui::DragValue::new(&mut monster.id))
+                                })
+                                .changed();
                                 ui.end_row();
 
-                                ui.label("Name:");
-                                changed |= ui.text_edit_singleline(&mut monster.name).changed();
+                                changed |= theme::labelled_row(ui, "Name:", |ui| {
+                                    ui.text_edit_singleline(&mut monster.name)
+                                })
+                                .changed();
                                 ui.end_row();
 
                                 ui.label("Hardiness:");
@@ -105,22 +109,25 @@ impl LoresmithStudio {
                                     .changed();
                                 ui.end_row();
 
-                                ui.label("Agility:");
-                                changed |=
-                                    ui.add(egui::DragValue::new(&mut monster.agility)).changed();
+                                changed |= theme::labelled_row(ui, "Agility:", |ui| {
+                                    ui.add(egui::DragValue::new(&mut monster.agility))
+                                })
+                                .changed();
                                 ui.end_row();
 
-                                ui.label("Gold:");
-                                changed |=
-                                    ui.add(egui::DragValue::new(&mut monster.gold)).changed();
+                                changed |= theme::labelled_row(ui, "Gold:", |ui| {
+                                    ui.add(egui::DragValue::new(&mut monster.gold))
+                                })
+                                .changed();
                                 ui.end_row();
 
-                                ui.label("Room ID:");
-                                changed |=
-                                    ui.add(egui::DragValue::new(&mut monster.room_id)).changed();
+                                changed |= theme::labelled_row(ui, "Room ID:", |ui| {
+                                    ui.add(egui::DragValue::new(&mut monster.room_id))
+                                })
+                                .changed();
                                 ui.end_row();
 
-                                ui.label("Friendliness:");
+                                let combo_label = ui.label("Friendliness:").id;
                                 egui::ComboBox::from_id_salt("monster_status")
                                     .selected_text(format!("{:?}", monster.friendliness))
                                     .show_ui(ui, |ui: &mut egui::Ui| {
@@ -145,12 +152,15 @@ impl LoresmithStudio {
                                                 "Hostile",
                                             )
                                             .changed();
-                                    });
+                                    })
+                                    .response
+                                    .labelled_by(combo_label);
                                 ui.end_row();
 
-                                ui.label("Courage:");
-                                changed |=
-                                    ui.add(egui::DragValue::new(&mut monster.courage)).changed();
+                                changed |= theme::labelled_row(ui, "Courage:", |ui| {
+                                    ui.add(egui::DragValue::new(&mut monster.courage))
+                                })
+                                .changed();
                                 ui.end_row();
 
                                 ui.label("Armor worn:");
@@ -173,14 +183,17 @@ impl LoresmithStudio {
                                 });
                                 ui.end_row();
 
-                                ui.label("Loot (item IDs):");
                                 let mut loot_text = monster
                                     .loot
                                     .iter()
                                     .map(|id| id.to_string())
                                     .collect::<Vec<_>>()
                                     .join(", ");
-                                if ui.text_edit_singleline(&mut loot_text).changed() {
+                                if theme::labelled_row(ui, "Loot (item IDs):", |ui| {
+                                    ui.text_edit_singleline(&mut loot_text)
+                                })
+                                .changed()
+                                {
                                     monster.loot = loot_text
                                         .split(',')
                                         .filter_map(|value| value.trim().parse::<i32>().ok())
@@ -202,14 +215,18 @@ impl LoresmithStudio {
                                 ui.end_row();
 
                                 if let Some(dialogue) = &mut monster.dialogue {
-                                    ui.label("Greeting:");
-                                    changed |=
-                                        ui.text_edit_multiline(&mut dialogue.greeting).changed();
+                                    changed |= theme::labelled_row(ui, "Greeting:", |ui| {
+                                        ui.text_edit_multiline(&mut dialogue.greeting)
+                                    })
+                                    .changed();
                                     ui.end_row();
 
-                                    ui.label("Unknown topic reply:");
                                     let mut unknown = dialogue.unknown.clone().unwrap_or_default();
-                                    if ui.text_edit_multiline(&mut unknown).changed() {
+                                    if theme::labelled_row(ui, "Unknown topic reply:", |ui| {
+                                        ui.text_edit_multiline(&mut unknown)
+                                    })
+                                    .changed()
+                                    {
                                         dialogue.unknown = if unknown.trim().is_empty() {
                                             None
                                         } else {

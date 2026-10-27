@@ -84,15 +84,21 @@ impl LoresmithStudio {
                     if let Some(quest) = self.adventure.quests.get_mut(quest_idx) {
                         let mut changed = false;
                         columns[1].horizontal(|ui| {
-                            ui.label("ID:");
-                            changed |= ui.add(egui::DragValue::new(&mut quest.id)).changed();
-                            ui.label("Title:");
-                            changed |= ui.text_edit_singleline(&mut quest.title).changed();
+                            theme::labelled_row(ui, "ID:", |ui| {
+                                ui.add(egui::DragValue::new(&mut quest.id))
+                            })
+                            .changed();
+                            theme::labelled_row(ui, "Title:", |ui| {
+                                ui.text_edit_singleline(&mut quest.title)
+                            })
+                            .changed();
                         });
                         columns[1].horizontal(|ui| {
-                            ui.label("Giver NPC:");
-                            changed |= ui.text_edit_singleline(&mut quest.giver_npc).changed();
-                            ui.label("Difficulty:");
+                            theme::labelled_row(ui, "Giver NPC:", |ui| {
+                                ui.text_edit_singleline(&mut quest.giver_npc)
+                            })
+                            .changed();
+                            let combo_label = ui.label("Difficulty:").id;
                             egui::ComboBox::from_id_salt("quest_difficulty")
                                 .selected_text(format!("{:?}", quest.difficulty))
                                 .show_ui(ui, |ui| {
@@ -124,7 +130,9 @@ impl LoresmithStudio {
                                             "Hard",
                                         )
                                         .changed();
-                                });
+                                })
+                                .response
+                                .labelled_by(combo_label);
                         });
                         columns[1].label("Description:");
                         changed |= columns[1]
@@ -149,10 +157,10 @@ impl LoresmithStudio {
                                 ui.horizontal(|ui| {
                                     ui.label(format!("Stage {}", stage.stage_number));
                                     changed |= ui.text_edit_singleline(&mut stage.title).changed();
-                                    ui.label("Stage XP:");
-                                    changed |= ui
-                                        .add(egui::DragValue::new(&mut stage.stage_reward_xp))
-                                        .changed();
+                                    theme::labelled_row(ui, "Stage XP:", |ui| {
+                                        ui.add(egui::DragValue::new(&mut stage.stage_reward_xp))
+                                    })
+                                    .changed();
                                     if ui.button("Remove stage").clicked() {
                                         remove_stage = Some(stage_idx);
                                     }
@@ -281,14 +289,14 @@ impl LoresmithStudio {
 
                         columns[1].separator();
                         columns[1].horizontal(|ui| {
-                            ui.label("Gold reward:");
-                            changed |= ui
-                                .add(egui::DragValue::new(&mut quest.rewards.gold))
-                                .changed();
-                            ui.label("XP reward:");
-                            changed |= ui
-                                .add(egui::DragValue::new(&mut quest.rewards.xp))
-                                .changed();
+                            theme::labelled_row(ui, "Gold reward:", |ui| {
+                                ui.add(egui::DragValue::new(&mut quest.rewards.gold))
+                            })
+                            .changed();
+                            theme::labelled_row(ui, "XP reward:", |ui| {
+                                ui.add(egui::DragValue::new(&mut quest.rewards.xp))
+                            })
+                            .changed();
                         });
                         columns[1].label("Reward items (IDs or names, comma separated):");
                         let mut reward_items = quest

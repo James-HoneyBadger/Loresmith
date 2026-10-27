@@ -15,23 +15,19 @@ impl LoresmithStudio {
                             .num_columns(2)
                             .spacing([12.0, 9.0])
                             .show(ui, |ui| {
-                                theme::field_label(ui, "Title");
-                                changed |= ui
-                                    .add(
+                                theme::labelled_field(ui, "Title", |ui| ui.add(
                                         egui::TextEdit::singleline(&mut self.adventure.title)
                                             .hint_text("The name of your adventure")
                                             .desired_width(320.0),
-                                    )
+                                    ))
                                     .changed();
                                 ui.end_row();
 
-                                theme::field_label(ui, "Identifier");
-                                changed |= ui
-                                    .add(
+                                theme::labelled_field(ui, "Identifier", |ui| ui.add(
                                         egui::TextEdit::singleline(&mut self.adventure.id)
                                             .hint_text("stable-id")
                                             .desired_width(320.0),
-                                    )
+                                    ))
                                     .changed();
                                 ui.end_row();
 
@@ -54,14 +50,12 @@ impl LoresmithStudio {
                                 }
                                 ui.end_row();
                             });
-                        theme::field_label(ui, "Description");
-                        changed |= ui
-                            .add(
+                        theme::labelled_field(ui, "Description", |ui| ui.add(
                                 egui::TextEdit::multiline(&mut self.adventure.description)
                                     .hint_text("A short pitch for the adventure")
                                     .desired_rows(4)
                                     .desired_width(f32::INFINITY),
-                            )
+                            ))
                             .changed();
                     },
                 );
@@ -71,14 +65,12 @@ impl LoresmithStudio {
                     "Presentation",
                     Some("The opening banner and introduction"),
                     |ui| {
-                        theme::field_label(ui, "Introduction");
-                        changed |= ui
-                            .add(
+                        theme::labelled_field(ui, "Introduction", |ui| ui.add(
                                 egui::TextEdit::multiline(&mut self.adventure.intro)
                                     .hint_text("Set the scene before the first room description…")
                                     .desired_rows(7)
                                     .desired_width(f32::INFINITY),
-                            )
+                            ))
                             .changed();
                     },
                 );
@@ -89,12 +81,10 @@ impl LoresmithStudio {
                     Some("Where the player begins and what they carry"),
                     |ui| {
                         ui.horizontal(|ui| {
-                            theme::field_label(ui, "Start room");
-                            changed |= ui
-                                .add(
+                            theme::labelled_field(ui, "Start room", |ui| ui.add(
                                     egui::DragValue::new(&mut self.adventure.start_room)
                                         .range(0..=10_000),
-                                )
+                                ))
                                 .changed();
                             if ui.add(theme::ghost_button("Use first room")).clicked()
                                 && let Some(room) = self.adventure.rooms.first()
@@ -161,13 +151,11 @@ impl LoresmithStudio {
                             changed = true;
                         }
                         if let Some(ending) = &mut self.adventure.ending {
-                            theme::field_label(ui, "Victory text");
-                            changed |= ui
-                                .add(
+                            theme::labelled_field(ui, "Victory text", |ui| ui.add(
                                     egui::TextEdit::multiline(&mut ending.victory_text)
                                         .desired_rows(2)
                                         .desired_width(f32::INFINITY),
-                                )
+                                ))
                                 .changed();
                             theme::field_label(ui, "Defeat text");
                             let mut defeat = ending.defeat_text.clone().unwrap_or_default();

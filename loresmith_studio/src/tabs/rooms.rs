@@ -87,12 +87,16 @@ impl LoresmithStudio {
                             .num_columns(2)
                             .spacing([10.0, 10.0])
                             .show(&mut columns[1], |ui| {
-                                ui.label("ID:");
-                                changed |= ui.add(egui::DragValue::new(&mut room.id)).changed();
+                                theme::labelled_row(ui, "ID:", |ui| {
+                                    ui.add(egui::DragValue::new(&mut room.id))
+                                })
+                                .changed();
                                 ui.end_row();
 
-                                ui.label("Name:");
-                                changed |= ui.text_edit_singleline(&mut room.name).changed();
+                                theme::labelled_row(ui, "Name:", |ui| {
+                                    ui.text_edit_singleline(&mut room.name)
+                                })
+                                .changed();
                                 ui.end_row();
 
                                 ui.label("Dark:");

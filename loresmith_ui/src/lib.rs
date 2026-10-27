@@ -936,9 +936,34 @@ pub fn field_panel<R>(ui: &mut egui::Ui, add_contents: impl FnOnce(&mut egui::Ui
     response.inner
 }
 
-pub fn field_label(ui: &mut egui::Ui, text: &str) {
+/// Draw a small caption above (or beside) a field and return its id, so the
+/// widget that follows can be associated with it via [`egui::Response::labelled_by`].
+pub fn field_label(ui: &mut egui::Ui, text: &str) -> egui::Id {
     let size = if is_windows_2000() { 11.0 } else { 12.0 };
-    ui.label(egui::RichText::new(text).size(size).color(muted()));
+    ui.label(egui::RichText::new(text).size(size).color(muted()))
+        .id
+}
+
+/// Draw a [`field_label`] caption and the single widget `widget` builds,
+/// wiring the two together so assistive technology announces the field name.
+pub fn labelled_field(
+    ui: &mut egui::Ui,
+    text: &str,
+    widget: impl FnOnce(&mut egui::Ui) -> egui::Response,
+) -> egui::Response {
+    let label = field_label(ui, text);
+    widget(ui).labelled_by(label)
+}
+
+/// Draw a caption and the single widget `widget` builds, wiring the two
+/// together so assistive technology announces the field name.
+pub fn labelled_row(
+    ui: &mut egui::Ui,
+    text: &str,
+    widget: impl FnOnce(&mut egui::Ui) -> egui::Response,
+) -> egui::Response {
+    let label = ui.label(text).id;
+    widget(ui).labelled_by(label)
 }
 
 pub fn section_heading(ui: &mut egui::Ui, title: &str, subtitle: Option<&str>) {
