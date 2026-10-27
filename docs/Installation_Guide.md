@@ -397,10 +397,22 @@ cargo watch -x 'run --bin loresmith_console'
 
 ### Automatic Updates
 
+The updater downloads the latest release archive for your platform and installs the four binaries:
+
 ```bash
-# Using pre-built binaries
 curl -L https://github.com/James-HoneyBadger/Loresmith/releases/latest/download/loresmith-update.sh | bash
 ```
+
+It installs into `/usr/local/bin` when that directory is writable and otherwise into `~/.local/bin`, then prints the version it installed. Options:
+
+```bash
+./loresmith-update.sh --prefix ~/bin     # install somewhere else
+./loresmith-update.sh --tag v6.0.0       # install a specific release
+./loresmith-update.sh --dry-run          # show what would be installed
+./loresmith-update.sh --archive Loresmith-v6.0.0-linux-x86_64.tar.gz   # offline install
+```
+
+Prebuilt binaries exist for Linux x86_64 and macOS Apple silicon. On other platforms build from source (see [Building Loresmith](#building-loresmith)). On Windows, download the zip and replace the binaries by hand.
 
 ### Manual Updates
 

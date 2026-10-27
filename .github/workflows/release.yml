@@ -51,6 +51,7 @@ jobs:
           cp target/release/loresmith_workbench dist/
           cp target/release/loresmith_studio dist/
           cp README.md LICENSE CHANGELOG.md dist/
+          cp loresmith-update.sh dist/
           cp -r examples dist/
           tar -czf "Loresmith-v${version}-${{ matrix.target }}.tar.gz" -C dist .
 
@@ -73,5 +74,13 @@ jobs:
         with:
           files: |
             Loresmith-v*-${{ matrix.target }}.${{ matrix.archive }}
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Upload updater script
+        if: matrix.target == 'linux-x86_64'
+        uses: softprops/action-gh-release@v2
+        with:
+          files: loresmith-update.sh
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}

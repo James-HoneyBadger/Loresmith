@@ -7,6 +7,9 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [6.0.0] - 2026-10-27
 
+### Added
+- `loresmith-update.sh` installs the latest release binaries for Linux x86_64 and macOS Apple silicon, with `--prefix`, `--tag`, `--archive`, and `--dry-run` options; it is uploaded as a release asset and included in the Unix archives
+
 ### Changed
 - Renamed the project from Mellivorex to **Loresmith** to avoid confusion with the unrelated Mellivora OS; crates, binaries, launch scripts, release archives, window titles, banners, and docs use the new name
 - Crate and binary identifiers: `mellivorex_rs` → `loresmith_rs`, `mellivorex_ui` → `loresmith_ui`, `mellivorex_studio` → `loresmith_studio`, `mellivorex_workbench` → `loresmith_workbench`, `mellivorex_player` → `loresmith_player`, `mellivorex_console` → `loresmith_console`
