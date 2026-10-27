@@ -9,4 +9,4 @@ repository.workspace = true
 description = "Loresmith Console — command-line adventure player"
 
 [dependencies]
-loresmith_rs = { path = "../loresmith_rs", version = "6.0.0" }
+loresmith_rs = { path = "../loresmith_rs", version = "6.0.1" }

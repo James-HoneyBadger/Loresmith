@@ -2222,14 +2222,14 @@ checksum = "f9f8bd3e56ce4dfc153cf470fffbfa98c7620958b312ca5c3a4b8d5181fd13c6"
 
 [[package]]
 name = "loresmith_console"
-version = "6.0.0"
+version = "6.0.1"
 dependencies = [
  "loresmith_rs",
 ]
 
 [[package]]
 name = "loresmith_player"
-version = "6.0.0"
+version = "6.0.1"
 dependencies = [
  "eframe",
  "egui",
@@ -2241,7 +2241,7 @@ dependencies = [
 
 [[package]]
 name = "loresmith_rs"
-version = "6.0.0"
+version = "6.0.1"
 dependencies = [
  "chrono",
  "rand 0.9.4",
@@ -2251,7 +2251,7 @@ dependencies = [
 
 [[package]]
 name = "loresmith_studio"
-version = "6.0.0"
+version = "6.0.1"
 dependencies = [
  "eframe",
  "egui",
@@ -2265,14 +2265,14 @@ dependencies = [
 
 [[package]]
 name = "loresmith_ui"
-version = "6.0.0"
+version = "6.0.1"
 dependencies = [
  "egui",
 ]
 
 [[package]]
 name = "loresmith_workbench"
-version = "6.0.0"
+version = "6.0.1"
 dependencies = [
  "anyhow",
  "crossterm",
