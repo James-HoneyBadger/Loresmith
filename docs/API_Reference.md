@@ -18,9 +18,10 @@ Complete API documentation for the Loresmith core library. All types are defined
 8. [GameEvent](#gameevent)
 9. [System Trait](#system-trait)
 10. [Built-in Systems](#built-in-systems)
-11. [Adventure (Secondary Format)](#adventure-secondary-format)
-12. [Error Types](#error-types)
-13. [Usage Examples](#usage-examples)
+11. [Commands](#commands)
+12. [Adventure (Secondary Format)](#adventure-secondary-format)
+13. [Error Types](#error-types)
+14. [Usage Examples](#usage-examples)
 
 ---
 
@@ -292,7 +293,7 @@ pub trait System {
 
 ### BasicWorldSystem
 
-Commands: `look`/`l`, `go`/`move <dir>`, `north`/`south`/`east`/`west`/`up`/`down` (and `n`/`s`/`e`/`w`/`u`/`d`), `say`/`shout`/`yell <text>`, `help`/`?`.
+Commands: `look`/`l`, `north`/`south`/`east`/`west`/`up`/`down` (and `n`/`s`/`e`/`w`/`u`/`d`), `go`/`move <dir>`, `talk`/`speak`/`greet`/`hello <npc>`, `ask <npc> about <topic>`, `say`/`shout`/`yell <text>`, `unlock <dir>`, `save`, `load`, `saves`, `autosave`, `restart`, `help`/`?`.
 
 Direction abbreviations are expanded to full words before exit lookup.
 
@@ -322,6 +323,35 @@ Implements `on_events()` to auto-advance quest objectives on `MonsterKilled`, `I
 Commands: `shop`/`trade`/`store`, `buy`/`purchase <item>`, `sell <item>`.
 
 Shops live in the current room, have finite gold and stock, and price items from `value` and the player's `charisma`.
+
+---
+
+## Commands
+
+`loresmith_rs::commands` is the single source of truth for the command list. The in-game `help` output and the README tables both derive from it, and the tests fail if either drifts.
+
+```rust
+pub struct CommandHelp {
+    pub aliases: &'static [&'static str],
+    pub args: &'static str,
+    pub description: &'static str,
+}
+
+pub const COMMANDS: &[CommandHelp];
+
+/// `look/l` or `take/get/grab/pick <item>`.
+impl CommandHelp {
+    pub fn usage(&self) -> String;
+}
+
+/// `help` output: one aligned row per entry.
+pub fn help_text() -> String;
+
+/// Markdown table, used by `README.md` and `release/README.md`.
+pub fn markdown_table() -> String;
+```
+
+Add a command by adding an `alias` to the matching entry (or a new entry) and re-running `cargo test -p loresmith_rs print_markdown_table -- --ignored --nocapture` to refresh the README tables. `tests/commands.rs` then verifies that every documented alias is routed by the engine.
 
 ---
 

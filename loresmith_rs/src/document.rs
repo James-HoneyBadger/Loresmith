@@ -1556,4 +1556,132 @@ mod tests {
         assert!(doc.rooms[0].extra.contains_key("ambient_sound"));
         assert!(doc.items[0].extra.contains_key("custom_item"));
     }
+
+    #[test]
+    fn validation_reports_duplicate_ids() {
+        let doc = AdventureDocument::from_json_str(
+            r#"{
+                "title": "Dupes",
+                "start_room": 1,
+                "rooms": [
+                    {"id": 1, "name": "A", "description": "A"},
+                    {"id": 1, "name": "B", "description": "B"}
+                ],
+                "items": [
+                    {"id": 1, "name": "Rock", "description": "A rock"},
+                    {"id": 1, "name": "Stone", "description": "A stone"}
+                ],
+                "shops": [
+                    {"id": 1, "name": "One", "room_id": 1, "gold": 10},
+                    {"id": 1, "name": "Two", "room_id": 1, "gold": 10}
+                ]
+            }"#,
+        )
+        .expect("document should parse");
+
+        let report = doc.report();
+        for expected in [
+            "duplicate room id: 1",
+            "duplicate item id: 1",
+            "duplicate shop id: 1",
+        ] {
+            assert!(
+                report.errors.iter().any(|error| error.contains(expected)),
+                "missing '{expected}' in {:?}",
+                report.errors
+            );
+        }
+    }
+
+    #[test]
+    fn validation_reports_dangling_references() {
+        let doc = AdventureDocument::from_json_str(
+            r#"{
+                "title": "Refs",
+                "start_room": 1,
+                "rooms": [{"id": 1, "name": "A", "description": "A"}],
+                "shops": [{"id": 1, "name": "Stall", "room_id": 1, "gold": 10,
+                           "stock": [{"item_id": 42, "quantity": 1}]}],
+                "ending": {"victory_text": "Done", "conditions": {
+                    "quests": [7], "rooms": [9], "items": ["Ghost Key"]
+                }},
+                "player_start_inventory": [99]
+            }"#,
+        )
+        .expect("document should parse");
+
+        let report = doc.report();
+        for expected in [
+            "stocks unknown item 42",
+            "player_start_inventory references unknown item 99",
+        ] {
+            assert!(
+                report.errors.iter().any(|error| error.contains(expected)),
+                "missing '{expected}' in {:?}",
+                report.errors
+            );
+        }
+        for expected in [
+            "ending references unknown quest 7",
+            "ending references unknown room 9",
+            "ending references unknown item 'Ghost Key'",
+        ] {
+            assert!(
+                report
+                    .warnings
+                    .iter()
+                    .any(|warning| warning.contains(expected)),
+                "missing '{expected}' in {:?}",
+                report.warnings
+            );
+        }
+    }
+
+    #[test]
+    fn validation_warns_about_unreachable_rooms() {
+        let doc = AdventureDocument::from_json_str(
+            r#"{
+                "title": "Islands",
+                "start_room": 1,
+                "rooms": [
+                    {"id": 1, "name": "Shore", "description": "Sand"},
+                    {"id": 2, "name": "Islet", "description": "Rock"}
+                ]
+            }"#,
+        )
+        .expect("document should parse");
+
+        let report = doc.report();
+        assert!(report.is_valid(), "unreachable rooms are warnings only");
+        assert!(
+            report
+                .warnings
+                .iter()
+                .any(|warning| warning.contains("is not reachable from start_room")),
+            "missing reachability warning in {:?}",
+            report.warnings
+        );
+    }
+
+    #[test]
+    fn validation_reports_unknown_start_room() {
+        let doc = AdventureDocument::from_json_str(
+            r#"{
+                "title": "Lost",
+                "start_room": 99,
+                "rooms": [{"id": 1, "name": "A", "description": "A"}]
+            }"#,
+        )
+        .expect("document should parse");
+
+        let report = doc.report();
+        assert!(
+            report
+                .errors
+                .iter()
+                .any(|error| error.contains("start_room 99 does not exist")),
+            "missing start_room error in {:?}",
+            report.errors
+        );
+    }
 }

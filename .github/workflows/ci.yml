@@ -32,6 +32,12 @@ jobs:
       - name: Check formatting
         run: cargo fmt --all --check
 
+      - name: Check shell scripts
+        run: |
+          for script in *.sh; do
+            bash -n "$script"
+          done
+
       - name: Run Clippy
         run: cargo clippy --workspace --all-targets -- -D warnings
 

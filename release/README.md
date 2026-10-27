@@ -31,30 +31,46 @@
 
 ## In-Game Commands
 
-```
-look / l                    Look around
-inventory / i / inv         Show inventory
-n/s/e/w/u/d                 Move in a direction
-take / get <item>           Pick up an item
-drop <item>                 Drop an item
-equip / wield / wear        Equip weapon or armor
-unequip / remove <slot>     Unequip weapon or armor
-use / consume / eat / drink <item>  Consume or read an item
-examine / x <item>          Inspect an item
-attack / kill <target>      Attack a hostile monster
-flee / run / escape         Attempt to flee combat
-status / score              View player stats
-quests / journal            View quest log (with IDs)
-shop / trade                Browse a shop
-buy / sell <item>           Trade with a shop
-unlock <direction>          Unlock an exit with a key
-restart                     Restart the adventure
-accept <quest_id>           Accept a quest
-complete / finish <id>      Turn in a completed quest
-say / shout <text>          Speak aloud
-help / ?                    Show command list
-quit / q                    Exit the game
-```
+Kept in sync with `loresmith_rs::commands::COMMANDS`, the table the in-game `help` command renders; `cargo test` fails if this section drifts from it.
+
+| Command | Description |
+| --- | --- |
+| `look/l` | Look around |
+| `inventory/i/inv` | Show inventory |
+| `n/s/e/w/u/d` | Move in a compass direction |
+| `north/south/east/west/up/down` | Move using a full direction word |
+| `go/move <direction>` | Move in a direction |
+| `take/get/grab/pick <item>` | Pick up an item |
+| `drop <item>` | Drop an item |
+| `equip/wield/wear <item>` | Equip a weapon or armor |
+| `unequip/remove <slot>` | Unequip weapon or armor |
+| `use/consume/eat/drink <item>` | Use, consume, or read an item |
+| `examine/inspect/x <item>` | Examine an item |
+| `attack/fight/kill <monster>` | Attack a hostile monster |
+| `flee/run/escape` | Attempt to flee combat |
+| `talk/speak/greet/hello <npc>` | Speak directly to someone nearby |
+| `ask <npc> about <topic>` | Ask an NPC about a subject |
+| `say/shout/yell <text>` | Speak aloud |
+| `unlock <direction>` | Unlock an exit with a carried key |
+| `shop/trade/store [name]` | Browse shops in this room, or one shop by name |
+| `buy/purchase <item>` | Buy from the cheapest shop in this room |
+| `sell <item>` | Sell to the best-paying shop in this room |
+| `status/stats/score` | Show player status, XP, and reputation |
+| `quests/journal` | Show quest journal |
+| `accept <quest_id>` | Accept a quest |
+| `complete/finish <quest_id>` | Turn in a completed quest |
+| `abandon <quest_id>` | Abandon an active quest |
+| `save [file]` | Save current progress |
+| `load [file]` | Load saved progress |
+| `saves` | List JSON saves in this directory |
+| `autosave on [file]` | Enable automatic saving |
+| `autosave off` | Disable automatic saving |
+| `autosave status` | Show autosave status |
+| `restart` | Start the adventure over |
+| `help/?` | Show this help |
+
+The Console also accepts `quit`/`q`/`exit` to close the game.
+
 
 ## Features
 

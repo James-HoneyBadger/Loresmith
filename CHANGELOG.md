@@ -9,14 +9,21 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Added
 - `loresmith-update.sh` installs the latest release binaries for Linux x86_64 and macOS Apple silicon, with `--prefix`, `--tag`, `--archive`, and `--dry-run` options; it is uploaded as a release asset and included in the Unix archives
+- `commands::markdown_table()` renders the command reference as Markdown, and `tests/commands.rs` fails if `README.md` or `release/README.md` drift from `commands::COMMANDS` or if a documented alias is not routed by the engine
+- Validation tests for duplicate IDs, dangling shop/ending/starting-inventory references, unknown `start_room`, and unreachable-room warnings
+- `tests/docs.rs` fails when a relative link in the README or the manuals points at a file that no longer exists
 
 ### Changed
+- `commands::COMMANDS` now lists every alias the systems accept (`kill`, `finish`, `store`, `purchase`, `inspect`, `speak`/`greet`/`hello`, full direction words) and exposes `aliases`, `args`, and `description` instead of a pre-rendered `usage` string; the in-game `help` output and both README command tables are rendered from it
 - Renamed the project from Mellivorex to **Loresmith** to avoid confusion with the unrelated Mellivora OS; crates, binaries, launch scripts, release archives, window titles, banners, and docs use the new name
 - Crate and binary identifiers: `mellivorex_rs` → `loresmith_rs`, `mellivorex_ui` → `loresmith_ui`, `mellivorex_studio` → `loresmith_studio`, `mellivorex_workbench` → `loresmith_workbench`, `mellivorex_player` → `loresmith_player`, `mellivorex_console` → `loresmith_console`
 - Player state lives in `LORESMITH_STATE_DIR`, `~/.local/state/loresmith`, `%APPDATA%\Loresmith`, or `~/Library/Application Support/Loresmith`
 - Release archives are named `Loresmith-v<version>-<target>`
 
 Adventure files and portable save files are unchanged; only the application identifiers moved.
+
+### Fixed
+- `util::write_atomic` flushes and syncs the temporary file before renaming, so a crash during a save cannot leave a renamed but empty file
 
 ### Security
 - Bumped `wayland-scanner` 0.31.8 → 0.31.11 so `quick-xml` resolves to 0.41.0, clearing `RUSTSEC-2026-0194` and `RUSTSEC-2026-0195`; the matching `deny.toml` ignores are gone

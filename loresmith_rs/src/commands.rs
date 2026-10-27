@@ -1,139 +1,194 @@
 //! Single source of truth for command help text.
 //!
-//! Frontends and documentation should derive their command lists from this
-//! table so aliases do not drift from the systems that implement them.
+//! Frontends and documentation derive their command lists from this table so
+//! aliases cannot drift from the systems that implement them. `help` renders it
+//! in-game, and `README.md` / `release/README.md` embed the Markdown form; the
+//! integration tests in `tests/commands.rs` fail if either drifts.
 
-/// One command entry in the in-game help.
-#[derive(Debug, Clone, Copy)]
+/// One command entry: every alias that triggers it, its argument hint, and a description.
+#[derive(Debug, Clone, Copy, PartialEq, Eq)]
 pub struct CommandHelp {
-    pub usage: &'static str,
+    pub aliases: &'static [&'static str],
+    pub args: &'static str,
     pub description: &'static str,
+}
+
+impl CommandHelp {
+    /// Render the aliases and argument hint, for example `take/get/grab/pick <item>`.
+    pub fn usage(&self) -> String {
+        if self.args.is_empty() {
+            self.aliases.join("/")
+        } else {
+            format!("{} {}", self.aliases.join("/"), self.args)
+        }
+    }
 }
 
 /// Commands implemented by the five built-in systems.
 pub const COMMANDS: &[CommandHelp] = &[
     CommandHelp {
-        usage: "look / l",
+        aliases: &["look", "l"],
+        args: "",
         description: "Look around",
     },
     CommandHelp {
-        usage: "inventory / i / inv",
+        aliases: &["inventory", "i", "inv"],
+        args: "",
         description: "Show inventory",
     },
     CommandHelp {
-        usage: "n/s/e/w/u/d or go/move <direction>",
+        aliases: &["n", "s", "e", "w", "u", "d"],
+        args: "",
+        description: "Move in a compass direction",
+    },
+    CommandHelp {
+        aliases: &["north", "south", "east", "west", "up", "down"],
+        args: "",
+        description: "Move using a full direction word",
+    },
+    CommandHelp {
+        aliases: &["go", "move"],
+        args: "<direction>",
         description: "Move in a direction",
     },
     CommandHelp {
-        usage: "take/get/grab/pick <item>",
+        aliases: &["take", "get", "grab", "pick"],
+        args: "<item>",
         description: "Pick up an item",
     },
     CommandHelp {
-        usage: "drop <item>",
+        aliases: &["drop"],
+        args: "<item>",
         description: "Drop an item",
     },
     CommandHelp {
-        usage: "equip/wield/wear <item>",
+        aliases: &["equip", "wield", "wear"],
+        args: "<item>",
         description: "Equip a weapon or armor",
     },
     CommandHelp {
-        usage: "unequip/remove <slot>",
+        aliases: &["unequip", "remove"],
+        args: "<slot>",
         description: "Unequip weapon or armor",
     },
     CommandHelp {
-        usage: "use/consume/eat/drink <item>",
+        aliases: &["use", "consume", "eat", "drink"],
+        args: "<item>",
         description: "Use, consume, or read an item",
     },
     CommandHelp {
-        usage: "examine / x <item>",
+        aliases: &["examine", "inspect", "x"],
+        args: "<item>",
         description: "Examine an item",
     },
     CommandHelp {
-        usage: "attack / fight <monster>",
+        aliases: &["attack", "fight", "kill"],
+        args: "<monster>",
         description: "Attack a hostile monster",
     },
     CommandHelp {
-        usage: "flee / run / escape",
+        aliases: &["flee", "run", "escape"],
+        args: "",
         description: "Attempt to flee combat",
     },
     CommandHelp {
-        usage: "talk <npc>",
+        aliases: &["talk", "speak", "greet", "hello"],
+        args: "<npc>",
         description: "Speak directly to someone nearby",
     },
     CommandHelp {
-        usage: "ask <npc> about <topic>",
+        aliases: &["ask"],
+        args: "<npc> about <topic>",
         description: "Ask an NPC about a subject",
     },
     CommandHelp {
-        usage: "say / shout / yell <text>",
+        aliases: &["say", "shout", "yell"],
+        args: "<text>",
         description: "Speak aloud",
     },
     CommandHelp {
-        usage: "unlock <direction>",
+        aliases: &["unlock"],
+        args: "<direction>",
         description: "Unlock an exit with a carried key",
     },
     CommandHelp {
-        usage: "shop / trade [name]",
+        aliases: &["shop", "trade", "store"],
+        args: "[name]",
         description: "Browse shops in this room, or one shop by name",
     },
     CommandHelp {
-        usage: "buy <item>",
+        aliases: &["buy", "purchase"],
+        args: "<item>",
         description: "Buy from the cheapest shop in this room",
     },
     CommandHelp {
-        usage: "sell <item>",
+        aliases: &["sell"],
+        args: "<item>",
         description: "Sell to the best-paying shop in this room",
     },
     CommandHelp {
-        usage: "status / stats / score",
+        aliases: &["status", "stats", "score"],
+        args: "",
         description: "Show player status, XP, and reputation",
     },
     CommandHelp {
-        usage: "quests / journal",
+        aliases: &["quests", "journal"],
+        args: "",
         description: "Show quest journal",
     },
     CommandHelp {
-        usage: "accept <quest_id>",
+        aliases: &["accept"],
+        args: "<quest_id>",
         description: "Accept a quest",
     },
     CommandHelp {
-        usage: "complete <quest_id>",
+        aliases: &["complete", "finish"],
+        args: "<quest_id>",
         description: "Turn in a completed quest",
     },
     CommandHelp {
-        usage: "abandon <quest_id>",
+        aliases: &["abandon"],
+        args: "<quest_id>",
         description: "Abandon an active quest",
     },
     CommandHelp {
-        usage: "save [file]",
+        aliases: &["save"],
+        args: "[file]",
         description: "Save current progress",
     },
     CommandHelp {
-        usage: "load [file]",
+        aliases: &["load"],
+        args: "[file]",
         description: "Load saved progress",
     },
     CommandHelp {
-        usage: "saves",
-        description: "List JSON files in this directory",
+        aliases: &["saves"],
+        args: "",
+        description: "List JSON saves in this directory",
     },
     CommandHelp {
-        usage: "autosave on [file]",
+        aliases: &["autosave"],
+        args: "on [file]",
         description: "Enable automatic saving",
     },
     CommandHelp {
-        usage: "autosave off",
+        aliases: &["autosave"],
+        args: "off",
         description: "Disable automatic saving",
     },
     CommandHelp {
-        usage: "autosave status",
+        aliases: &["autosave"],
+        args: "status",
         description: "Show autosave status",
     },
     CommandHelp {
-        usage: "restart",
+        aliases: &["restart"],
+        args: "",
         description: "Start the adventure over",
     },
     CommandHelp {
-        usage: "help / ?",
+        aliases: &["help", "?"],
+        args: "",
         description: "Show this help",
     },
 ];
@@ -143,18 +198,31 @@ pub fn help_text() -> String {
     let mut lines = vec!["Commands:".to_string()];
     let width = COMMANDS
         .iter()
-        .map(|command| command.usage.len())
+        .map(|command| command.usage().chars().count())
         .max()
         .unwrap_or(0);
     for command in COMMANDS {
         lines.push(format!(
             "  {:<width$}  {}",
-            command.usage,
+            command.usage(),
             command.description,
             width = width
         ));
     }
     lines.join("\n")
+}
+
+/// Render the command table as Markdown, for embedding in documentation.
+pub fn markdown_table() -> String {
+    let mut table = String::from("| Command | Description |\n| --- | --- |\n");
+    for command in COMMANDS {
+        table.push_str(&format!(
+            "| `{}` | {} |\n",
+            command.usage(),
+            command.description
+        ));
+    }
+    table.trim_end().to_string()
 }
 
 #[cfg(test)]
@@ -167,14 +235,59 @@ mod tests {
         for expected in [
             "take/get/grab/pick",
             "use/consume/eat/drink",
-            "talk <npc>",
+            "talk/speak/greet/hello",
             "ask <npc> about <topic>",
-            "shop / trade",
-            "buy <item>",
+            "shop/trade/store",
+            "buy/purchase <item>",
             "unlock <direction>",
             "restart",
         ] {
             assert!(text.contains(expected), "help is missing {expected}");
         }
+    }
+
+    #[test]
+    fn every_entry_has_a_verb_and_description() {
+        for command in COMMANDS {
+            assert!(
+                !command.aliases.is_empty(),
+                "an entry has no aliases: {:?}",
+                command.description
+            );
+            assert!(
+                !command.description.trim().is_empty(),
+                "{} has no description",
+                command.usage()
+            );
+            for alias in command.aliases {
+                assert!(
+                    !alias.is_empty() && alias.chars().all(|c| c.is_ascii_lowercase() || c == '?'),
+                    "alias '{alias}' should be a bare lowercase verb"
+                );
+            }
+        }
+    }
+
+    #[test]
+    fn markdown_table_lists_every_entry() {
+        let table = markdown_table();
+        assert_eq!(table.lines().count(), COMMANDS.len() + 2);
+        for command in COMMANDS {
+            assert!(
+                table.contains(&format!("`{}`", command.usage())),
+                "markdown table is missing {}",
+                command.usage()
+            );
+        }
+    }
+
+    /// Prints the Markdown table for pasting into the READMEs.
+    ///
+    /// Run with:
+    /// `cargo test -p loresmith_rs print_markdown_table -- --ignored --nocapture`
+    #[test]
+    #[ignore]
+    fn print_markdown_table() {
+        println!("{}", markdown_table());
     }
 }

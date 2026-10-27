@@ -59,41 +59,46 @@ cargo build --release
 
 ## In-Game Commands
 
-```
-look / l                    Look around
-inventory / i / inv         Show inventory
-n/s/e/w/u/d                 Move in a direction
-go / move <direction>       Move using a direction word
-take/get/grab/pick <item>   Pick up an item
-drop <item>                 Drop an item
-equip/wield/wear <item>     Equip a weapon or armor
-unequip/remove <slot>       Unequip weapon or armor
-use/consume/eat/drink <item> Use, consume, or read an item
-examine / x <item>          Examine an item
-attack / fight <monster>    Attack a hostile monster
-flee / run / escape         Attempt to flee combat
-talk <npc>                  Speak to someone nearby
-ask <npc> about <topic>     Ask an NPC about a subject
-say / shout / yell <text>   Speak aloud
-unlock <direction>          Unlock an exit with a carried key
-shop / trade                Browse the shop in this room
-buy <item>                  Buy from the shop
-sell <item>                 Sell to the shop
-status / stats / score      Show player status, XP, and reputation
-quests / journal            Show quest journal (with quest IDs)
-accept <quest_id>           Accept a quest
-complete <quest_id>         Turn in a completed quest
-abandon <quest_id>          Abandon an active quest
-save [file]                 Save current progress
-load [file]                 Load saved progress
-saves                       List JSON files in the current directory
-autosave on [file]          Enable automatic saves
-autosave off                Disable autosave
-autosave status             Show autosave status
-restart                     Restart the adventure
-help / ?                    Show command help
-quit / q / exit             Quit (CLI player only)
-```
+Kept in sync with `loresmith_rs::commands::COMMANDS`, the table the in-game `help` command renders; `cargo test` fails if this section drifts from it.
+
+| Command | Description |
+| --- | --- |
+| `look/l` | Look around |
+| `inventory/i/inv` | Show inventory |
+| `n/s/e/w/u/d` | Move in a compass direction |
+| `north/south/east/west/up/down` | Move using a full direction word |
+| `go/move <direction>` | Move in a direction |
+| `take/get/grab/pick <item>` | Pick up an item |
+| `drop <item>` | Drop an item |
+| `equip/wield/wear <item>` | Equip a weapon or armor |
+| `unequip/remove <slot>` | Unequip weapon or armor |
+| `use/consume/eat/drink <item>` | Use, consume, or read an item |
+| `examine/inspect/x <item>` | Examine an item |
+| `attack/fight/kill <monster>` | Attack a hostile monster |
+| `flee/run/escape` | Attempt to flee combat |
+| `talk/speak/greet/hello <npc>` | Speak directly to someone nearby |
+| `ask <npc> about <topic>` | Ask an NPC about a subject |
+| `say/shout/yell <text>` | Speak aloud |
+| `unlock <direction>` | Unlock an exit with a carried key |
+| `shop/trade/store [name]` | Browse shops in this room, or one shop by name |
+| `buy/purchase <item>` | Buy from the cheapest shop in this room |
+| `sell <item>` | Sell to the best-paying shop in this room |
+| `status/stats/score` | Show player status, XP, and reputation |
+| `quests/journal` | Show quest journal |
+| `accept <quest_id>` | Accept a quest |
+| `complete/finish <quest_id>` | Turn in a completed quest |
+| `abandon <quest_id>` | Abandon an active quest |
+| `save [file]` | Save current progress |
+| `load [file]` | Load saved progress |
+| `saves` | List JSON saves in this directory |
+| `autosave on [file]` | Enable automatic saving |
+| `autosave off` | Disable automatic saving |
+| `autosave status` | Show autosave status |
+| `restart` | Start the adventure over |
+| `help/?` | Show this help |
+
+The Console also accepts `quit`/`q`/`exit` to close the game.
+
 
 ## Project Structure
 
@@ -162,9 +167,13 @@ The workspace also includes larger adventure showcases for demonstrations and te
 |----------|-------------|
 | [Suite Overview](docs/Suite.md) | Applications, architecture, and Loresmith naming |
 | [User Manual](docs/User_Manual.md) | Gameplay guide |
+| [Tutorial](docs/Tutorial.md) | Play your first adventure, mechanic by mechanic |
 | [Game Designer Manual](docs/Game_Designer_Manual.md) | Creating adventures |
-| [Technical Reference](docs/Technical_Reference.md) | Architecture & systems |
+| [Game Design Tips](docs/Game_Design_Tips.md) | Craft advice for rooms, balance, and pacing |
 | [Adventure Schema](docs/Adventure_Schema.md) | Canonical JSON schema and feature examples |
+| [Showcase Adventures](docs/Showcase_Adventures.md) | Tour of the bundled large adventures |
+| [Political Showcase](docs/Political_Showcase.md) | The Iron Assembly intrigue example |
+| [Technical Reference](docs/Technical_Reference.md) | Architecture & systems |
 | [API Reference](docs/API_Reference.md) | Library API docs |
 | [Installation Guide](docs/Installation_Guide.md) | Setup instructions |
 | [Development Guide](docs/Development_Guide.md) | Contributing |
