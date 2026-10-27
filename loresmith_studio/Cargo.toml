@@ -1,0 +1,31 @@
+[package]
+name = "loresmith_studio"
+version.workspace = true
+edition.workspace = true
+rust-version.workspace = true
+license.workspace = true
+authors.workspace = true
+repository.workspace = true
+description = "Loresmith Studio — graphical adventure editor"
+
+[dependencies]
+eframe = { version = "0.37", default-features = false, features = [
+    "glow",
+    "wayland",
+    "x11",
+    "default_fonts",
+    "system_fonts",
+    "clipboard",
+    "links",
+    "accesskit",
+    "persistence",
+] }
+egui = "0.37"
+loresmith_rs = { path = "../loresmith_rs", version = "6.0.3" }
+loresmith_ui = { path = "../loresmith_ui", version = "6.0.3" }
+rfd = "0.17"
+serde_json.workspace = true
+serde.workspace = true
+
+[dev-dependencies]
+egui_kittest = "0.37"
