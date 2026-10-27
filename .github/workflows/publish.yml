@@ -1,0 +1,34 @@
+name: Publish
+
+on:
+  workflow_dispatch:
+    inputs:
+      dry_run:
+        description: Package and verify without uploading
+        type: boolean
+        default: true
+
+permissions:
+  contents: read
+
+jobs:
+  crates-io:
+    name: Publish to crates.io
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Check out repository
+        uses: actions/checkout@v7
+
+      - name: Install Rust toolchain
+        uses: dtolnay/rust-toolchain@stable
+
+      - name: Publish crates in dependency order
+        env:
+          CARGO_REGISTRY_TOKEN: ${{ secrets.CARGO_REGISTRY_TOKEN }}
+        run: |
+          if [ "${{ inputs.dry_run }}" = "true" ]; then
+            ./scripts/publish.sh --dry-run
+          else
+            ./scripts/publish.sh
+          fi

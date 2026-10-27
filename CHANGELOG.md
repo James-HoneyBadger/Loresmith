@@ -5,6 +5,12 @@ All notable changes to Loresmith will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [Unreleased]
+
+### Added
+- `scripts/publish.sh` publishes the crates to crates.io in dependency order (`loresmith_rs`, `loresmith_ui`, then the four applications), skipping versions that already exist and waiting for the index to serve each crate before the next one. `--dry-run` packages and verifies the libraries without uploading
+- A `Publish` workflow runs the script from Actions (dry run by default) using a `CARGO_REGISTRY_TOKEN` repository secret
+
 ## [6.0.3] - 2026-10-27
 
 ### Fixed

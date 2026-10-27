@@ -256,6 +256,27 @@ docs/                   # Documentation
 Cargo.toml              # Workspace configuration
 ```
 
+## Publishing to crates.io
+
+The crates are not published yet. `scripts/publish.sh` does it in dependency order, because the applications pin `loresmith_rs` and `loresmith_ui` by version:
+
+```bash
+cargo login                      # once, with a crates.io API token
+./scripts/publish.sh --dry-run   # package and verify the libraries
+./scripts/publish.sh             # publish
+```
+
+The script skips a crate whose version is already on the registry, and waits for each new version to appear in the index before publishing the crates that depend on it.
+
+From GitHub, run the **Publish** workflow (dry run by default) after adding a `CARGO_REGISTRY_TOKEN` repository secret:
+
+```bash
+gh secret set CARGO_REGISTRY_TOKEN --repo James-HoneyBadger/Loresmith
+gh workflow run publish.yml -f dry_run=false
+```
+
+Note that a published version can only be yanked, never replaced, so bump the workspace version before each publish.
+
 ## Testing
 
 ### Unit Tests
