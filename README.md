@@ -171,8 +171,7 @@ The workspace also includes larger adventure showcases for demonstrations and te
 | [Game Designer Manual](docs/Game_Designer_Manual.md) | Creating adventures |
 | [Game Design Tips](docs/Game_Design_Tips.md) | Craft advice for rooms, balance, and pacing |
 | [Adventure Schema](docs/Adventure_Schema.md) | Canonical JSON schema and feature examples |
-| [Showcase Adventures](docs/Showcase_Adventures.md) | Tour of the bundled large adventures |
-| [Political Showcase](docs/Political_Showcase.md) | The Iron Assembly intrigue example |
+| [Showcase Adventures](docs/Showcase_Adventures.md) | Tour of the bundled large adventures, including The Iron Assembly |
 | [Technical Reference](docs/Technical_Reference.md) | Architecture & systems |
 | [API Reference](docs/API_Reference.md) | Library API docs |
 | [Installation Guide](docs/Installation_Guide.md) | Setup instructions |

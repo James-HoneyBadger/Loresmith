@@ -12,8 +12,11 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - `commands::markdown_table()` renders the command reference as Markdown, and `tests/commands.rs` fails if `README.md` or `release/README.md` drift from `commands::COMMANDS` or if a documented alias is not routed by the engine
 - Validation tests for duplicate IDs, dangling shop/ending/starting-inventory references, unknown `start_room`, and unreachable-room warnings
 - `tests/docs.rs` fails when a relative link in the README or the manuals points at a file that no longer exists
+- Headless UI tests for all three interactive frontends: `egui_kittest` harnesses for the Player (library screen, About menu, Controls dialog) and Studio (every tab renders, room editing marks the document modified), and `ratatui` `TestBackend` tests for the Workbench (drawing, arrow-key selection, command entry, quit confirmation)
+- The frontends build a library as well as a binary: `main_entry()`, `LoresmithPlayer::with_storage()`, `LoresmithStudio::with_storage()`, `LoresmithStudio::select_tab()`/`TAB_TITLES`/`active_tab_title()`/`is_modified()`, and `LoresmithWorkbench`'s `App`/`draw_main`/`handle_key` are public so tests and embedders can drive them without a window
 
 ### Changed
+- `loresmith_studio/src/main.rs` (3.3k lines) is split into `app.rs` for state, chrome, menus, and actions, plus a `tabs/` module with one file per workspace tab; tab titles come from `Tab::title()` instead of three copies of the same table
 - `commands::COMMANDS` now lists every alias the systems accept (`kill`, `finish`, `store`, `purchase`, `inspect`, `speak`/`greet`/`hello`, full direction words) and exposes `aliases`, `args`, and `description` instead of a pre-rendered `usage` string; the in-game `help` output and both README command tables are rendered from it
 - Renamed the project from Mellivorex to **Loresmith** to avoid confusion with the unrelated Mellivora OS; crates, binaries, launch scripts, release archives, window titles, banners, and docs use the new name
 - Crate and binary identifiers: `mellivorex_rs` → `loresmith_rs`, `mellivorex_ui` → `loresmith_ui`, `mellivorex_studio` → `loresmith_studio`, `mellivorex_workbench` → `loresmith_workbench`, `mellivorex_player` → `loresmith_player`, `mellivorex_console` → `loresmith_console`
@@ -23,6 +26,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 Adventure files and portable save files are unchanged; only the application identifiers moved.
 
 ### Fixed
+- The Studio status bar drew its indicator with U+25CF, which panics with "No glyph" when the loaded font lacks it; it uses U+2022 like the rest of the UI
 - `util::write_atomic` flushes and syncs the temporary file before renaming, so a crash during a save cannot leave a renamed but empty file
 
 ### Security

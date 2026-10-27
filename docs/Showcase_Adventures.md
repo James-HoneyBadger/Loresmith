@@ -32,11 +32,18 @@ Highlights:
 ### The Iron Assembly: Crown of Ash and Oaths
 Path: examples/adventures/iron_assembly_showcase.json
 
+A political-intrigue showcase: rival noble houses, public unrest and reform
+movements, legal archives and succession disputes, secret funding networks and
+blackmail, and high-stakes council votes.
+
 Highlights:
-- political intrigue and faction conflict
-- friendly, neutral, and hostile NPCs
-- investigation-heavy quests
+- 16 interconnected locations
+- friendly, neutral, and hostile political actors
+- readable evidence items and symbolic treasures
+- multiple long-form quests covering investigation, coalition-building, and an endgame confrontation
+- diplomacy, investigation, and selective combat
 - apostrophe-bearing quest targets (regression coverage for match normalization)
+- suitable for demonstrating `talk`, `ask`, quest, save/load, and autosave
 
 ## Quick start
 

@@ -117,6 +117,41 @@ impl BasicWorldSystem {
     }
 }
 
+const HELP_VERBS: &[&str] = &["help", "?"];
+const LOOK_VERBS: &[&str] = &["look", "l"];
+const SAVE_VERBS: &[&str] = &["save"];
+const AUTOSAVE_VERBS: &[&str] = &["autosave"];
+const LOAD_VERBS: &[&str] = &["load"];
+const RESTART_VERBS: &[&str] = &["restart"];
+const SAVES_VERBS: &[&str] = &["saves"];
+const UNLOCK_VERBS: &[&str] = &["unlock"];
+const MOVE_VERBS: &[&str] = &["go", "move"];
+const DIRECTION_VERBS: &[&str] = &[
+    "north", "south", "east", "west", "up", "down", "n", "s", "e", "w", "u", "d",
+];
+const TALK_VERBS: &[&str] = &["talk", "speak", "greet", "hello"];
+const ASK_VERBS: &[&str] = &["ask"];
+const SAY_VERBS: &[&str] = &["say", "shout", "yell"];
+
+impl BasicWorldSystem {
+    /// Verbs this system answers to, used by the command-reference tests.
+    pub const VERB_GROUPS: &'static [&'static [&'static str]] = &[
+        HELP_VERBS,
+        LOOK_VERBS,
+        SAVE_VERBS,
+        AUTOSAVE_VERBS,
+        LOAD_VERBS,
+        RESTART_VERBS,
+        SAVES_VERBS,
+        UNLOCK_VERBS,
+        MOVE_VERBS,
+        DIRECTION_VERBS,
+        TALK_VERBS,
+        ASK_VERBS,
+        SAY_VERBS,
+    ];
+}
+
 impl System for BasicWorldSystem {
     fn on_command(
         &mut self,
@@ -125,9 +160,9 @@ impl System for BasicWorldSystem {
         game: &mut AdventureGame,
     ) -> Option<String> {
         match command {
-            "help" | "?" => Some(Self::help_text()),
-            "look" | "l" => Some(game.look()),
-            "save" => {
+            c if HELP_VERBS.contains(&c) => Some(Self::help_text()),
+            c if LOOK_VERBS.contains(&c) => Some(game.look()),
+            c if SAVE_VERBS.contains(&c) => {
                 let path = if args.is_empty() {
                     "savegame.json".to_string()
                 } else {
@@ -138,7 +173,7 @@ impl System for BasicWorldSystem {
                     Err(err) => Some(format!("Failed to save game: {}", err)),
                 }
             }
-            "autosave" => match args.first().copied() {
+            c if AUTOSAVE_VERBS.contains(&c) => match args.first().copied() {
                 None | Some("status") => Some(game.autosave_status()),
                 Some("off") | Some("disable") => match game.set_autosave(false, None) {
                     Ok(msg) => Some(msg),
@@ -164,7 +199,7 @@ impl System for BasicWorldSystem {
                     }
                 }
             },
-            "load" => {
+            c if LOAD_VERBS.contains(&c) => {
                 let path = if args.is_empty() {
                     "savegame.json".to_string()
                 } else {
@@ -175,12 +210,12 @@ impl System for BasicWorldSystem {
                     Err(err) => Some(format!("Failed to load game: {}", err)),
                 }
             }
-            "restart" => match game.restart() {
+            c if RESTART_VERBS.contains(&c) => match game.restart() {
                 Ok(_) => Some(format!("The adventure begins anew.\n{}", game.look())),
                 Err(err) => Some(format!("Failed to restart: {}", err)),
             },
-            "saves" => Some(Self::list_saves()),
-            "unlock" => {
+            c if SAVES_VERBS.contains(&c) => Some(Self::list_saves()),
+            c if UNLOCK_VERBS.contains(&c) => {
                 if let Some(direction) = args.first() {
                     match game.unlock_exit(&direction.to_lowercase()) {
                         Ok(message) => Some(message),
@@ -190,7 +225,7 @@ impl System for BasicWorldSystem {
                     Some("Unlock which direction?".to_string())
                 }
             }
-            "go" | "move" => {
+            c if MOVE_VERBS.contains(&c) => {
                 if let Some(dir) = args.first() {
                     let lowered = dir.to_lowercase();
                     let full = Self::expand_direction(&lowered);
@@ -202,18 +237,14 @@ impl System for BasicWorldSystem {
                     Some("Go where?".to_string())
                 }
             }
-            dir if [
-                "north", "south", "east", "west", "up", "down", "n", "s", "e", "w", "u", "d",
-            ]
-            .contains(&dir) =>
-            {
+            dir if DIRECTION_VERBS.contains(&dir) => {
                 let full = Self::expand_direction(dir);
                 match game.move_player(full) {
                     Some(desc) => Some(desc),
                     None => Some("You can't go that way.".to_string()),
                 }
             }
-            "talk" | "speak" | "greet" | "hello" => {
+            c if TALK_VERBS.contains(&c) => {
                 if args.is_empty() {
                     Some("Talk to whom?".to_string())
                 } else {
@@ -229,7 +260,7 @@ impl System for BasicWorldSystem {
                     }
                 }
             }
-            "ask" => {
+            c if ASK_VERBS.contains(&c) => {
                 if args.is_empty() {
                     Some("Ask whom about what?".to_string())
                 } else if let Some(about_index) = args.iter().position(|arg| *arg == "about") {
@@ -245,7 +276,7 @@ impl System for BasicWorldSystem {
                     Some(Self::talk_to_npc(game, &target))
                 }
             }
-            "say" | "shout" | "yell" => {
+            c if SAY_VERBS.contains(&c) => {
                 let text = args.join(" ");
                 if text.is_empty() {
                     Some("Say what?".to_string())

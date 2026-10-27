@@ -2,8 +2,18 @@ use crate::game_state::{AdventureGame, GameEvent, MonsterStatus, award_experienc
 use crate::systems::System;
 use rand::Rng;
 
+const ATTACK_VERBS: &[&str] = &["attack", "fight", "kill"];
+const STATUS_VERBS: &[&str] = &["status", "stats", "score"];
+const FLEE_VERBS: &[&str] = &["flee", "run", "escape"];
+
 #[derive(Debug, Default)]
 pub struct CombatSystem;
+
+impl CombatSystem {
+    /// Verbs this system answers to, used by the command-reference tests.
+    pub const VERB_GROUPS: &'static [&'static [&'static str]] =
+        &[ATTACK_VERBS, STATUS_VERBS, FLEE_VERBS];
+}
 
 impl System for CombatSystem {
     fn on_command(
@@ -13,15 +23,15 @@ impl System for CombatSystem {
         game: &mut AdventureGame,
     ) -> Option<String> {
         match command {
-            "attack" | "fight" | "kill" => {
+            c if ATTACK_VERBS.contains(&c) => {
                 if let Some(target) = args.first() {
                     self.attack_monster(game, target)
                 } else {
                     Some("Attack what?".to_string())
                 }
             }
-            "status" | "stats" | "score" => Some(self.show_status(game)),
-            "flee" | "run" | "escape" => Some(self.flee(game)),
+            c if STATUS_VERBS.contains(&c) => Some(self.show_status(game)),
+            c if FLEE_VERBS.contains(&c) => Some(self.flee(game)),
             _ => None,
         }
     }

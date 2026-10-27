@@ -1,8 +1,29 @@
 use crate::game_state::AdventureGame;
 use crate::systems::System;
 
+const INVENTORY_VERBS: &[&str] = &["inventory", "inv", "i"];
+const TAKE_VERBS: &[&str] = &["take", "get", "grab", "pick"];
+const DROP_VERBS: &[&str] = &["drop"];
+const EQUIP_VERBS: &[&str] = &["equip", "wield", "wear"];
+const UNEQUIP_VERBS: &[&str] = &["unequip", "remove"];
+const USE_VERBS: &[&str] = &["use", "consume", "eat", "drink"];
+const EXAMINE_VERBS: &[&str] = &["examine", "inspect", "x"];
+
 #[derive(Debug, Default)]
 pub struct InventorySystem;
+
+impl InventorySystem {
+    /// Verbs this system answers to, used by the command-reference tests.
+    pub const VERB_GROUPS: &'static [&'static [&'static str]] = &[
+        INVENTORY_VERBS,
+        TAKE_VERBS,
+        DROP_VERBS,
+        EQUIP_VERBS,
+        UNEQUIP_VERBS,
+        USE_VERBS,
+        EXAMINE_VERBS,
+    ];
+}
 
 impl System for InventorySystem {
     fn on_command(
@@ -12,7 +33,7 @@ impl System for InventorySystem {
         game: &mut AdventureGame,
     ) -> Option<String> {
         match command {
-            "inventory" | "inv" | "i" => {
+            c if INVENTORY_VERBS.contains(&c) => {
                 if game.player.inventory.is_empty() {
                     Some("Your inventory is empty.".to_string())
                 } else {
@@ -33,7 +54,7 @@ impl System for InventorySystem {
                     Some(result.trim_end().to_string())
                 }
             }
-            "take" | "get" | "grab" | "pick" => {
+            c if TAKE_VERBS.contains(&c) => {
                 let item_name = args.join(" ");
                 if item_name.is_empty() {
                     Some("Take what?".to_string())
@@ -41,7 +62,7 @@ impl System for InventorySystem {
                     Some(game.take_item(&item_name).unwrap_or_else(|e| e))
                 }
             }
-            "drop" => {
+            c if DROP_VERBS.contains(&c) => {
                 let item_name = args.join(" ");
                 if item_name.is_empty() {
                     Some("Drop what?".to_string())
@@ -52,7 +73,7 @@ impl System for InventorySystem {
                     }
                 }
             }
-            "equip" | "wield" | "wear" => {
+            c if EQUIP_VERBS.contains(&c) => {
                 let item_name = args.join(" ");
                 if item_name.is_empty() {
                     Some("Equip what?".to_string())
@@ -60,14 +81,14 @@ impl System for InventorySystem {
                     Some(game.equip_item(&item_name).unwrap_or_else(|e| e))
                 }
             }
-            "unequip" | "remove" => match args.first().copied() {
+            c if UNEQUIP_VERBS.contains(&c) => match args.first().copied() {
                 None => Some("Unequip what? Specify 'weapon' or 'armor'.".to_string()),
                 Some(slot) => Some(
                     game.unequip_slot(&slot.to_lowercase())
                         .unwrap_or_else(|e| e),
                 ),
             },
-            "use" | "consume" | "eat" | "drink" => {
+            c if USE_VERBS.contains(&c) => {
                 let item_name = args.join(" ");
                 if item_name.is_empty() {
                     Some("Use what?".to_string())
@@ -75,7 +96,7 @@ impl System for InventorySystem {
                     Some(game.use_item(&item_name).unwrap_or_else(|e| e))
                 }
             }
-            "examine" | "inspect" | "x" => {
+            c if EXAMINE_VERBS.contains(&c) => {
                 let item_name = args.join(" ");
                 if item_name.is_empty() {
                     Some("Examine what?".to_string())

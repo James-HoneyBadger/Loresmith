@@ -305,6 +305,11 @@ impl QuestTracker {
     }
 } // end impl QuestTracker (methods)
 
+const JOURNAL_VERBS: &[&str] = &["quests", "journal"];
+const ACCEPT_VERBS: &[&str] = &["accept"];
+const COMPLETE_VERBS: &[&str] = &["complete", "finish"];
+const ABANDON_VERBS: &[&str] = &["abandon"];
+
 pub struct QuestSystem {
     pub tracker: QuestTracker,
     pub available_quests: HashMap<String, Quest>,
@@ -319,6 +324,10 @@ struct QuestSystemState {
 }
 
 impl QuestSystem {
+    /// Verbs this system answers to, used by the command-reference tests.
+    pub const VERB_GROUPS: &'static [&'static [&'static str]] =
+        &[JOURNAL_VERBS, ACCEPT_VERBS, COMPLETE_VERBS, ABANDON_VERBS];
+
     pub fn new() -> Self {
         Self {
             tracker: QuestTracker::new(),
@@ -573,8 +582,8 @@ impl System for QuestSystem {
         self.load_quests_from_game(game);
 
         match command {
-            "quests" | "journal" => Some(self.show_quests()),
-            "accept" => {
+            c if JOURNAL_VERBS.contains(&c) => Some(self.show_quests()),
+            c if ACCEPT_VERBS.contains(&c) => {
                 if args.is_empty() {
                     Some(
                         "Usage: accept <quest_id>. Use 'quests' to see available quests."
@@ -587,7 +596,7 @@ impl System for QuestSystem {
                     }
                 }
             }
-            "complete" | "finish" => {
+            c if COMPLETE_VERBS.contains(&c) => {
                 if args.is_empty() {
                     Some(
                         "Usage: complete <quest_id>. Use 'quests' to see active quests."
@@ -651,7 +660,7 @@ impl System for QuestSystem {
                     Some(lines.join("\n"))
                 }
             }
-            "abandon" => {
+            c if ABANDON_VERBS.contains(&c) => {
                 if args.is_empty() {
                     Some("Usage: abandon <quest_id>".to_string())
                 } else if self.tracker.active_quests.remove(args[0]).is_some() {

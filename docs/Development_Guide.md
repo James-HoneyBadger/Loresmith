@@ -214,11 +214,18 @@ src/
 
 ```
 loresmith_player/         # Standalone graphical player
-├── src/main.rs
+├── src/main.rs           # Binary: calls main_entry()
+├── src/lib.rs            # Library surface for the headless UI tests
+├── src/app.rs            # Player state and rendering
+├── tests/ui.rs           # egui_kittest harness tests
 └── Cargo.toml
 
 loresmith_studio/         # Graphical editor (Studio)
-├── src/main.rs
+├── src/main.rs           # Binary: calls main_entry()
+├── src/lib.rs            # Library surface for the headless UI tests
+├── src/app.rs            # Editor state, chrome, menus, actions
+├── src/tabs/             # One module per workspace tab
+├── tests/ui.rs           # egui_kittest harness tests
 └── Cargo.toml
 
 loresmith_console/        # CLI player (Console)
@@ -226,13 +233,21 @@ loresmith_console/        # CLI player (Console)
 └── Cargo.toml
 
 loresmith_workbench/      # Terminal editor (Workbench)
-├── src/main.rs
+├── src/main.rs           # Binary: calls main_entry()
+├── src/lib.rs            # Library surface for the headless TUI tests
+├── src/app.rs            # Editor state, key handling, drawing
+├── tests/tui.rs          # ratatui TestBackend tests
 └── Cargo.toml
 
 loresmith_ui/             # Shared egui theme and widgets
 ├── src/lib.rs
 └── Cargo.toml
 ```
+
+The three interactive frontends expose their state and one render entry point
+(`update_ui` for the egui apps, `draw_main` for the TUI) so tests can drive them
+without a window. `tests/commands.rs` and `tests/docs.rs` in `loresmith_rs`
+guard the command reference and the documentation links.
 
 ### Supporting Files
 

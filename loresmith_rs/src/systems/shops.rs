@@ -7,8 +7,18 @@ const CHARISMA_CAP: i32 = 50;
 /// Ignore absurd multipliers in hand-edited adventures.
 const MULTIPLIER_CAP: f32 = 10.0;
 
+const SHOP_VERBS: &[&str] = &["shop", "trade", "store"];
+const BUY_VERBS: &[&str] = &["buy", "purchase"];
+const SELL_VERBS: &[&str] = &["sell"];
+
 #[derive(Debug, Default)]
 pub struct ShopSystem;
+
+impl ShopSystem {
+    /// Verbs this system answers to, used by the command-reference tests.
+    pub const VERB_GROUPS: &'static [&'static [&'static str]] =
+        &[SHOP_VERBS, BUY_VERBS, SELL_VERBS];
+}
 
 impl ShopSystem {
     fn shops_here(game: &AdventureGame) -> Vec<&Shop> {
@@ -357,9 +367,9 @@ impl System for ShopSystem {
         game: &mut AdventureGame,
     ) -> Option<String> {
         match command {
-            "shop" | "trade" | "store" => Some(Self::list_shop(game, args)),
-            "buy" | "purchase" => Some(Self::buy(game, args)),
-            "sell" => Some(Self::sell(game, args)),
+            c if SHOP_VERBS.contains(&c) => Some(Self::list_shop(game, args)),
+            c if BUY_VERBS.contains(&c) => Some(Self::buy(game, args)),
+            c if SELL_VERBS.contains(&c) => Some(Self::sell(game, args)),
             _ => None,
         }
     }

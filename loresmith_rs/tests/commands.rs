@@ -6,6 +6,8 @@
 
 use loresmith_rs::Engine;
 use loresmith_rs::commands::{COMMANDS, markdown_table};
+use loresmith_rs::{BasicWorldSystem, CombatSystem, InventorySystem, QuestSystem, ShopSystem};
+use std::collections::BTreeSet;
 use std::path::{Path, PathBuf};
 use std::time::{SystemTime, UNIX_EPOCH};
 
@@ -90,4 +92,35 @@ fn readme_command_tables_match_the_commands_module() {
              `cargo test -p loresmith_rs print_markdown_table -- --ignored --nocapture`"
         );
     }
+}
+
+/// Every verb the systems dispatch lives in a `VERB_GROUPS` constant, so the
+/// documented list and the implemented list are compared rather than trusted.
+#[test]
+fn systems_and_commands_module_agree_on_verbs() {
+    let system_groups: Vec<&'static [&'static [&'static str]]> = vec![
+        BasicWorldSystem::VERB_GROUPS,
+        InventorySystem::VERB_GROUPS,
+        CombatSystem::VERB_GROUPS,
+        QuestSystem::VERB_GROUPS,
+        ShopSystem::VERB_GROUPS,
+    ];
+
+    let implemented: BTreeSet<&str> = system_groups
+        .iter()
+        .flat_map(|groups| groups.iter())
+        .flat_map(|group| group.iter().copied())
+        .collect();
+
+    let documented: BTreeSet<&str> = COMMANDS
+        .iter()
+        .flat_map(|command| command.aliases.iter().copied())
+        .collect();
+
+    let undocumented: Vec<&&str> = implemented.difference(&documented).collect();
+    let phantom: Vec<&&str> = documented.difference(&implemented).collect();
+    assert!(
+        undocumented.is_empty() && phantom.is_empty(),
+        "systems and commands::COMMANDS disagree\n  implemented but undocumented: {undocumented:?}\n  documented but unimplemented: {phantom:?}"
+    );
 }
