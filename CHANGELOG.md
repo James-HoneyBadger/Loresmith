@@ -18,6 +18,9 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 Adventure files and portable save files are unchanged; only the application identifiers moved.
 
+### Security
+- Bumped `wayland-scanner` 0.31.8 → 0.31.11 so `quick-xml` resolves to 0.41.0, clearing `RUSTSEC-2026-0194` and `RUSTSEC-2026-0195`; the matching `deny.toml` ignores are gone
+
 ## [5.0.0] - 2026-10-26
 
 ### Changed

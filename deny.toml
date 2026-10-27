@@ -2,8 +2,6 @@
 version = 2
 yanked = "deny"
 ignore = [
-  { id = "RUSTSEC-2026-0194", reason = "quick-xml is only invoked by wayland-scanner at build time on trusted protocol XML" },
-  { id = "RUSTSEC-2026-0195", reason = "quick-xml is only invoked by wayland-scanner at build time on trusted protocol XML" },
   { id = "RUSTSEC-2026-0370", reason = "zvariant is pulled in by the optional accesskit accessibility stack via atspi; no fixed release is available and it is not exposed to adventure input" },
   { id = "RUSTSEC-2026-0371", reason = "zbus_names is pulled in by the optional accesskit accessibility stack via atspi; no fixed release is available and it is not exposed to adventure input" },
   { id = "RUSTSEC-2026-0372", reason = "zvariant_derive is pulled in by the optional accesskit accessibility stack via atspi; no fixed release is available and it is not exposed to adventure input" },
