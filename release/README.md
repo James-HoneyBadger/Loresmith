@@ -1,8 +1,8 @@
-# Mellivorex
+# Loresmith
 
 [![Rust](https://img.shields.io/badge/Rust-1.95%2B-orange)](https://www.rust-lang.org/)
 [![License](https://img.shields.io/badge/License-MIT-blue.svg)](LICENSE)
-[![Version](https://img.shields.io/badge/Version-5.0.0-green.svg)]()
+[![Version](https://img.shields.io/badge/Version-6.0.0-green.svg)]()
 
 > A text-based adventure game engine and development suite written in Rust. Create, edit, and play interactive fiction adventures with a JSON-based format.
 
@@ -10,23 +10,23 @@
 
 | Binary | Product | Description |
 |--------|---------|-------------|
-| `mellivorex_player` | Player | Standalone graphical game player (egui) |
-| `mellivorex_studio` | Studio | Graphical adventure editor (egui) |
-| `mellivorex_console` | Console | CLI adventure player (REPL) |
-| `mellivorex_workbench` | Workbench | Terminal UI adventure editor (ratatui) |
+| `loresmith_player` | Player | Standalone graphical game player (egui) |
+| `loresmith_studio` | Studio | Graphical adventure editor (egui) |
+| `loresmith_console` | Console | CLI adventure player (REPL) |
+| `loresmith_workbench` | Workbench | Terminal UI adventure editor (ratatui) |
 
 ## Quick Start
 
 ```bash
 # Standalone graphical player
-./mellivorex_player examples/adventures/demo_adventure.json
+./loresmith_player examples/adventures/demo_adventure.json
 
 # Graphical editor
-./mellivorex_studio
+./loresmith_studio
 
 # Terminal player and editor
-./mellivorex_console examples/adventures/demo_adventure.json
-./mellivorex_workbench
+./loresmith_console examples/adventures/demo_adventure.json
+./loresmith_workbench
 ```
 
 ## In-Game Commands
@@ -70,20 +70,20 @@ quit / q                    Exit the game
 
 Adventures are JSON files with rooms, items, monsters, and quests using integer IDs. See the included demo files or the full documentation at:
 
-<https://github.com/James-HoneyBadger/Mellivorex>
+<https://github.com/James-HoneyBadger/Loresmith>
 
 ## Documentation
 
-- [User Manual](https://github.com/James-HoneyBadger/Mellivorex/blob/main/docs/User_Manual.md)
-- [Game Designer Manual](https://github.com/James-HoneyBadger/Mellivorex/blob/main/docs/Game_Designer_Manual.md)
-- [Technical Reference](https://github.com/James-HoneyBadger/Mellivorex/blob/main/docs/Technical_Reference.md)
-- [API Reference](https://github.com/James-HoneyBadger/Mellivorex/blob/main/docs/API_Reference.md)
+- [User Manual](https://github.com/James-HoneyBadger/Loresmith/blob/main/docs/User_Manual.md)
+- [Game Designer Manual](https://github.com/James-HoneyBadger/Loresmith/blob/main/docs/Game_Designer_Manual.md)
+- [Technical Reference](https://github.com/James-HoneyBadger/Loresmith/blob/main/docs/Technical_Reference.md)
+- [API Reference](https://github.com/James-HoneyBadger/Loresmith/blob/main/docs/API_Reference.md)
 
 ## Building from Source
 
 ```bash
-git clone https://github.com/James-HoneyBadger/Mellivorex.git
-cd Mellivorex
+git clone https://github.com/James-HoneyBadger/Loresmith.git
+cd Loresmith
 cargo build --release
 ```
 

@@ -1,17 +1,17 @@
-# The Mellivorex Suite
+# The Loresmith Suite
 
-Mellivorex is the name of the suite and of every application in it. The tools are not one editor with a play mode; they are separate applications that share one engine, one adventure schema, and one visual language.
+Loresmith is the name of the suite and of every application in it. The tools are not one editor with a play mode; they are separate applications that share one engine, one adventure schema, and one visual language.
 
 ## Applications
 
 | Product | Binary / crate | Purpose |
 |---------|----------------|---------|
-| **Mellivorex Engine** | `mellivorex_rs` | Runtime, canonical adventure schema, systems, saves, validation |
-| **Mellivorex Studio** | `mellivorex_studio` | Full graphical adventure editor |
-| **Mellivorex Player** | `mellivorex_player` | Standalone graphical game player — no editor controls or authoring UI |
-| **Mellivorex Console** | `mellivorex_console` | Fast terminal/REPL player |
-| **Mellivorex Workbench** | `mellivorex_workbench` | Terminal adventure editor |
-| **Mellivorex UI** | `mellivorex_ui` | Shared egui theme, palette, and widgets used by Studio and Player |
+| **Loresmith Engine** | `loresmith_rs` | Runtime, canonical adventure schema, systems, saves, validation |
+| **Loresmith Studio** | `loresmith_studio` | Full graphical adventure editor |
+| **Loresmith Player** | `loresmith_player` | Standalone graphical game player — no editor controls or authoring UI |
+| **Loresmith Console** | `loresmith_console` | Fast terminal/REPL player |
+| **Loresmith Workbench** | `loresmith_workbench` | Terminal adventure editor |
+| **Loresmith UI** | `loresmith_ui` | Shared egui theme, palette, and widgets used by Studio and Player |
 
 The important separation is between **authoring** and **playing**:
 
@@ -40,10 +40,10 @@ Individual launchers:
 Direct binaries after `cargo build --release`:
 
 ```bash
-./target/release/mellivorex_player
-./target/release/mellivorex_studio
-./target/release/mellivorex_workbench
-./target/release/mellivorex_console
+./target/release/loresmith_player
+./target/release/loresmith_studio
+./target/release/loresmith_workbench
+./target/release/loresmith_console
 ```
 
 ## Player features
@@ -66,23 +66,23 @@ The Player deliberately has no room editor, item editor, validation panel, or JS
 
 ## Suite name
 
-**Mellivorex** is the umbrella name for the project, the engine, and each application. Crates, binaries, release archives, window titles, banners, About dialogs, documentation, and runtime state directories all use the `mellivorex` identifier:
+**Loresmith** is the umbrella name for the project, the engine, and each application. Crates, binaries, release archives, window titles, banners, About dialogs, documentation, and runtime state directories all use the `loresmith` identifier:
 
 | Layer | Identifier |
 |-------|------------|
-| Engine crate | `mellivorex_rs` |
-| Shared UI crate | `mellivorex_ui` |
-| Studio binary | `mellivorex_studio` |
-| Player binary | `mellivorex_player` |
-| Console binary | `mellivorex_console` |
-| Workbench binary | `mellivorex_workbench` |
-| Release archive | `Mellivorex-v<version>-<target>` |
+| Engine crate | `loresmith_rs` |
+| Shared UI crate | `loresmith_ui` |
+| Studio binary | `loresmith_studio` |
+| Player binary | `loresmith_player` |
+| Console binary | `loresmith_console` |
+| Workbench binary | `loresmith_workbench` |
+| Release archive | `Loresmith-v<version>-<target>` |
 
 ## Architecture
 
 ```text
                            ┌─────────────────────┐
-                           │    mellivorex_rs    │
+                           │    loresmith_rs     │
                            │   engine + schema   │
                            └─────────────────────┘
                                       │
@@ -96,9 +96,9 @@ The Player deliberately has no room editor, item editor, validation panel, or JS
                 └─────────────────────┘
                                       │
                            ┌─────────────────────┐
-                           │    mellivorex_ui    │
+                           │    loresmith_ui     │
                            │     shared theme    │
                            └─────────────────────┘
 ```
 
-The Workbench (TUI editor) also consumes `mellivorex_rs` directly and keeps its own terminal layout.
+The Workbench (TUI editor) also consumes `loresmith_rs` directly and keeps its own terminal layout.

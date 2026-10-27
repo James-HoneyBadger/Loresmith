@@ -2,7 +2,7 @@
 
 ## Supported Versions
 
-Mellivorex is currently maintained on the latest `main` branch.
+Loresmith is currently maintained on the latest `main` branch.
 
 | Version | Supported |
 | ------- | --------- |
@@ -16,7 +16,7 @@ If you discover a security issue, please do **not** open a public issue first.
 Instead, use one of the following options:
 
 1. Open a private report through GitHub Security Advisories:
-   https://github.com/James-HoneyBadger/Mellivorex/security/advisories/new
+   https://github.com/James-HoneyBadger/Loresmith/security/advisories/new
 2. Contact the maintainer directly at: james@honey-badger.org
 
 Please include:

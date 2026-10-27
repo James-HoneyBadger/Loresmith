@@ -1,21 +1,21 @@
 [workspace]
 resolver = "2"
 members = [
-  "mellivorex_rs",
-  "mellivorex_ui",
-  "mellivorex_player",
-  "mellivorex_console",
-  "mellivorex_workbench",
-  "mellivorex_studio",
+  "loresmith_rs",
+  "loresmith_ui",
+  "loresmith_player",
+  "loresmith_console",
+  "loresmith_workbench",
+  "loresmith_studio",
 ]
 
 [workspace.package]
-version = "5.0.0"
+version = "6.0.0"
 edition = "2024"
 rust-version = "1.95"
 license = "MIT"
 authors = ["James Honey-Badger"]
-repository = "https://github.com/James-HoneyBadger/Mellivorex"
+repository = "https://github.com/James-HoneyBadger/Loresmith"
 
 [workspace.dependencies]
 serde = { version = "1", features = ["derive"] }

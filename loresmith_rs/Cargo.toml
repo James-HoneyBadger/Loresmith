@@ -1,12 +1,12 @@
 [package]
-name = "mellivorex_rs"
+name = "loresmith_rs"
 version.workspace = true
 edition.workspace = true
 rust-version.workspace = true
 license.workspace = true
 authors.workspace = true
 repository.workspace = true
-description = "Mellivorex engine — text adventure runtime and canonical document format"
+description = "Loresmith engine — text adventure runtime and canonical document format"
 
 [dependencies]
 serde.workspace = true

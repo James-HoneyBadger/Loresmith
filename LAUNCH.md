@@ -1,6 +1,6 @@
-# Mellivorex — Quick Launch
+# Loresmith — Quick Launch
 
-Mellivorex is a suite of separate applications. Use the suite launcher or run an app directly.
+Loresmith is a suite of separate applications. Use the suite launcher or run an app directly.
 
 ## Suite launcher
 
@@ -54,10 +54,10 @@ Full room, item, monster, quest, shop, ending, starting-inventory, lock, light, 
 ## Direct binaries
 
 ```bash
-cargo run --bin mellivorex_player -- examples/adventures/starfall_harbor_showcase.json
-cargo run --bin mellivorex_studio
-cargo run --bin mellivorex_console -- examples/adventures/shattered_realms_demo.json
-cargo run --bin mellivorex_workbench
+cargo run --bin loresmith_player -- examples/adventures/starfall_harbor_showcase.json
+cargo run --bin loresmith_studio
+cargo run --bin loresmith_console -- examples/adventures/shattered_realms_demo.json
+cargo run --bin loresmith_workbench
 ```
 
 ## Documentation

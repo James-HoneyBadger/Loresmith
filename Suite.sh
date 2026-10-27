@@ -1,5 +1,5 @@
 #!/usr/bin/env bash
-# Mellivorex suite launcher
+# Loresmith suite launcher
 # Usage: ./Suite.sh [player|studio|workbench|console] [args...]
 
 set -e
@@ -25,7 +25,7 @@ case "$command" in
     ;;
   -h|--help|help)
     cat <<'EOF'
-Mellivorex suite launcher
+Loresmith suite launcher
 
   ./Suite.sh player [adventure.json]   Standalone graphical player (default)
   ./Suite.sh studio                    Graphical adventure editor

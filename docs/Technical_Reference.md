@@ -1,8 +1,8 @@
-# Mellivorex Technical Reference
+# Loresmith Technical Reference
 
 **Version 5.0 · Audience: Developers & Advanced Modders**
 
-This document describes the Mellivorex engine internals: architecture, data structures, the adventure JSON schema, the system trait API, and build instructions. All information reflects the actual source at `mellivorex_rs/`.
+This document describes the Loresmith engine internals: architecture, data structures, the adventure JSON schema, the system trait API, and build instructions. All information reflects the actual source at `loresmith_rs/`.
 
 ---
 
@@ -25,9 +25,9 @@ This document describes the Mellivorex engine internals: architecture, data stru
 ## Project Structure
 
 ```
-Mellivorex/
+Loresmith/
 ├── Cargo.toml                  # Workspace manifest
-├── mellivorex_rs/               # Core engine library
+├── loresmith_rs/               # Core engine library
 │   └── src/
 │       ├── lib.rs              # Public re-exports
 │       ├── engine.rs           # High-level Engine wrapper
@@ -42,18 +42,18 @@ Mellivorex/
 │           ├── combat.rs       # Combat, XP, loot, endings
 │           ├── quests.rs       # Quest tracker, stages, rewards
 │           └── shops.rs        # Shops and trading
-├── mellivorex_player/             # Standalone egui game player
-├── mellivorex_studio/          # Studio — egui graphical editor
-├── mellivorex_console/           # Console — CLI player
-├── mellivorex_workbench/          # Workbench — ratatui terminal editor
-└── mellivorex_ui/               # Shared egui theme and widgets
+├── loresmith_player/           # Standalone egui game player
+├── loresmith_studio/           # Studio — egui graphical editor
+├── loresmith_console/          # Console — CLI player
+├── loresmith_workbench/        # Workbench — ratatui terminal editor
+└── loresmith_ui/               # Shared egui theme and widgets
 ```
 
 ---
 
 ## Crate Overview
 
-Every front-end depends on `mellivorex_rs` for loading, validation, runtime state, systems, and saves. The graphical applications (Player and Studio) also share `mellivorex_ui` for the theme and common widgets. Each application owns its layout and workflow; only the engine and UI foundation are shared.
+Every front-end depends on `loresmith_rs` for loading, validation, runtime state, systems, and saves. The graphical applications (Player and Studio) also share `loresmith_ui` for the theme and common widgets. Each application owns its layout and workflow; only the engine and UI foundation are shared.
 
 ### Public re-exports (`lib.rs`)
 
@@ -539,22 +539,22 @@ cargo build
 cargo build --release
 
 # Run standalone graphical player
-cargo run --bin mellivorex_player -- examples/adventures/demo_adventure.json
+cargo run --bin loresmith_player -- examples/adventures/demo_adventure.json
 
 # Run CLI player
-cargo run --bin mellivorex_console -- examples/adventures/demo_adventure.json
+cargo run --bin loresmith_console -- examples/adventures/demo_adventure.json
 
 # Run terminal editor
-cargo run --bin mellivorex_workbench
+cargo run --bin loresmith_workbench
 
 # Run graphical editor
-cargo run --bin mellivorex_studio
+cargo run --bin loresmith_studio
 
 # Run tests
 cargo test
 
 # Run tests for the core library only
-cargo test -p mellivorex_rs
+cargo test -p loresmith_rs
 
 # Generate API documentation
 cargo doc --open
@@ -568,14 +568,14 @@ cargo doc --open
 
 ## Contributing
 
-1. Fork the repository: https://github.com/James-HoneyBadger/Mellivorex
+1. Fork the repository: https://github.com/James-HoneyBadger/Loresmith
 2. Create a feature branch: `git checkout -b feature/my-feature`
 3. Implement and test your changes
 4. Run `cargo fmt && cargo clippy` before committing
 5. Open a pull request against `main`
 
 **Adding a new system:**
-1. Create `mellivorex_rs/src/systems/my_system.rs`
+1. Create `loresmith_rs/src/systems/my_system.rs`
 2. Implement `System` trait
 3. Register in `engine.rs` inside `Engine::new`
 4. Add `pub mod my_system;` to `systems/mod.rs`

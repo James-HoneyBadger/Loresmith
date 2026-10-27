@@ -1,8 +1,8 @@
-# Mellivorex User Manual
+# Loresmith User Manual
 
-**Version 5.0 · Mellivorex**
+**Version 5.0 · Loresmith**
 
-Mellivorex is a text-based adventure game suite. You explore worlds, collect items, fight monsters, and complete quests by typing commands. This manual covers everything you need to play.
+Loresmith is a text-based adventure game suite. You explore worlds, collect items, fight monsters, and complete quests by typing commands. This manual covers everything you need to play.
 
 ---
 
@@ -47,30 +47,30 @@ The graphical Player autosaves after each turn. If you close it mid-adventure, t
 
 ```bash
 # Standalone graphical player
-cargo run --bin mellivorex_player -- path/to/adventure.json
+cargo run --bin loresmith_player -- path/to/adventure.json
 
 # Terminal player
-cargo run --bin mellivorex_console -- path/to/adventure.json
+cargo run --bin loresmith_console -- path/to/adventure.json
 
 # Graphical editor (Studio)
-cargo run --bin mellivorex_studio
+cargo run --bin loresmith_studio
 
 # Terminal editor (Workbench)
-cargo run --bin mellivorex_workbench
+cargo run --bin loresmith_workbench
 ```
 
 ### Included adventures
 
 | File | Description |
 |------|-------------|
-| examples/adventures/demo_adventure.json | Two-room introduction to Mellivorex |
+| examples/adventures/demo_adventure.json | Two-room introduction to Loresmith |
 | examples/adventures/shattered_realms_demo.json | 15-room epic fantasy adventure with combat and quests |
 
 ---
 
 ## How to Play
 
-Mellivorex is played entirely by typing commands and reading the responses. Everything happens at the keyboard.
+Loresmith is played entirely by typing commands and reading the responses. Everything happens at the keyboard.
 
 When you start a new game you will see the title banner, optional introduction text, and then the first room description:
 
@@ -501,4 +501,4 @@ Location: Room 3
 | Adventure won't load | Verify the path is correct and the JSON is valid |
 | Dark room with no light | Look for a torch or lantern item in earlier rooms |
 
-**Bug reports:** https://github.com/James-HoneyBadger/Mellivorex/issues
+**Bug reports:** https://github.com/James-HoneyBadger/Loresmith/issues

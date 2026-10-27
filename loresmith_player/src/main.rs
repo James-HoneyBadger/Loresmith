@@ -1,6 +1,6 @@
 use eframe::egui;
-use mellivorex_rs::{AdventureDocument, Engine};
-use mellivorex_ui as theme;
+use loresmith_rs::{AdventureDocument, Engine};
+use loresmith_ui as theme;
 use std::collections::HashSet;
 use std::collections::hash_map::DefaultHasher;
 use std::hash::{Hash, Hasher};
@@ -14,7 +14,7 @@ struct AdventureEntry {
     path: PathBuf,
 }
 
-struct MellivorexPlayer {
+struct LoresmithPlayer {
     engine: Option<Engine>,
     adventure_path: Option<PathBuf>,
     save_path: Option<PathBuf>,
@@ -38,7 +38,7 @@ struct MellivorexPlayer {
     force_quit: bool,
 }
 
-impl MellivorexPlayer {
+impl LoresmithPlayer {
     fn new(cc: &eframe::CreationContext<'_>, start_path: Option<PathBuf>) -> Self {
         let mut app = Self {
             engine: None,
@@ -122,7 +122,7 @@ impl MellivorexPlayer {
 
     fn open_adventure_dialog(&mut self) {
         if let Some(path) = rfd::FileDialog::new()
-            .add_filter("Mellivorex adventures", &["json"][..])
+            .add_filter("Loresmith adventures", &["json"][..])
             .add_filter("All files", &["*"][..])
             .pick_file()
         {
@@ -132,7 +132,7 @@ impl MellivorexPlayer {
 
     fn load_game_dialog(&mut self) {
         let Some(path) = rfd::FileDialog::new()
-            .add_filter("Mellivorex saves", &["json"][..])
+            .add_filter("Loresmith saves", &["json"][..])
             .add_filter("All files", &["*"][..])
             .pick_file()
         else {
@@ -218,7 +218,7 @@ impl MellivorexPlayer {
                 safe_file_stem(engine.document().title.as_str())
             );
             rfd::FileDialog::new()
-                .add_filter("Mellivorex saves", &["json"][..])
+                .add_filter("Loresmith saves", &["json"][..])
                 .set_file_name(name)
                 .save_file()
         });
@@ -434,7 +434,7 @@ impl MellivorexPlayer {
                         self.show_controls = true;
                         ui.close();
                     }
-                    if ui.button("About Mellivorex Player").clicked() {
+                    if ui.button("About Loresmith Player").clicked() {
                         self.show_about = true;
                         ui.close();
                     }
@@ -446,8 +446,8 @@ impl MellivorexPlayer {
         let caption = self
             .engine
             .as_ref()
-            .map(|engine| format!("Mellivorex Player - {}", engine.document().title.as_str()))
-            .unwrap_or_else(|| "Mellivorex Player - Adventure Library".to_string());
+            .map(|engine| format!("Loresmith Player - {}", engine.document().title.as_str()))
+            .unwrap_or_else(|| "Loresmith Player - Adventure Library".to_string());
         let maximized = ctx.input(|input| input.viewport().maximized.unwrap_or(false));
         let Some(action) = theme::caption_bar(ui, &caption, maximized) else {
             return;
@@ -527,7 +527,7 @@ impl MellivorexPlayer {
             ui.vertical(|ui| {
                 ui.add_space(7.0);
                 ui.label(
-                    egui::RichText::new("Mellivorex")
+                    egui::RichText::new("Loresmith")
                         .size(25.0)
                         .strong()
                         .color(theme::accent()),
@@ -604,7 +604,7 @@ impl MellivorexPlayer {
                             ui.add_space(4.0);
                             ui.label(
                                 egui::RichText::new(
-                                    "A focused, standalone player for Mellivorex adventures. No editor, no clutter — just the story, your character, and the choices ahead.",
+                                    "A focused, standalone player for Loresmith adventures. No editor, no clutter — just the story, your character, and the choices ahead.",
                                 )
                                 .size(13.0)
                                 .color(theme::muted()),
@@ -705,11 +705,11 @@ impl MellivorexPlayer {
                     theme::card(
                         ui,
                         "No adventures found",
-                        Some("Open any Mellivorex JSON adventure"),
+                        Some("Open any Loresmith JSON adventure"),
                         |ui| {
                             ui.label(
                                 egui::RichText::new(
-                                    "Use Open Adventure to choose an adventure file. You can also run the player with a path: mellivorex_player my_adventure.json",
+                                    "Use Open Adventure to choose an adventure file. You can also run the player with a path: loresmith_player my_adventure.json",
                                 )
                                 .size(12.0)
                                 .color(theme::muted()),
@@ -1098,7 +1098,7 @@ impl MellivorexPlayer {
                 });
         }
         if self.pending_quit {
-            egui::Window::new("Quit Mellivorex Player?")
+            egui::Window::new("Quit Loresmith Player?")
                 .collapsible(false)
                 .resizable(false)
                 .anchor(egui::Align2::CENTER_CENTER, [0.0, 0.0])
@@ -1118,13 +1118,13 @@ impl MellivorexPlayer {
         }
         if self.show_about {
             let mut open = self.show_about;
-            egui::Window::new("About Mellivorex Player")
+            egui::Window::new("About Loresmith Player")
                 .open(&mut open)
                 .collapsible(false)
                 .resizable(false)
                 .show(ctx, |ui| {
                     ui.label(
-                        egui::RichText::new("Mellivorex Player")
+                        egui::RichText::new("Loresmith Player")
                             .size(if theme::is_windows_2000() {
                                 12.0
                             } else {
@@ -1136,11 +1136,11 @@ impl MellivorexPlayer {
                     ui.label(format!("Version {}", env!("CARGO_PKG_VERSION")));
                     ui.add_space(8.0);
                     ui.label(
-                        "A standalone game player for Mellivorex adventures, built with egui and the Mellivorex engine.",
+                        "A standalone game player for Loresmith adventures, built with egui and the Loresmith engine.",
                     );
                     ui.add_space(6.0);
                     ui.label(
-                        egui::RichText::new("Part of the Mellivorex suite: Engine · Studio · Player · Console · Workbench")
+                        egui::RichText::new("Part of the Loresmith suite: Engine · Studio · Player · Console · Workbench")
                             .size(11.0)
                             .color(theme::muted()),
                     );
@@ -1184,7 +1184,7 @@ impl MellivorexPlayer {
                         .auto_shrink([false, false])
                         .max_height(420.0)
                         .show(ui, |ui| {
-                            let mut help = mellivorex_rs::commands::help_text();
+                            let mut help = loresmith_rs::commands::help_text();
                             ui.add(
                                 egui::TextEdit::multiline(&mut help)
                                     .font(egui::TextStyle::Monospace)
@@ -1260,7 +1260,7 @@ impl MellivorexPlayer {
     }
 }
 
-impl eframe::App for MellivorexPlayer {
+impl eframe::App for LoresmithPlayer {
     fn save(&mut self, storage: &mut dyn eframe::Storage) {
         storage.set_string("theme", self.theme_mode.key().to_string());
         storage.set_string(
@@ -1342,24 +1342,24 @@ impl eframe::App for MellivorexPlayer {
 }
 
 fn autosave_dir() -> PathBuf {
-    if let Ok(dir) = std::env::var("MELLIVOREX_STATE_DIR") {
+    if let Ok(dir) = std::env::var("LORESMITH_STATE_DIR") {
         return PathBuf::from(dir);
     }
     #[cfg(target_os = "windows")]
     if let Ok(appdata) = std::env::var("APPDATA") {
-        return PathBuf::from(appdata).join("Mellivorex");
+        return PathBuf::from(appdata).join("Loresmith");
     }
     #[cfg(target_os = "macos")]
     if let Ok(home) = std::env::var("HOME") {
-        return PathBuf::from(home).join("Library/Application Support/Mellivorex");
+        return PathBuf::from(home).join("Library/Application Support/Loresmith");
     }
     if let Ok(state) = std::env::var("XDG_STATE_HOME") {
-        return PathBuf::from(state).join("mellivorex");
+        return PathBuf::from(state).join("loresmith");
     }
     if let Ok(home) = std::env::var("HOME") {
-        return PathBuf::from(home).join(".local/state/mellivorex");
+        return PathBuf::from(home).join(".local/state/loresmith");
     }
-    std::env::temp_dir().join("mellivorex")
+    std::env::temp_dir().join("loresmith")
 }
 
 fn autosave_path_for(engine: &Engine, source: Option<&Path>) -> PathBuf {
@@ -1414,7 +1414,7 @@ fn discover_adventures() -> Vec<AdventureEntry> {
         for ancestor in directory.ancestors().take(5) {
             roots.push(ancestor.join("examples/adventures"));
             roots.push(ancestor.join("adventures"));
-            roots.push(ancestor.join("share/mellivorex/adventures"));
+            roots.push(ancestor.join("share/loresmith/adventures"));
         }
     }
 
@@ -1505,8 +1505,8 @@ fn parse_args() -> Option<PathBuf> {
     while let Some(arg) = args.next() {
         match arg.as_str() {
             "-h" | "--help" => {
-                println!("Mellivorex Player");
-                println!("Usage: mellivorex_player [adventure.json]");
+                println!("Loresmith Player");
+                println!("Usage: loresmith_player [adventure.json]");
                 println!();
                 println!("  -a, --adventure <path>  Adventure to open");
                 println!("  -h, --help              Show this help");
@@ -1515,7 +1515,7 @@ fn parse_args() -> Option<PathBuf> {
             }
             "-V" | "--version" => {
                 println!(
-                    "Mellivorex Player {} (mellivorex_player)",
+                    "Loresmith Player {} (loresmith_player)",
                     env!("CARGO_PKG_VERSION")
                 );
                 std::process::exit(0);
@@ -1546,8 +1546,8 @@ fn main() -> eframe::Result<()> {
         ..Default::default()
     };
     eframe::run_native(
-        "Mellivorex Player",
+        "Loresmith Player",
         options,
-        Box::new(move |cc| Ok(Box::new(MellivorexPlayer::new(cc, start_path.clone())))),
+        Box::new(move |cc| Ok(Box::new(LoresmithPlayer::new(cc, start_path.clone())))),
     )
 }

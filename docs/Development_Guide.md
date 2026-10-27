@@ -1,8 +1,8 @@
-# Mellivorex Development Guide
+# Loresmith Development Guide
 
-## Contributing to Mellivorex
+## Contributing to Loresmith
 
-Welcome to the Mellivorex development community! This guide will help you get started with contributing to the project, whether you're fixing bugs, adding features, or creating documentation.
+Welcome to the Loresmith development community! This guide will help you get started with contributing to the project, whether you're fixing bugs, adding features, or creating documentation.
 
 ## Table of Contents
 
@@ -31,11 +31,11 @@ Before contributing, ensure you have:
 ```bash
 # Fork the repository on GitHub
 # Then clone your fork
-git clone https://github.com/YOUR_USERNAME/Mellivorex.git
-cd Mellivorex
+git clone https://github.com/YOUR_USERNAME/Loresmith.git
+cd Loresmith
 
 # Add upstream remote
-git remote add upstream https://github.com/James-HoneyBadger/Mellivorex.git
+git remote add upstream https://github.com/James-HoneyBadger/Loresmith.git
 
 # Create a development branch
 git checkout -b feature/your-feature-name
@@ -54,8 +54,8 @@ cargo build
 cargo test
 
 # Verify everything works
-cargo run --bin mellivorex_player
-cargo run --bin mellivorex_console
+cargo run --bin loresmith_player
+cargo run --bin loresmith_console
 ```
 
 ## Development Environment
@@ -89,7 +89,7 @@ cargo run --bin mellivorex_console
 
 ```bash
 # Start development server with auto-reload
-cargo watch -x 'run --bin mellivorex_console'
+cargo watch -x 'run --bin loresmith_console'
 
 # In another terminal, run tests on changes
 cargo watch -x test
@@ -191,7 +191,7 @@ pub fn process_command(command: &str) -> Result<(), GameError> {
 
 ## Project Structure
 
-### Core Library (`mellivorex_rs`)
+### Core Library (`loresmith_rs`)
 
 ```
 src/
@@ -213,23 +213,23 @@ src/
 ### Applications
 
 ```
-mellivorex_player/         # Standalone graphical player
+loresmith_player/         # Standalone graphical player
 ├── src/main.rs
 └── Cargo.toml
 
-mellivorex_studio/      # Graphical editor (Studio)
+loresmith_studio/         # Graphical editor (Studio)
 ├── src/main.rs
 └── Cargo.toml
 
-mellivorex_console/       # CLI player (Console)
+loresmith_console/        # CLI player (Console)
 ├── src/main.rs
 └── Cargo.toml
 
-mellivorex_workbench/      # Terminal editor (Workbench)
+loresmith_workbench/      # Terminal editor (Workbench)
 ├── src/main.rs
 └── Cargo.toml
 
-mellivorex_ui/           # Shared egui theme and widgets
+loresmith_ui/             # Shared egui theme and widgets
 ├── src/lib.rs
 └── Cargo.toml
 ```
@@ -250,7 +250,7 @@ Test document parsing, validation, and runtime helpers:
 ```rust
 #[cfg(test)]
 mod tests {
-    use mellivorex_rs::AdventureDocument;
+    use loresmith_rs::AdventureDocument;
 
     #[test]
     fn legacy_string_schema_is_normalised() {
@@ -285,7 +285,7 @@ mod tests {
 
 ### Integration Tests
 
-The repository has real integration tests in `mellivorex_rs/tests/`:
+The repository has real integration tests in `loresmith_rs/tests/`:
 
 - `bundled.rs` loads, validates, and starts every adventure in `examples/adventures/`.
 - `features.rs` covers quest matching, talk objectives, locks, light, shops, victory, and XP.
@@ -293,7 +293,7 @@ The repository has real integration tests in `mellivorex_rs/tests/`:
 Add a new end-to-end test with the high-level engine:
 
 ```rust
-use mellivorex_rs::Engine;
+use loresmith_rs::Engine;
 
 #[test]
 fn player_can_walk_and_check_status() {
@@ -460,7 +460,7 @@ impl ThreadSafeGameState {
 The primary extension point is the `System` trait. To add custom game logic:
 
 ```rust
-use mellivorex_rs::{System, AdventureGame, GameEvent};
+use loresmith_rs::{System, AdventureGame, GameEvent};
 
 pub struct MySystem;
 
@@ -575,6 +575,6 @@ Contributors are recognized through:
 
 ---
 
-**Thank you for contributing to Mellivorex!** Your efforts help make text-based adventures more accessible and enjoyable for everyone. Whether you're fixing a small bug or implementing a major feature, every contribution matters.
+**Thank you for contributing to Loresmith!** Your efforts help make text-based adventures more accessible and enjoyable for everyone. Whether you're fixing a small bug or implementing a major feature, every contribution matters.
 
 For questions or help getting started, don't hesitate to reach out through GitHub Issues or Discussions.

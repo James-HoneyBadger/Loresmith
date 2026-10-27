@@ -1,6 +1,6 @@
-# Mellivorex Game Design Tips
+# Loresmith Game Design Tips
 
-**Audience:** Adventure designers creating `.json` files for the Mellivorex engine.
+**Audience:** Adventure designers creating `.json` files for the Loresmith engine.
 
 This guide covers the craft of making text adventures people actually want to play: how to write memorable rooms, balance combat, pace a story, and avoid common pitfalls.
 
@@ -240,7 +240,7 @@ Place one mid-tier consumable (value 4–6) per 3–4 combat rooms. Place a high
 
 ## NPC Design
 
-In Mellivorex, NPCs are monsters with `friendliness: "friendly"` or `"neutral"`. They cannot be attacked if friendly.
+In Loresmith, NPCs are monsters with `friendliness: "friendly"` or `"neutral"`. They cannot be attacked if friendly.
 
 ### Friendly NPC tips
 
@@ -307,7 +307,7 @@ python3 -m json.tool my_adventure.json > /dev/null && echo "JSON valid" || echo 
 
 ### "My adventure just says Unknown command"
 
-Players typed something you didn't expect. Mellivorex handles a fixed set of verbs — if you want custom interactions, use the quest `talk_to_npc` objective or implement a custom system in Rust.
+Players typed something you didn't expect. Loresmith handles a fixed set of verbs — if you want custom interactions, use the quest `talk_to_npc` objective or implement a custom system in Rust.
 
 ### "Monsters are too hard / too easy"
 
@@ -455,7 +455,7 @@ Copy this file and customise it to create a five-room adventure with one weapon,
 **Test your adventure:**
 
 ```bash
-cargo run --bin mellivorex_console -- my_first_adventure.json
+cargo run --bin loresmith_console -- my_first_adventure.json
 ```
 
 Good luck, and happy designing!

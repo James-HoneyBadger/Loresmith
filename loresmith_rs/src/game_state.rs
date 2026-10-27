@@ -1401,7 +1401,7 @@ mod tests {
 
     fn write_temp_adventure(json: &str) -> PathBuf {
         let file_name = format!(
-            "mellivorex_test_{}.json",
+            "loresmith_test_{}.json",
             SystemTime::now()
                 .duration_since(UNIX_EPOCH)
                 .expect("time should be valid")

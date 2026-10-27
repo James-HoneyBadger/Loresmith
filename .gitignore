@@ -13,11 +13,11 @@ target/
 Thumbs.db
 
 # Release binaries and archives
-release/mellivorex_player
-release/mellivorex_console
-release/mellivorex_workbench
-release/mellivorex_studio
-release/Mellivorex-*/
+release/loresmith_player
+release/loresmith_console
+release/loresmith_workbench
+release/loresmith_studio
+release/Loresmith-*/
 *.tar.gz
 *.zip
 

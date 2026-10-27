@@ -1,6 +1,6 @@
 # Adventure Schema (v2)
 
-Mellivorex reads two historical formats and writes a single canonical one:
+Loresmith reads two historical formats and writes a single canonical one:
 
 - **Canonical integer-ID schema** (`schema_version: 2`) — documented here.
 - **Legacy integer-ID schema** (4.0.x) — still readable; missing fields receive defaults.

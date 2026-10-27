@@ -1,5 +1,5 @@
 #!/usr/bin/env bash
-# Mellivorex Player — standalone graphical game player
+# Loresmith Player — standalone graphical game player
 # Usage: ./Play.sh [adventure_file.json]
 
 set -e
@@ -7,4 +7,4 @@ set -e
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 cd "$SCRIPT_DIR"
 
-cargo run --bin mellivorex_player -- "$@"
+cargo run --bin loresmith_player -- "$@"

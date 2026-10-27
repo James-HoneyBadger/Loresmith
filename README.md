@@ -1,16 +1,16 @@
-# Mellivorex
+# Loresmith
 
 [![Rust](https://img.shields.io/badge/Rust-1.95%2B-orange)](https://www.rust-lang.org/)
 [![License](https://img.shields.io/badge/License-MIT-blue.svg)](LICENSE)
-[![Version](https://img.shields.io/badge/Version-5.0.0-green.svg)]()
+[![Version](https://img.shields.io/badge/Version-6.0.0-green.svg)]()
 
 > A text-based adventure game engine and development suite written in Rust. Create, edit, and play interactive fiction adventures with a JSON-based format.
 
-**Mellivorex** is the suite name for this project. It is made of separate applications built on one engine: **Studio** for authoring, **Player** for playing, **Console** for terminal play, and **Workbench** for terminal authoring. See [The Mellivorex Suite](docs/Suite.md) for the architecture and naming.
+**Loresmith** is the suite name for this project. It is made of separate applications built on one engine: **Studio** for authoring, **Player** for playing, **Console** for terminal play, and **Workbench** for terminal authoring. See [The Loresmith Suite](docs/Suite.md) for the architecture and naming.
 
 ## Features
 
-### Game Engine (`mellivorex_rs`)
+### Game Engine (`loresmith_rs`)
 - **Room navigation** with compass directions and named exits
 - **Item system** — pick up, drop, equip weapons & armor, consume food/potions, examine
 - **Turn-based combat** — attack, flee, XP & level-up, equipment bonuses
@@ -28,10 +28,10 @@
 ### Applications
 | Binary | Product | Description |
 |--------|---------|-------------|
-| `mellivorex_player` | **Mellivorex Player** | Standalone graphical game player — no editor UI |
-| `mellivorex_studio` | **Mellivorex Studio** | Graphical adventure editor with a Play test tab |
-| `mellivorex_console` | **Mellivorex Console** | CLI game player (REPL) |
-| `mellivorex_workbench` | **Mellivorex Workbench** | Terminal UI adventure editor (ratatui) |
+| `loresmith_player` | **Loresmith Player** | Standalone graphical game player — no editor UI |
+| `loresmith_studio` | **Loresmith Studio** | Graphical adventure editor with a Play test tab |
+| `loresmith_console` | **Loresmith Console** | CLI game player (REPL) |
+| `loresmith_workbench` | **Loresmith Workbench** | Terminal UI adventure editor (ratatui) |
 
 Studio and Player share three themes from **View → Theme**: Dark, Light, and **Windows 2000**. The Windows 2000 theme switches to classic desktop chrome — a gradient caption bar, menu highlights, recessed toolbar, beveled panels, and a sunken status bar — and persists between sessions.
 
@@ -42,16 +42,16 @@ Studio and Player share three themes from **View → Theme**: Dark, Light, and *
 cargo build --release
 
 # Standalone graphical player
-./target/release/mellivorex_player examples/adventures/shattered_realms_demo.json
+./target/release/loresmith_player examples/adventures/shattered_realms_demo.json
 # or: ./Play.sh examples/adventures/shattered_realms_demo.json
 
 # Graphical editor
-./target/release/mellivorex_studio
+./target/release/loresmith_studio
 # or: ./Studio.sh
 
 # Terminal player and editor
-./target/release/mellivorex_console examples/adventures/shattered_realms_demo.json
-./target/release/mellivorex_workbench
+./target/release/loresmith_console examples/adventures/shattered_realms_demo.json
+./target/release/loresmith_workbench
 
 # Suite launcher
 ./Suite.sh player      # also: studio, workbench, console
@@ -98,8 +98,8 @@ quit / q / exit             Quit (CLI player only)
 ## Project Structure
 
 ```
-Mellivorex/
-├── mellivorex_rs/           # Core game engine (Rust library)
+Loresmith/
+├── loresmith_rs/        # Core game engine (Rust library)
 │   └── src/
 │       ├── lib.rs          # Public API re-exports
 │       ├── engine.rs       # High-level Engine wrapper
@@ -113,12 +113,12 @@ Mellivorex/
 │           ├── combat.rs       # Attack, flee, XP, loot, endings
 │           ├── quests.rs       # Quest tracking, stages, rewards
 │           └── shops.rs        # Shops, buying, selling
-├── mellivorex_player/         # Standalone graphical player (egui/eframe)
-├── mellivorex_studio/      # Studio — graphical editor (egui/eframe)
-├── mellivorex_console/       # Console — CLI game player
-├── mellivorex_workbench/      # Workbench — terminal UI editor
-├── mellivorex_ui/           # Shared egui theme and widgets
-├── docs/                   # Documentation
+├── loresmith_player/    # Standalone graphical player (egui/eframe)
+├── loresmith_studio/    # Studio — graphical editor (egui/eframe)
+├── loresmith_console/   # Console — CLI game player
+├── loresmith_workbench/ # Workbench — terminal UI editor
+├── loresmith_ui/        # Shared egui theme and widgets
+├── docs/                # Documentation
 └── examples/
     └── adventures/         # Bundled demos and showcase adventures
 ```
@@ -160,7 +160,7 @@ The workspace also includes larger adventure showcases for demonstrations and te
 
 | Document | Description |
 |----------|-------------|
-| [Suite Overview](docs/Suite.md) | Applications, architecture, and Mellivorex naming |
+| [Suite Overview](docs/Suite.md) | Applications, architecture, and Loresmith naming |
 | [User Manual](docs/User_Manual.md) | Gameplay guide |
 | [Game Designer Manual](docs/Game_Designer_Manual.md) | Creating adventures |
 | [Technical Reference](docs/Technical_Reference.md) | Architecture & systems |

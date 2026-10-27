@@ -1,6 +1,6 @@
 # Examples
 
-Mellivorex keeps its bundled playable content in the adventures folder. All files load through the canonical document model and are covered by integration tests.
+Loresmith keeps its bundled playable content in the adventures folder. All files load through the canonical document model and are covered by integration tests.
 
 ## Included content
 
@@ -12,8 +12,8 @@ Mellivorex keeps its bundled playable content in the adventures folder. All file
 
 Run any of them with the standalone player:
 
-cargo run --bin mellivorex_player -- examples/adventures/<file>.json
+cargo run --bin loresmith_player -- examples/adventures/<file>.json
 
 Or in the terminal:
 
-cargo run --bin mellivorex_console -- examples/adventures/<file>.json
+cargo run --bin loresmith_console -- examples/adventures/<file>.json

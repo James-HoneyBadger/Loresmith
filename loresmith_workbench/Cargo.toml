@@ -1,16 +1,16 @@
 [package]
-name = "mellivorex_workbench"
+name = "loresmith_workbench"
 version.workspace = true
 edition.workspace = true
 rust-version.workspace = true
 license.workspace = true
 authors.workspace = true
 repository.workspace = true
-description = "Mellivorex Workbench — terminal adventure editor"
+description = "Loresmith Workbench — terminal adventure editor"
 
 [dependencies]
 anyhow = "1"
 crossterm = "0.29"
 ratatui = "0.30"
 serde_json.workspace = true
-mellivorex_rs = { path = "../mellivorex_rs", version = "5.0.0" }
+loresmith_rs = { path = "../loresmith_rs", version = "6.0.0" }

@@ -2175,6 +2175,65 @@ source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "f9f8bd3e56ce4dfc153cf470fffbfa98c7620958b312ca5c3a4b8d5181fd13c6"
 
 [[package]]
+name = "loresmith_console"
+version = "6.0.0"
+dependencies = [
+ "loresmith_rs",
+]
+
+[[package]]
+name = "loresmith_player"
+version = "6.0.0"
+dependencies = [
+ "eframe",
+ "egui",
+ "loresmith_rs",
+ "loresmith_ui",
+ "rfd",
+]
+
+[[package]]
+name = "loresmith_rs"
+version = "6.0.0"
+dependencies = [
+ "chrono",
+ "rand 0.9.4",
+ "serde",
+ "serde_json",
+]
+
+[[package]]
+name = "loresmith_studio"
+version = "6.0.0"
+dependencies = [
+ "eframe",
+ "egui",
+ "loresmith_rs",
+ "loresmith_ui",
+ "rfd",
+ "serde",
+ "serde_json",
+]
+
+[[package]]
+name = "loresmith_ui"
+version = "6.0.0"
+dependencies = [
+ "egui",
+]
+
+[[package]]
+name = "loresmith_workbench"
+version = "6.0.0"
+dependencies = [
+ "anyhow",
+ "crossterm",
+ "loresmith_rs",
+ "ratatui",
+ "serde_json",
+]
+
+[[package]]
 name = "lru"
 version = "0.16.3"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -2191,65 +2250,6 @@ checksum = "c0aeb26bf5e836cc1c341c8106051b573f1766dfa05aa87f0b98be5e51b02303"
 dependencies = [
  "nix",
  "winapi",
-]
-
-[[package]]
-name = "mellivorex_console"
-version = "5.0.0"
-dependencies = [
- "mellivorex_rs",
-]
-
-[[package]]
-name = "mellivorex_player"
-version = "5.0.0"
-dependencies = [
- "eframe",
- "egui",
- "mellivorex_rs",
- "mellivorex_ui",
- "rfd",
-]
-
-[[package]]
-name = "mellivorex_rs"
-version = "5.0.0"
-dependencies = [
- "chrono",
- "rand 0.9.4",
- "serde",
- "serde_json",
-]
-
-[[package]]
-name = "mellivorex_studio"
-version = "5.0.0"
-dependencies = [
- "eframe",
- "egui",
- "mellivorex_rs",
- "mellivorex_ui",
- "rfd",
- "serde",
- "serde_json",
-]
-
-[[package]]
-name = "mellivorex_ui"
-version = "5.0.0"
-dependencies = [
- "egui",
-]
-
-[[package]]
-name = "mellivorex_workbench"
-version = "5.0.0"
-dependencies = [
- "anyhow",
- "crossterm",
- "mellivorex_rs",
- "ratatui",
- "serde_json",
 ]
 
 [[package]]

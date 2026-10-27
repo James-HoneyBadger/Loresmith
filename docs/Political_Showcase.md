@@ -26,4 +26,4 @@ The Iron Assembly is a showcase centered on:
 
 ## Quick start
 
-cargo run --bin mellivorex_console -- examples/adventures/iron_assembly_showcase.json
+cargo run --bin loresmith_console -- examples/adventures/iron_assembly_showcase.json

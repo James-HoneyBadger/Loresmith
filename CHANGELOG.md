@@ -1,11 +1,19 @@
-# Saga Foundry Changelog
+# Loresmith Changelog
 
-All notable changes to Saga Foundry will be documented in this file.
+All notable changes to Loresmith will be documented in this file.
 
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
-## [Unreleased]
+## [6.0.0] - 2026-10-27
+
+### Changed
+- Renamed the project from Mellivorex to **Loresmith** to avoid confusion with the unrelated Mellivora OS; crates, binaries, launch scripts, release archives, window titles, banners, and docs use the new name
+- Crate and binary identifiers: `mellivorex_rs` → `loresmith_rs`, `mellivorex_ui` → `loresmith_ui`, `mellivorex_studio` → `loresmith_studio`, `mellivorex_workbench` → `loresmith_workbench`, `mellivorex_player` → `loresmith_player`, `mellivorex_console` → `loresmith_console`
+- Player state lives in `LORESMITH_STATE_DIR`, `~/.local/state/loresmith`, `%APPDATA%\Loresmith`, or `~/Library/Application Support/Loresmith`
+- Release archives are named `Loresmith-v<version>-<target>`
+
+Adventure files and portable save files are unchanged; only the application identifiers moved.
 
 ## [5.0.0] - 2026-10-26
 

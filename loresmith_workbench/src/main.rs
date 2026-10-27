@@ -13,7 +13,7 @@ use ratatui::style::{Modifier, Style};
 use ratatui::text::{Line, Span, Text};
 use ratatui::widgets::{Block, Borders, List, ListItem, Paragraph, Wrap};
 
-use mellivorex_rs::{
+use loresmith_rs::{
     AdventureDocument, ItemType, MonsterStatus, ObjectiveDef, ObjectiveKind, QuestDef,
     QuestRewardsDef, RoomDef, StageDef, StructuredObjective,
 };
@@ -79,10 +79,10 @@ fn starter_document() -> AdventureDocument {
 }
 
 fn print_help() {
-    println!("Mellivorex Workbench");
+    println!("Loresmith Workbench");
     println!("Usage:");
-    println!("  mellivorex_workbench --file <path>");
-    println!("  mellivorex_workbench --new <path> [--force]");
+    println!("  loresmith_workbench --file <path>");
+    println!("  loresmith_workbench --new <path> [--force]");
     println!();
     println!("Keys:");
     println!("  Up/Down   select room");
@@ -492,7 +492,7 @@ impl App {
                 };
                 room.exits.insert(
                     direction.to_lowercase(),
-                    mellivorex_rs::ExitDef::Plain(destination),
+                    loresmith_rs::ExitDef::Plain(destination),
                 );
                 self.dirty = true;
                 self.status = format!("Set exit '{direction}' -> {destination}");
@@ -556,12 +556,12 @@ impl App {
                 }
                 let description = words.iter().skip(4).cloned().collect::<Vec<_>>().join(" ");
                 let room_id = self.selected_room().map(|room| room.id).unwrap_or(0);
-                self.adventure.items.push(mellivorex_rs::ItemDef {
+                self.adventure.items.push(loresmith_rs::ItemDef {
                     id,
                     name: name.clone(),
                     description,
                     location: room_id,
-                    ..mellivorex_rs::ItemDef::default()
+                    ..loresmith_rs::ItemDef::default()
                 });
                 if let Some(room) = self.selected_room_mut()
                     && !room.items.contains(&id)
@@ -693,11 +693,11 @@ impl App {
                     self.status = format!("monster id already exists: {id}");
                     return;
                 }
-                self.adventure.monsters.push(mellivorex_rs::MonsterDef {
+                self.adventure.monsters.push(loresmith_rs::MonsterDef {
                     id,
                     name: name.clone(),
                     room_id,
-                    ..mellivorex_rs::MonsterDef::default()
+                    ..loresmith_rs::MonsterDef::default()
                 });
                 self.dirty = true;
                 self.status = format!("Added monster '{name}'");
@@ -870,12 +870,12 @@ impl App {
                     self.status = "usage: shop add <id> <room_id> <name>".to_string();
                     return;
                 };
-                self.adventure.shops.push(mellivorex_rs::ShopDef {
+                self.adventure.shops.push(loresmith_rs::ShopDef {
                     id,
                     name: name.clone(),
                     room_id,
                     gold: 200,
-                    ..mellivorex_rs::ShopDef::default()
+                    ..loresmith_rs::ShopDef::default()
                 });
                 self.dirty = true;
                 self.status = format!("Added shop '{name}'");
@@ -908,10 +908,10 @@ impl App {
                 if let Some(stock) = shop.stock.iter_mut().find(|stock| stock.item_id == item_id) {
                     stock.quantity += quantity;
                 } else {
-                    shop.stock.push(mellivorex_rs::ShopStockDef {
+                    shop.stock.push(loresmith_rs::ShopStockDef {
                         item_id,
                         quantity,
-                        ..mellivorex_rs::ShopStockDef::default()
+                        ..loresmith_rs::ShopStockDef::default()
                     });
                 }
                 self.dirty = true;

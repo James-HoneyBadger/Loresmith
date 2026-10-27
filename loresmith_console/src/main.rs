@@ -1,6 +1,6 @@
 use std::io::{self, Write};
 
-use mellivorex_rs::Engine;
+use loresmith_rs::Engine;
 
 const DEFAULT_ADVENTURE: &str = "examples/adventures/shattered_realms_demo.json";
 
@@ -15,7 +15,7 @@ fn main() {
         }
     };
 
-    println!("Mellivorex Console");
+    println!("Loresmith Console");
     println!("Type 'help' for commands. Type 'quit' to exit.\n");
 
     // Print intro/banner text from adventure file, then room description
@@ -91,7 +91,7 @@ fn parse_args(mut args: impl Iterator<Item = String>) -> String {
             }
             "--version" | "-V" => {
                 println!(
-                    "Mellivorex Console {} (mellivorex_console)",
+                    "Loresmith Console {} (loresmith_console)",
                     env!("CARGO_PKG_VERSION")
                 );
                 std::process::exit(0);
@@ -105,7 +105,7 @@ fn parse_args(mut args: impl Iterator<Item = String>) -> String {
                 }
             }
             other if !other.starts_with('-') => {
-                // Support positional argument: mellivorex_console my_adventure.json
+                // Support positional argument: loresmith_console my_adventure.json
                 adventure_path = Some(other.to_string());
             }
             unknown => {
@@ -119,10 +119,10 @@ fn parse_args(mut args: impl Iterator<Item = String>) -> String {
 }
 
 fn print_usage_and_exit() -> ! {
-    println!("Mellivorex Console");
+    println!("Loresmith Console");
     println!("Usage:");
-    println!("  mellivorex_console [<adventure.json>]");
-    println!("  mellivorex_console --adventure <path>");
+    println!("  loresmith_console [<adventure.json>]");
+    println!("  loresmith_console --adventure <path>");
     println!();
     println!("Options:");
     println!(

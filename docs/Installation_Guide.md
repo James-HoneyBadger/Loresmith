@@ -1,8 +1,8 @@
-# Mellivorex Installation Guide
+# Loresmith Installation Guide
 
 ## System Requirements
 
-Before installing Mellivorex, ensure your system meets these requirements:
+Before installing Loresmith, ensure your system meets these requirements:
 
 ### Minimum Requirements
 - **Operating System**: Linux, macOS, or Windows 10+
@@ -24,47 +24,47 @@ Before installing Mellivorex, ensure your system meets these requirements:
 
 #### Linux
 ```bash
-# Download the latest Linux release (replace <version> with e.g. 5.0.0)
-curl -L https://github.com/James-HoneyBadger/Mellivorex/releases/download/v<version>/Mellivorex-v<version>-linux-x86_64.tar.gz -o mellivorex.tar.gz
+# Download the latest Linux release (replace <version> with e.g. 6.0.0)
+curl -L https://github.com/James-HoneyBadger/Loresmith/releases/download/v<version>/Loresmith-v<version>-linux-x86_64.tar.gz -o loresmith.tar.gz
 
 # Extract the archive
-tar -xzf mellivorex.tar.gz
+tar -xzf loresmith.tar.gz
 
 # Move to a directory in your PATH (optional)
-sudo mv mellivorex-* /usr/local/bin/
+sudo mv loresmith-* /usr/local/bin/
 
 # Verify installation
-./mellivorex_player examples/adventures/demo_adventure.json
+./loresmith_player examples/adventures/demo_adventure.json
 ```
 
 #### macOS
 ```bash
 # Download the latest macOS release (replace <version> and <arch>)
-curl -L https://github.com/James-HoneyBadger/Mellivorex/releases/download/v<version>/Mellivorex-v<version>-macos-<arch>.tar.gz -o mellivorex.tar.gz
+curl -L https://github.com/James-HoneyBadger/Loresmith/releases/download/v<version>/Loresmith-v<version>-macos-<arch>.tar.gz -o loresmith.tar.gz
 
 # Extract the archive
-tar -xzf mellivorex.tar.gz
+tar -xzf loresmith.tar.gz
 
 # Move to a directory in your PATH (optional)
-sudo mv mellivorex-* /usr/local/bin/
+sudo mv loresmith-* /usr/local/bin/
 
 # Verify installation
-./mellivorex_player examples/adventures/demo_adventure.json
+./loresmith_player examples/adventures/demo_adventure.json
 ```
 
 #### Windows
 ```powershell
 # Download the latest release
-Invoke-WebRequest -Uri "https://github.com/James-HoneyBadger/Mellivorex/releases/download/v<version>/Mellivorex-v<version>-windows-x86_64.zip" -OutFile "mellivorex.zip"
+Invoke-WebRequest -Uri "https://github.com/James-HoneyBadger/Loresmith/releases/download/v<version>/Loresmith-v<version>-windows-x86_64.zip" -OutFile "loresmith.zip"
 
 # Extract the archive
-Expand-Archive -Path "mellivorex.zip" -DestinationPath "C:\Program Files\Mellivorex"
+Expand-Archive -Path "loresmith.zip" -DestinationPath "C:\Program Files\Loresmith"
 
 # Add to PATH (optional)
-# Go to System Properties > Environment Variables > Path > Edit > Add "C:\Program Files\Mellivorex"
+# Go to System Properties > Environment Variables > Path > Edit > Add "C:\Program Files\Loresmith"
 
 # Verify installation
-.\mellivorex_player.exe examples/adventures/demo_adventure.json
+.\loresmith_player.exe examples/adventures/demo_adventure.json
 ```
 
 ### Method 2: Building from Source
@@ -117,18 +117,18 @@ xcode-select --install
 choco install visualstudio2019buildtools
 ```
 
-#### Building Mellivorex
+#### Building Loresmith
 
 ```bash
 # Clone the repository
-git clone https://github.com/James-HoneyBadger/Mellivorex.git
-cd Mellivorex
+git clone https://github.com/James-HoneyBadger/Loresmith.git
+cd Loresmith
 
 # Build all components in release mode
 cargo build --release
 
 # Verify the build
-./target/release/mellivorex_player examples/adventures/demo_adventure.json
+./target/release/loresmith_player examples/adventures/demo_adventure.json
 
 # Optional: Run tests
 cargo test
@@ -138,11 +138,11 @@ cargo test
 
 ```bash
 # Copy binaries to system location (Linux/macOS)
-sudo cp target/release/mellivorex_* /usr/local/bin/
+sudo cp target/release/loresmith_* /usr/local/bin/
 
 # Or create a local bin directory
 mkdir -p ~/bin
-cp target/release/mellivorex_* ~/bin/
+cp target/release/loresmith_* ~/bin/
 export PATH="$HOME/bin:$PATH"
 ```
 
@@ -150,11 +150,11 @@ export PATH="$HOME/bin:$PATH"
 
 #### Cargo (Rust Package Manager)
 ```bash
-# Mellivorex is not published on crates.io. Install the binaries from git:
-cargo install --git https://github.com/James-HoneyBadger/Mellivorex.git --bin mellivorex_player
-cargo install --git https://github.com/James-HoneyBadger/Mellivorex.git --bin mellivorex_console
-cargo install --git https://github.com/James-HoneyBadger/Mellivorex.git --bin mellivorex_workbench
-cargo install --git https://github.com/James-HoneyBadger/Mellivorex.git --bin mellivorex_studio
+# Loresmith is not published on crates.io. Install the binaries from git:
+cargo install --git https://github.com/James-HoneyBadger/Loresmith.git --bin loresmith_player
+cargo install --git https://github.com/James-HoneyBadger/Loresmith.git --bin loresmith_console
+cargo install --git https://github.com/James-HoneyBadger/Loresmith.git --bin loresmith_workbench
+cargo install --git https://github.com/James-HoneyBadger/Loresmith.git --bin loresmith_studio
 ```
 
 #### Snap and Homebrew
@@ -164,56 +164,56 @@ build from source.
 
 ## Post-Installation Setup
 
-Mellivorex does not require a configuration directory or config file. All settings are contained within the adventure JSON files themselves.
+Loresmith does not require a configuration directory or config file. All settings are contained within the adventure JSON files themselves.
 
 ### Adventure Files
 
 Place your adventure JSON files anywhere and pass the path to either player:
 
 ```bash
-cargo run --bin mellivorex_player -- path/to/my_adventure.json
-cargo run --bin mellivorex_console -- path/to/my_adventure.json
+cargo run --bin loresmith_player -- path/to/my_adventure.json
+cargo run --bin loresmith_console -- path/to/my_adventure.json
 ```
 
 Bundled demo adventures are included under examples/adventures, including demo_adventure.json and shattered_realms_demo.json.
 
-## Running Mellivorex
+## Running Loresmith
 
 ### Graphical Player
 
 ```bash
 # Choose from the adventure library
-mellivorex_player
+loresmith_player
 
 # Open a specific adventure
-mellivorex_player path/to/adventure.json
+loresmith_player path/to/adventure.json
 ```
 
 ### Command Line Player
 
 ```bash
 # Play the demo adventure
-mellivorex_console examples/adventures/demo_adventure.json
+loresmith_console examples/adventures/demo_adventure.json
 
 # Load specific adventure
-mellivorex_console path/to/adventure.json
+loresmith_console path/to/adventure.json
 ```
 
 ### Terminal UI Editor
 
 ```bash
 # Start the editor
-mellivorex_workbench
+loresmith_workbench
 
 # Open specific adventure
-mellivorex_workbench path/to/adventure.json
+loresmith_workbench path/to/adventure.json
 ```
 
 ### Graphical Editor (Studio)
 
 ```bash
 # Start the graphical editor
-mellivorex_studio
+loresmith_studio
 ```
 
 ## Troubleshooting Installation
@@ -222,12 +222,12 @@ mellivorex_studio
 
 #### "Command not found" Error
 
-**Problem:** Mellivorex commands are not recognized.
+**Problem:** Loresmith commands are not recognized.
 
 **Solutions:**
 1. Check if binaries are in your PATH:
    ```bash
-   which mellivorex_console
+   which loresmith_console
    ```
 2. Add to PATH manually:
    ```bash
@@ -235,7 +235,7 @@ mellivorex_studio
    ```
 3. Use full paths:
    ```bash
-   /usr/local/bin/mellivorex_console
+   /usr/local/bin/loresmith_console
    ```
 
 #### Permission Denied
@@ -245,12 +245,12 @@ mellivorex_studio
 **Solutions:**
 ```bash
 # Make binaries executable
-chmod +x mellivorex_console
-chmod +x mellivorex_workbench
-chmod +x mellivorex_studio
+chmod +x loresmith_console
+chmod +x loresmith_workbench
+chmod +x loresmith_studio
 
 # Or for all binaries
-chmod +x mellivorex_*
+chmod +x loresmith_*
 ```
 
 #### Build Failures
@@ -283,7 +283,7 @@ chmod +x mellivorex_*
 
 #### GUI Editor Won't Start
 
-**Problem:** `mellivorex_studio` fails to launch.
+**Problem:** `loresmith_studio` fails to launch.
 
 **Solutions:**
 1. Check display server (Linux):
@@ -296,7 +296,7 @@ chmod +x mellivorex_*
    ```
 3. Use terminal editor instead:
    ```bash
-   mellivorex_workbench
+   loresmith_workbench
    ```
 
 ### Dependency Issues
@@ -347,7 +347,7 @@ brew install fontconfig
 2. Use smaller adventures
 3. Monitor with system tools:
    ```bash
-   top -p $(pgrep mellivorex)
+   top -p $(pgrep loresmith)
    ```
 
 ## Advanced Configuration
@@ -380,7 +380,7 @@ For contributors and developers:
 
 ```bash
 # Clone with submodules (if any)
-git clone --recursive https://github.com/James-HoneyBadger/Mellivorex.git
+git clone --recursive https://github.com/James-HoneyBadger/Loresmith.git
 
 # Install development tools
 cargo install cargo-watch cargo-expand cargo-flamegraph
@@ -390,16 +390,16 @@ cp pre-commit.sh .git/hooks/pre-commit
 chmod +x .git/hooks/pre-commit
 
 # Run development server
-cargo watch -x 'run --bin mellivorex_console'
+cargo watch -x 'run --bin loresmith_console'
 ```
 
-## Updating Mellivorex
+## Updating Loresmith
 
 ### Automatic Updates
 
 ```bash
 # Using pre-built binaries
-curl -L https://github.com/James-HoneyBadger/Mellivorex/releases/latest/download/mellivorex-update.sh | bash
+curl -L https://github.com/James-HoneyBadger/Loresmith/releases/latest/download/loresmith-update.sh | bash
 ```
 
 ### Manual Updates
@@ -412,46 +412,46 @@ git pull origin main
 cargo build --release
 
 # Install new binaries
-sudo cp target/release/mellivorex_* /usr/local/bin/
+sudo cp target/release/loresmith_* /usr/local/bin/
 ```
 
 ### Checking for Updates
 
 ```bash
 # Check current version
-mellivorex_console --version
+loresmith_console --version
 
 # Check latest release on GitHub
-curl -s https://api.github.com/repos/James-HoneyBadger/Mellivorex/releases/latest | grep '"tag_name"'
+curl -s https://api.github.com/repos/James-HoneyBadger/Loresmith/releases/latest | grep '"tag_name"'
 ```
 
-## Uninstalling Mellivorex
+## Uninstalling Loresmith
 
 ### Remove Binaries
 
 ```bash
 # Remove from system locations
-sudo rm /usr/local/bin/mellivorex_*
+sudo rm /usr/local/bin/loresmith_*
 
 # Remove from local bin
-rm ~/bin/mellivorex_*
+rm ~/bin/loresmith_*
 ```
 
 ### Remove Configuration and Data
 
 ```bash
 # Remove config directory
-rm -rf ~/.config/mellivorex
+rm -rf ~/.config/loresmith
 
 # Remove save files (optional)
-rm -rf ~/Documents/Mellivorex
+rm -rf ~/Documents/Loresmith
 ```
 
 ### Clean Build Artifacts
 
 ```bash
 # Remove source and build files
-rm -rf Mellivorex/
+rm -rf Loresmith/
 
 # Clean cargo cache (optional)
 cargo cache --autoclean
@@ -466,8 +466,8 @@ cargo cache --autoclean
 - [Development Guide](Development_Guide.md) - Contributing
 
 ### Community Support
-- **GitHub Issues**: [Report bugs](https://github.com/James-HoneyBadger/Mellivorex/issues)
-- **Discussions**: [Community forum](https://github.com/James-HoneyBadger/Mellivorex/discussions)
+- **GitHub Issues**: [Report bugs](https://github.com/James-HoneyBadger/Loresmith/issues)
+- **Discussions**: [Community forum](https://github.com/James-HoneyBadger/Loresmith/discussions)
 - **Discord**: Join our community server (when available)
 
 ### System Information for Bug Reports
@@ -480,13 +480,13 @@ uname -a
 rustc --version
 cargo --version
 
-# Mellivorex version (no --version flag; just run with a demo file)
-mellivorex_console examples/adventures/demo_adventure.json
+# Loresmith version (no --version flag; just run with a demo file)
+loresmith_console examples/adventures/demo_adventure.json
 
 # Error logs
-RUST_LOG=debug mellivorex_console 2>&1 | head -50
+RUST_LOG=debug loresmith_console 2>&1 | head -50
 ```
 
 ---
 
-**Installation complete!** You're now ready to explore the world of Mellivorex. Start with the [User Manual](User_Manual.md) to learn how to play, or dive into the [Game Designer Manual](Game_Designer_Manual.md) to create your own adventures.
+**Installation complete!** You're now ready to explore the world of Loresmith. Start with the [User Manual](User_Manual.md) to learn how to play, or dive into the [Game Designer Manual](Game_Designer_Manual.md) to create your own adventures.
