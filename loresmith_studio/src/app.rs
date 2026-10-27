@@ -2,7 +2,8 @@ use eframe::egui;
 use loresmith_rs::{
     AdventureDocument, AdventureGame, BasicWorldSystem, CombatSystem, InventoryRef,
     InventorySystem, ItemDef, ItemType, MonsterDef, MonsterStatus, ObjectiveDef, ObjectiveKind,
-    QuestDef, QuestRewardsDef, QuestSystem, RoomDef, ShopDef, ShopSystem, StructuredObjective,
+    QuestDef, QuestRewardsDef, QuestSystem, RewardItem, RoomDef, ShopDef, ShopSystem,
+    StructuredObjective,
 };
 use loresmith_ui as theme;
 use std::path::PathBuf;
@@ -1181,6 +1182,23 @@ impl LoresmithStudio {
         self.adventure
             .player_start_inventory
             .retain(|entry| !matches!(entry, InventoryRef::Id(id) if *id == removed.id));
+        for quest in &mut self.adventure.quests {
+            quest
+                .rewards
+                .items
+                .retain(|reward| !matches!(reward, RewardItem::Id(id) if *id == removed.id));
+        }
+        let name_still_used = self
+            .adventure
+            .items
+            .iter()
+            .any(|item| item.name.eq_ignore_ascii_case(&removed.name));
+        if !name_still_used && let Some(ending) = &mut self.adventure.ending {
+            ending
+                .conditions
+                .items
+                .retain(|name| !name.eq_ignore_ascii_case(&removed.name));
+        }
         self.selected_item = if self.adventure.items.is_empty() {
             None
         } else {
@@ -1267,6 +1285,9 @@ impl LoresmithStudio {
         };
         self.mark_modified();
         let removed = self.adventure.quests.remove(idx);
+        if let Some(ending) = &mut self.adventure.ending {
+            ending.conditions.quests.retain(|id| *id != removed.id);
+        }
         self.selected_quest = if self.adventure.quests.is_empty() {
             None
         } else {
@@ -1421,5 +1442,182 @@ impl LoresmithStudio {
         self.adventure
             .to_json_string()
             .unwrap_or_else(|error| format!("JSON serialisation error: {error}"))
+    }
+}
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+
+    fn studio_with(json: &str) -> LoresmithStudio {
+        let adventure = AdventureDocument::from_json_str(json).expect("document should parse");
+        LoresmithStudio {
+            adventure,
+            ..Default::default()
+        }
+    }
+
+    fn reference_document() -> &'static str {
+        r#"{
+            "title": "Refs",
+            "start_room": 1,
+            "rooms": [
+                {"id": 1, "name": "Hall", "description": "A hall", "items": [10]},
+                {"id": 2, "name": "Cell", "description": "A cell"}
+            ],
+            "items": [
+                {"id": 10, "name": "Brass Key", "description": "A key", "location": 1},
+                {"id": 11, "name": "Coin", "description": "A coin", "location": 1}
+            ],
+            "monsters": [
+                {"id": 20, "name": "Guard", "description": "A guard", "room_id": 1,
+                 "weapon_id": 10, "loot": [10]}
+            ],
+            "shops": [
+                {"id": 30, "name": "Stall", "room_id": 1, "gold": 50,
+                 "stock": [{"item_id": 10, "quantity": 1}]}
+            ],
+            "quests": [
+                {"id": 40, "title": "Recover the key", "objectives": ["Find the key"],
+                 "rewards": {"gold": 5, "xp": 5, "items": [10]}}
+            ],
+            "ending": {
+                "victory_text": "Done",
+                "conditions": {"quests": [40], "rooms": [1], "items": ["Brass Key"]}
+            },
+            "player_start_inventory": [10]
+        }"#
+    }
+
+    #[test]
+    fn deleting_an_item_clears_every_reference() {
+        let mut studio = studio_with(reference_document());
+        studio.selected_item = Some(0);
+
+        studio.delete_item();
+
+        let doc = &studio.adventure;
+        assert!(doc.items.iter().all(|item| item.id != 10), "item removed");
+        assert!(doc.rooms.iter().all(|room| !room.items.contains(&10)));
+        assert!(
+            doc.monsters
+                .iter()
+                .all(|monster| monster.weapon_id != Some(10))
+        );
+        assert!(
+            doc.monsters
+                .iter()
+                .all(|monster| !monster.loot.contains(&10))
+        );
+        assert!(
+            doc.shops
+                .iter()
+                .all(|shop| shop.stock.iter().all(|s| s.item_id != 10))
+        );
+        assert!(doc.quests.iter().all(|quest| {
+            quest
+                .rewards
+                .items
+                .iter()
+                .all(|reward| !matches!(reward, RewardItem::Id(10)))
+        }));
+        assert!(
+            doc.player_start_inventory
+                .iter()
+                .all(|entry| { !matches!(entry, InventoryRef::Id(id) if *id == 10) })
+        );
+        let ending = doc.ending.as_ref().expect("ending survives");
+        assert!(
+            ending
+                .conditions
+                .items
+                .iter()
+                .all(|name| name != "Brass Key"),
+            "ending should not require a deleted item"
+        );
+        assert!(doc.report().is_valid(), "{:?}", doc.report().errors);
+    }
+
+    #[test]
+    fn deleting_an_item_keeps_criteria_another_item_still_satisfies() {
+        let mut studio = studio_with(reference_document());
+        studio.adventure.items.push({
+            let mut twin = studio.adventure.items[0].clone();
+            twin.id = 12;
+            twin
+        });
+        studio.selected_item = Some(0);
+
+        studio.delete_item();
+
+        let ending = studio.adventure.ending.as_ref().expect("ending survives");
+        assert_eq!(ending.conditions.items, vec!["Brass Key".to_string()]);
+    }
+
+    #[test]
+    fn deleting_a_quest_clears_ending_conditions() {
+        let mut studio = studio_with(reference_document());
+        studio.selected_quest = Some(0);
+
+        studio.delete_quest();
+
+        assert!(studio.adventure.quests.is_empty());
+        let ending = studio.adventure.ending.as_ref().expect("ending survives");
+        assert!(ending.conditions.quests.is_empty());
+        assert!(studio.adventure.report().is_valid());
+    }
+
+    #[test]
+    fn deleting_a_room_clears_exits_locations_and_start() {
+        let mut studio = studio_with(
+            r#"{
+                "title": "Rooms",
+                "start_room": 2,
+                "rooms": [
+                    {"id": 1, "name": "A", "description": "A", "exits": {"north": 2}},
+                    {"id": 2, "name": "B", "description": "B"}
+                ],
+                "items": [{"id": 5, "name": "Rock", "description": "A rock", "location": 2}],
+                "monsters": [{"id": 6, "name": "Bat", "description": "A bat", "room_id": 2}]
+            }"#,
+        );
+        studio.selected_room = Some(1);
+
+        studio.delete_room();
+
+        let doc = &studio.adventure;
+        assert_eq!(doc.rooms.len(), 1);
+        assert_eq!(doc.start_room, 1, "start_room moves to a surviving room");
+        assert!(doc.rooms.iter().all(|room| room.exits.is_empty()));
+        assert_eq!(doc.items[0].location, 0, "items leave the deleted room");
+        assert_eq!(
+            doc.monsters[0].room_id, 1,
+            "monsters move to a surviving room"
+        );
+        assert!(doc.report().is_valid(), "{:?}", doc.report().errors);
+    }
+
+    #[test]
+    fn deleting_a_monster_clears_item_locations() {
+        let mut studio = studio_with(
+            r#"{
+                "title": "Loot",
+                "start_room": 1,
+                "rooms": [{"id": 1, "name": "A", "description": "A"}],
+                "items": [{"id": 5, "name": "Rock", "description": "A rock", "location": 6}],
+                "monsters": [{"id": 6, "name": "Bat", "description": "A bat", "room_id": 1}]
+            }"#,
+        );
+        studio.selected_monster = Some(0);
+
+        studio.delete_monster();
+
+        assert!(studio.adventure.monsters.is_empty());
+        assert_eq!(studio.adventure.items[0].location, 0);
+        assert!(
+            studio.adventure.report().is_valid(),
+            "{:?}",
+            studio.adventure.report().errors
+        );
     }
 }

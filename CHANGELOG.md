@@ -5,6 +5,13 @@ All notable changes to Loresmith will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [6.0.3] - 2026-10-27
+
+### Fixed
+- Deleting an item in the Studio now also drops it from quest reward lists and from the victory conditions, instead of leaving awards and endings pointing at something that no longer exists
+- Deleting a quest removes it from the ending's required-quest list
+- Unit tests cover the reference cleanup for deleting items, quests, rooms, and monsters, and assert the document still validates afterwards
+
 ## [6.0.2] - 2026-10-27
 
 ### Accessibility
