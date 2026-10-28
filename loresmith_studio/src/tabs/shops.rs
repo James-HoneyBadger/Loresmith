@@ -79,22 +79,22 @@ impl LoresmithStudio {
                         .num_columns(2)
                         .spacing([10.0, 10.0])
                         .show(&mut columns[1], |ui| {
-                            theme::labelled_row(ui, "ID:", |ui| ui.add(egui::DragValue::new(&mut shop.id))).changed();
+                            changed |= theme::labelled_row(ui, "ID:", |ui| ui.add(egui::DragValue::new(&mut shop.id))).changed();
                             ui.end_row();
-                            theme::labelled_row(ui, "Name:", |ui| ui.text_edit_singleline(&mut shop.name)).changed();
+                            changed |= theme::labelled_row(ui, "Name:", |ui| ui.text_edit_singleline(&mut shop.name)).changed();
                             ui.end_row();
-                            theme::labelled_row(ui, "Room ID:", |ui| ui.add(egui::DragValue::new(&mut shop.room_id))).changed();
+                            changed |= theme::labelled_row(ui, "Room ID:", |ui| ui.add(egui::DragValue::new(&mut shop.room_id))).changed();
                             ui.end_row();
-                            theme::labelled_row(ui, "Gold:", |ui| ui.add(egui::DragValue::new(&mut shop.gold))).changed();
+                            changed |= theme::labelled_row(ui, "Gold:", |ui| ui.add(egui::DragValue::new(&mut shop.gold))).changed();
                             ui.end_row();
-                            theme::labelled_row(ui, "Buy multiplier:", |ui| ui.add(
+                            changed |= theme::labelled_row(ui, "Buy multiplier:", |ui| ui.add(
                                     egui::DragValue::new(&mut shop.buy_multiplier)
                                         .speed(0.05)
                                         .range(0.01..=10.0),
                                 ))
                                 .changed();
                             ui.end_row();
-                            theme::labelled_row(ui, "Sell multiplier:", |ui| ui.add(
+                            changed |= theme::labelled_row(ui, "Sell multiplier:", |ui| ui.add(
                                     egui::DragValue::new(&mut shop.sell_multiplier)
                                         .speed(0.05)
                                         .range(0.0..=10.0),

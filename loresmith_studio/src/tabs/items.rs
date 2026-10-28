@@ -87,13 +87,13 @@ impl LoresmithStudio {
                             .num_columns(2)
                             .spacing([10.0, 10.0])
                             .show(&mut columns[1], |ui| {
-                                theme::labelled_row(ui, "ID:", |ui| {
+                                changed |= theme::labelled_row(ui, "ID:", |ui| {
                                     ui.add(egui::DragValue::new(&mut item.id))
                                 })
                                 .changed();
                                 ui.end_row();
 
-                                theme::labelled_row(ui, "Name:", |ui| {
+                                changed |= theme::labelled_row(ui, "Name:", |ui| {
                                     ui.text_edit_singleline(&mut item.name)
                                 })
                                 .changed();
@@ -126,19 +126,19 @@ impl LoresmithStudio {
                                     .labelled_by(combo_label);
                                 ui.end_row();
 
-                                theme::labelled_row(ui, "Value:", |ui| {
+                                changed |= theme::labelled_row(ui, "Value:", |ui| {
                                     ui.add(egui::DragValue::new(&mut item.value))
                                 })
                                 .changed();
                                 ui.end_row();
 
-                                theme::labelled_row(ui, "Weight:", |ui| {
+                                changed |= theme::labelled_row(ui, "Weight:", |ui| {
                                     ui.add(egui::DragValue::new(&mut item.weight))
                                 })
                                 .changed();
                                 ui.end_row();
 
-                                theme::labelled_row(ui, "Location:", |ui| {
+                                changed |= theme::labelled_row(ui, "Location:", |ui| {
                                     ui.add(egui::DragValue::new(&mut item.location))
                                 })
                                 .changed();
@@ -165,10 +165,13 @@ impl LoresmithStudio {
                                 ui.end_row();
 
                                 if item.item_type == ItemType::Container {
-                                    theme::labelled_row(ui, "Container capacity:", |ui| {
-                                        ui.add(egui::DragValue::new(&mut item.container_capacity))
-                                    })
-                                    .changed();
+                                    changed |=
+                                        theme::labelled_row(ui, "Container capacity:", |ui| {
+                                            ui.add(egui::DragValue::new(
+                                                &mut item.container_capacity,
+                                            ))
+                                        })
+                                        .changed();
                                     ui.end_row();
                                 }
 
@@ -180,16 +183,17 @@ impl LoresmithStudio {
                                 ui.end_row();
 
                                 if item.is_weapon {
-                                    theme::labelled_row(ui, "Weapon Type (1-5):", |ui| {
-                                        ui.add(
-                                            egui::DragValue::new(&mut item.weapon_type)
-                                                .range(1..=5),
-                                        )
-                                    })
-                                    .changed();
+                                    changed |=
+                                        theme::labelled_row(ui, "Weapon Type (1-5):", |ui| {
+                                            ui.add(
+                                                egui::DragValue::new(&mut item.weapon_type)
+                                                    .range(1..=5),
+                                            )
+                                        })
+                                        .changed();
                                     ui.end_row();
 
-                                    theme::labelled_row(ui, "Damage Dice:", |ui| {
+                                    changed |= theme::labelled_row(ui, "Damage Dice:", |ui| {
                                         ui.add(
                                             egui::DragValue::new(&mut item.weapon_dice)
                                                 .range(1..=10),
@@ -198,7 +202,7 @@ impl LoresmithStudio {
                                     .changed();
                                     ui.end_row();
 
-                                    theme::labelled_row(ui, "Damage Sides:", |ui| {
+                                    changed |= theme::labelled_row(ui, "Damage Sides:", |ui| {
                                         ui.add(
                                             egui::DragValue::new(&mut item.weapon_sides)
                                                 .range(2..=20),
@@ -216,7 +220,7 @@ impl LoresmithStudio {
                                 ui.end_row();
 
                                 if item.is_armor {
-                                    theme::labelled_row(ui, "Armor Value:", |ui| {
+                                    changed |= theme::labelled_row(ui, "Armor Value:", |ui| {
                                         ui.add(
                                             egui::DragValue::new(&mut item.armor_value)
                                                 .range(0..=20),

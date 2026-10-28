@@ -1,6 +1,6 @@
 # Loresmith API Reference
 
-**Version 6.0.3 · loresmith_rs crate**
+**Version 6.0.4 · loresmith_rs crate**
 
 Complete API documentation for the Loresmith core library. All types are defined in the `loresmith_rs` crate and re-exported from `lib.rs`.
 

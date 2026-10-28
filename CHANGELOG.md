@@ -5,6 +5,12 @@ All notable changes to Loresmith will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [6.0.4] - 2026-10-27
+
+### Fixed
+- Editing a field in the Studio tabs marks the document modified again. The 6.0.1 accessibility rewrite dropped the change flags for 30 fields across Overview, Items, Rooms, Monsters, Quests, and Shops, so the unsaved-changes badge, undo snapshot, and close warning ignored edits to IDs, names, values, and stats
+- A UI test drives the Items `ID` field and asserts the document becomes dirty, so the wiring cannot silently regress
+
 ## [Unreleased]
 
 ### Added

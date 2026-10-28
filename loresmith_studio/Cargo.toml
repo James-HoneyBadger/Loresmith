@@ -21,8 +21,8 @@ eframe = { version = "0.37", default-features = false, features = [
     "persistence",
 ] }
 egui = "0.37"
-loresmith_rs = { path = "../loresmith_rs", version = "6.0.3" }
-loresmith_ui = { path = "../loresmith_ui", version = "6.0.3" }
+loresmith_rs = { path = "../loresmith_rs", version = "6.0.4" }
+loresmith_ui = { path = "../loresmith_ui", version = "6.0.4" }
 rfd = "0.17"
 serde_json.workspace = true
 serde.workspace = true

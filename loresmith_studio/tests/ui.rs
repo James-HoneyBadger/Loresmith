@@ -56,3 +56,26 @@ fn adding_a_room_marks_the_document_modified() {
         "adding a room should mark the document modified"
     );
 }
+
+#[test]
+fn editing_a_field_marks_the_document_modified() {
+    use egui_kittest::kittest::NodeT;
+
+    let mut harness = harness();
+    assert!(harness.state_mut().select_tab("Items"));
+    harness.run();
+    assert!(!harness.state().is_modified(), "starts clean");
+
+    // The item ID field is a DragValue wired to its caption.
+    let field = harness
+        .query_all_by_label("ID:")
+        .find(|node| format!("{:?}", node.accesskit_node().role()) == "SpinButton")
+        .expect("the ID spin button should be labelled");
+    field.set_value_accesskit(42.0);
+    harness.run();
+
+    assert!(
+        harness.state().is_modified(),
+        "editing an item field must mark the document dirty"
+    );
+}
