@@ -70,7 +70,7 @@ jobs:
           Compress-Archive -Path dist/* -DestinationPath "Loresmith-v$version-${{ matrix.target }}.zip"
 
       - name: Upload release asset
-        uses: softprops/action-gh-release@v2
+        uses: softprops/action-gh-release@v3
         with:
           files: |
             Loresmith-v*-${{ matrix.target }}.${{ matrix.archive }}
@@ -79,7 +79,7 @@ jobs:
 
       - name: Upload updater script
         if: matrix.target == 'linux-x86_64'
-        uses: softprops/action-gh-release@v2
+        uses: softprops/action-gh-release@v3
         with:
           files: loresmith-update.sh
         env:
